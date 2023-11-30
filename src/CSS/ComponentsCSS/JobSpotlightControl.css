@@ -1,0 +1,14 @@
+@import url(../main.css);
+.SpotlightAd{
+    height: 600px;
+    border-radius: 10px;
+    border: 2px solid gray;
+}
+.SpotlightBanner{
+    height: 300px !important;
+    width: 100%;
+    border-bottom: 2px solid gray;
+}
+.SpotlightBanner img{
+    height: 70%;
+}

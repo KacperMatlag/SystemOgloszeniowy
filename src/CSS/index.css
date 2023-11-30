@@ -1,0 +1,104 @@
+@import url(../CSS/main.css);
+nav{
+  background: linear-gradient(to right, var(--gradientStart), var(--gradientEnd));
+  display: flex;
+  align-items: center;
+  height: 100px;
+  justify-content: space-around;
+}
+
+.NavbarLinksContainer{
+  width: 600px;
+  display: flex;
+  justify-content: space-between;
+  transition: all ease-in-out .3s;
+}
+nav a{
+  color: white !important;
+  text-decoration: none;
+  font-size: 20px;
+  padding: 8px;
+  transition: all ease-in-out .2s;
+}
+nav a.menuItem:hover{
+  transform: translateY(-10px);
+}
+.Login{
+  border: 3px solid white;
+  border-radius: 10px;
+}
+footer{
+  font-size: 20px;padding-top: 20px;
+}
+footer a,footer p{
+  color: white !important;
+}
+footer div div{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+  
+}
+footer hr{
+  background-color: white;
+  height: 3px !important;
+  width: 80% !important;
+  margin-top: 40px !important;
+  margin-bottom: 40px !important;
+  margin-left: auto;
+  margin-right: auto;
+}
+footer .row section{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 10px;
+}
+
+footer .row section div{
+  width: 60px;
+  aspect-ratio: 1/1;
+  border: 2px solid white;
+  border-radius: 50%;
+}
+footer .row{
+  padding-top: 50px;
+  padding-bottom: 50px;
+}
+footer .row p{
+  margin-top: 10px;
+  text-align: center;
+}
+
+/* animacja menu */
+
+@media only screen and (max-width: 768px){
+  .NavbarLinksContainer{
+    flex-direction: column;
+    z-index: 1;
+    gap: 20px;
+    width: 250px;
+    overflow: hidden;
+    padding: 10px;
+    justify-content: space-around;
+    height: max-content;
+  }
+  .NavbarLinksContainer a{
+    width: 100%;
+    text-align: center;
+  }
+  nav{
+    padding: 10px;
+    height: max-content;
+  }
+  .menu-active{
+    height: 300px;
+  }
+  .menu-disactive{
+    height: 0;
+  }
+  .menu-activator{
+    color: white !important;
+    font-size: 20px;
+  }
+}

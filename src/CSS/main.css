@@ -1,0 +1,14 @@
+*{
+    padding: 0;
+    margin: 0;
+    box-sizing: border-box;
+}
+:root{
+    --blue_1:rgb(0, 169, 224);
+    --gradientStart: #00a9e0;
+    --gradientEnd:#6f6bba;
+}
+a,a:visited{
+    text-decoration: none;
+    color: black;
+}

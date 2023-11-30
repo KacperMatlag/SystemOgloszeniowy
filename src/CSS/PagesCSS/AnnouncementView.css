@@ -1,0 +1,64 @@
+.container-lg{
+    padding: 20px;
+}
+.CompanyInformations img{
+    height: 200px;
+}
+
+.CompanyInformations{
+    height: 400px;
+}
+ul{
+    list-style-type:none;
+    line-height: 50px;
+}
+ul li svg{
+    font-size: 25px;
+}
+ul li{
+    width: 300px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    text-align: center;
+}
+ul li svg{
+    width: 30%;
+}
+ul li :nth-child(2){
+    width: 70%;
+    text-align: left;
+}
+
+.WorkInfo p{
+    border: 1px solid black;
+    padding: 5px;
+    border-radius: 10px;
+    width: 200px;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+hr{
+    max-width: 90%;
+    margin: 0 auto;
+    margin-top: 2em;
+    margin-bottom: 2em;
+}
+
+section p{
+    padding-left: 20px;
+}
+
+iframe{
+    height: 100%;
+    max-width: 100%;
+}
+
+@media only screen and (max-width: 1000px) {
+    .CompanyInformations{
+        flex-direction: column;
+    }
+}

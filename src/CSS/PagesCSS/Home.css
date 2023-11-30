@@ -1,0 +1,94 @@
+@import url(../main.css);
+
+.Banner {
+    height: 650px;
+    background-image: url('https://images.pexels.com/photos/927451/pexels-photo-927451.jpeg?cs=srgb&dl=pexels-andrea-piacquadio-927451.jpg&fm=jpg');
+    background-repeat: no-repeat;
+    background-attachment: fixed;
+    background-position:top;
+    background-size: cover;
+    color: white;
+    gap: 10px;
+    position: relative;
+}
+
+.BannerInformations h2 {
+    font-size: 30px;
+}
+
+.BannerInformations p {
+    font-size: 15px;
+}
+
+.BannerInformations {
+    position: absolute;
+    top: 50%;
+    transform: translate(30%, -50%);
+    width: 500px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: space-around;
+    height: 300px;
+}
+
+.BannerInformations h2 {
+    color: white;
+    text-align: center;
+}
+
+.BannerInformations button {
+    background-color: var(--blue_1);
+    border: none;
+    padding: 15px;
+    border-radius: 10px;
+    font-size: 20px;
+    width: 200px;
+    color: white;
+}
+
+section h2 {
+    margin-bottom: 50px;
+    margin-top: 50px;
+}
+
+.JobsList a {
+    text-decoration: none !important;
+    color: black !important;
+}
+
+.SearchSection {
+    padding: 30px;
+}
+
+form{
+    width: 70%;
+    margin: 0 auto;
+    gap: 10px;
+}
+
+#SearchBarItems{
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.SearchSection .form-select,.SearchSection button,.SearchSection input{
+    width: 30%;
+}
+
+@media only screen and (max-width: 1200px) {
+    .SearchSection form{
+        width: 90%;
+    }
+}
+@media only screen and (max-width: 768px){
+    .SearchSection #SearchBarItems{
+        flex-direction: column !important;
+    }
+    #SearchBarItems *{
+        width: 100%;
+    }
+}
