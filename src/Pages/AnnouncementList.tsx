@@ -13,6 +13,7 @@ import type {
   WorkCategory,
   WorkType,
   WorkingTime,
+  CategoryWithPositions
 } from "../Models/index";
 
 const AnnouncementList = () => {
@@ -21,7 +22,7 @@ const AnnouncementList = () => {
   const queryParams = new URLSearchParams(location.search);
 
   const [loading, Setloading] = useState<boolean>(true);
-  const [jobPosition, SetJobPosition] = useState<any[]>([]);
+  const [jobPosition, SetJobPosition] = useState<CategoryWithPositions[]>([]);
   const [companies, SetCompanies] = useState<Company[]>([]);
   const [categories, SetCategories] = useState<WorkCategory[]>([]);
   const [announcements, SetAnnouncements] = useState<Annoucement[]>([]);

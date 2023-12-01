@@ -17,12 +17,13 @@ import type {
   WorkCategory,
   WorkingTime,
   WorkType,
+  CategoryWithPositions
 } from "../Models/index";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
   const [loading, Setloading] = useState<boolean>(true);
-  const [jobPosition, SetJobPosition] = useState<any[]>([]);
+  const [jobPosition, SetJobPosition] = useState<CategoryWithPositions[]>([]);
   const [companies, SetCompanies] = useState<Company[]>([]);
   const [categories, SetCategories] = useState<WorkCategory[]>([]);
   const [announcements, SetAnnouncements] = useState<Annoucement[]>([]);
@@ -140,7 +141,7 @@ const Home: React.FC = () => {
             />
             <CertainSelect
               name="JobPositionID"
-              options={jobPosition.map((item) => item.JobPosition)}
+              options={jobPosition.map(item=>item.JobPosition)}
               onSelect={SetJobPositionSelect}
               placeholder="Stanowisko"
               clases="form-select"

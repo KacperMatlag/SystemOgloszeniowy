@@ -9,6 +9,7 @@ import Home from "./Pages/Home";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import AnnoucementCreate from "./Pages/AnnoucementCreate";
+import LoginRegister from "./Pages/LoginRegister";
 
 function App() {
   const [menuIsActive, MenuSetActivity] = useState(false);
@@ -39,7 +40,7 @@ function App() {
               <Link to="/" className="menuItem" onClick={MenuChangeState}>
                 Firmy
               </Link>
-              <Link to="/" className="Login" onClick={MenuChangeState}>
+              <Link to="/Logowanie" className="Login" onClick={MenuChangeState}>
                 Zaloguj Się
               </Link>
             </div>
@@ -55,6 +56,7 @@ function App() {
             <Route path="/Ogloszenia" element={<AnnouncementList />} />
             <Route path="/Ogloszenia/:id" element={<AnnouncementView />} />
             <Route path="/Dodaj" element={<AnnoucementCreate />} />
+            <Route path="/Logowanie" element={<LoginRegister />} />
           </Routes>
         </BrowserRouter>
         <footer className="bg-black">

@@ -1,0 +1,21 @@
+.forms-container {
+    height: 100%;
+}
+
+.register-form-wrapper form {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    width: 80%;
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.register-form-wrapper form .form-floating,
+.register-form-wrapper h2 {
+    width: 100%;
+    margin: 0 auto;
+}
+.register-form-wrapper button{
+    font-size: 20px;
+}

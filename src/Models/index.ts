@@ -6,3 +6,6 @@ export type { default as TypeOfContract } from "./TypeOfContract";
 export type { default as WorkingTime } from "./WorkingTime";
 export type { default as WorkType } from "./WorkType";
 export type { default as WorkCategory } from "./WorkCategory";
+export type { default as CategoryWithPositions } from "./CategoryWithPositions";
+export type { default as Profile } from "./Profile";
+export type { default as User } from "./User";
