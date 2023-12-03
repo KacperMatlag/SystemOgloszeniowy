@@ -10,8 +10,9 @@ nav{
 .NavbarLinksContainer{
   width: 600px;
   display: flex;
-  justify-content: space-between;
+  gap: 50px;
   transition: all ease-in-out .3s;
+  justify-content: end;
 }
 nav a{
   color: white !important;

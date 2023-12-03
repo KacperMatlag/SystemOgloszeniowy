@@ -17,7 +17,7 @@ import type {
   WorkCategory,
   WorkingTime,
   WorkType,
-  CategoryWithPositions
+  CategoryWithPositions,
 } from "../Models/index";
 
 const Home: React.FC = () => {
@@ -41,6 +41,7 @@ const Home: React.FC = () => {
   const [workingTimeSelect, SetWorkingTimeSelect] = useState("");
   const [title, SetTitleInput] = useState<string>("");
   const [spotlight, SetSpotlight] = useState<Annoucement | null>(null);
+
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -80,6 +81,7 @@ const Home: React.FC = () => {
         Setloading(false);
       }
     };
+    console.log(JSON.parse(localStorage.getItem("user") || "{}"));
 
     fetchData();
   }, []);
@@ -88,7 +90,6 @@ const Home: React.FC = () => {
     const fetchData = async () => {
       try {
         axios.get("http://localhost:2137/cwp/" + selectCategory).then((res) => {
-          console.log("http://localhost:2137/cwp/" + selectCategory);
           SetJobPosition(res.data);
         });
       } catch (error) {
@@ -141,7 +142,7 @@ const Home: React.FC = () => {
             />
             <CertainSelect
               name="JobPositionID"
-              options={jobPosition.map(item=>item.JobPosition)}
+              options={jobPosition.map((item) => item.JobPosition)}
               onSelect={SetJobPositionSelect}
               placeholder="Stanowisko"
               clases="form-select"

@@ -3,8 +3,9 @@ import "../CSS/PagesCSS/LoginRegister.css";
 import { useState } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
+import { Alert } from "../Components";
 const LoginRegister = () => {
-  const navigate=useNavigate();
+  const navigate = useNavigate();
   const [user, SetUser] = useState<any>({
     Login: "",
     Password: "",
@@ -14,7 +15,15 @@ const LoginRegister = () => {
     Surname: "",
     Email: "",
   });
-
+  const [login, SetLogin] = useState<any>({
+    Login: "",
+    Password: "",
+  });
+  const [errorAlert, SetErrorAlert] = useState<any>("");
+  const loginShema = Yup.object().shape({
+    Login: Yup.string().required("Wprowadź Login"),
+    Password: Yup.string().required("Wprowadź Hasło"),
+  });
   const userSchema = Yup.object().shape({
     Login: Yup.string()
       .required("Login jest wymagany")
@@ -29,52 +38,67 @@ const LoginRegister = () => {
     ProfileID: Yup.number().optional().nullable(),
     Name: Yup.string()
       .required("Imię jest wymagane")
+      .matches(/^[a-zA-ZęóąśłżźćńĘÓĄŚŁŻŹĆŃ]*$/, "Nieprawidłowy format imienia")
       .min(2, "Imie musi mieć minimum 2 znaki.")
       .max(30, "Imie nie może mieć więcej niż 30 znaków."),
     Surname: Yup.string()
       .required("Nazwisko jest wymagane")
-      .min(2, "Nazwisko musi mieć minimum 2 nzaki.")
-      .max(30, "Nazwisko musi mieć maksymlanie 30 znaków"),
+      .matches(/^[a-zA-ZęóąśłżźćńĘÓĄŚŁŻŹĆŃ]*$/, "Nieprawidłowy format nazwiska")
+      .min(2, "Nazwisko musi mieć minimum 2 znaki.")
+      .max(30, "Nazwisko musi mieć maksymalnie 30 znaków"),
     Email: Yup.string()
       .email("Nieprawidłowy format email")
       .required("Email jest wymagany"),
   });
 
+  const DisplayError = (msg: string) => {
+    SetErrorAlert(msg);
+    setTimeout(() => {
+      SetErrorAlert("");
+    }, 2000);
+  };
+
   const HandleRegister = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
       await userSchema.validate(user, { abortEarly: false });
-      await axios.post("http://localhost:2137/user/", user)
-        .then(async(res)=>{
-          if(res.status==201){
-            navigate("/")
-          }else{
-            alert("Cos poszlo nie tak");
+      const res = await axios.post("http://localhost:2137/user/", user);
+      if (res.status === 201) navigate("/");
+    } catch (error: any) {
+      if (error.response) DisplayError(error.response.data.error);
+      else DisplayError(error.errors[0]);
+    }
+  };
+  const HandleLogin = async (e: React.FormEvent<HTMLElement>) => {
+    e.preventDefault();
+    try {
+      await loginShema.validate(login, { abortEarly: false });
+      await axios
+        .post("http://localhost:2137/user/Login", login)
+        .then(async (res) => {
+          if (res.status == 200) {
+            localStorage.setItem("user", JSON.stringify(res.data));
+            navigate("/");
+            DisplayError(res.data.error);
           }
-        })
-      // const profileResponse = await axios.post("http://localhost:2137/profile/", profile);
-      // if (profileResponse.status === 201) {
-      //   SetUser({ ...user, ProfileID: profileResponse.data.ID });
-      //   setTimeout(() => {
-      //     axios.post("http://localhost:2137/user/", user);
-      //   }, 0);
-      //   alert("Dodano pomyślnie");
-      //   navigate("/");
-      // }
-
-    } catch (error) {
-      console.error("Błąd walidacji:", error);
-      alert(error);
+        });
+    } catch (error: any) {
+      if (error.response) DisplayError(error.response.data.error);
+      else DisplayError(error.errors[0]);
     }
   };
 
   return (
     <div className="container-fluid">
+      {errorAlert != "" ? <Alert data={errorAlert} /> : ""}
       <div className="row forms-container">
         <div className="col-lg-6 col-md">
           <div className="register-form-wrapper">
             <form onSubmit={HandleRegister}>
-              <h2>Login</h2>
+              <header>
+                <h1>Rejestracja</h1>
+              </header>
+              <h4>Login</h4>
               <div className="form-floating mb-3">
                 <input
                   type="text"
@@ -86,7 +110,7 @@ const LoginRegister = () => {
                 />
                 <label form="floatingInput">Login</label>
               </div>
-              <h2>Hasło</h2>
+              <h4>Hasło</h4>
               <div className="form-floating">
                 <input
                   type="password"
@@ -98,7 +122,7 @@ const LoginRegister = () => {
                 />
                 <label form="floatingPassword">Password</label>
               </div>
-              <h2>Potwierdź hasło</h2>
+              <h4>Potwierdź hasło</h4>
               <div className="form-floating">
                 <input
                   type="password"
@@ -110,19 +134,17 @@ const LoginRegister = () => {
                 />
                 <label form="floatingPassword">Password</label>
               </div>
-              <h2>Imie</h2>
+              <h4>Imie</h4>
               <div className="form-floating mb-3">
                 <input
                   type="text"
                   className="form-control"
                   placeholder="name@example.com"
-                  onChange={(e) =>
-                    SetUser({ ...user, Name: e.target.value })
-                  }
+                  onChange={(e) => SetUser({ ...user, Name: e.target.value })}
                 />
                 <label form="floatingInput">Imie</label>
               </div>
-              <h2>Nazwisko</h2>
+              <h4>Nazwisko</h4>
               <div className="form-floating mb-3">
                 <input
                   type="text"
@@ -134,15 +156,13 @@ const LoginRegister = () => {
                 />
                 <label form="floatingInput">Nazwisko</label>
               </div>
-              <h2>Email</h2>
+              <h4>Email</h4>
               <div className="form-floating mb-3">
                 <input
                   type="email"
                   className="form-control"
                   placeholder="name@example.com"
-                  onChange={(e) =>
-                    SetUser({ ...user, Email: e.target.value })
-                  }
+                  onChange={(e) => SetUser({ ...user, Email: e.target.value })}
                 />
                 <label form="floatingInput">Email</label>
               </div>
@@ -152,9 +172,46 @@ const LoginRegister = () => {
             </form>
           </div>
         </div>
-        <div className="col-6">
+        <div className="col-lg-6 col-md">
+          <div className="login-form-wrapper">
+            <form onSubmit={HandleLogin}>
+              <header>
+                <h1>Logowanie</h1>
+              </header>
+              <h4>Login</h4>
+              <div className="form-floating mb-3">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Login"
+                  onChange={(e) => {
+                    SetLogin({ ...login, Login: e.target.value });
+                  }}
+                />
+                <label form="floatingInput">Login</label>
+              </div>
+              <h4>Hasło</h4>
+              <div className="form-floating mb-3">
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Login"
+                  onChange={(e) => {
+                    SetLogin({ ...login, Password: e.target.value });
+                  }}
+                />
+                <label form="floatingInput">Login</label>
+              </div>
+              <button className="btn btn-primary">Zaloguj</button>
+            </form>
+          </div>
           <ul>
-            <li style={{maxWidth:"200px",wordBreak:"break-word"}}>{JSON.stringify(user)}</li>
+            <li style={{ maxWidth: "400px", wordBreak: "break-word" }}>
+              {JSON.stringify(login)}
+            </li>
+            <li style={{ maxWidth: "400px", wordBreak: "break-word" }}>
+              {JSON.stringify(user)}
+            </li>
           </ul>
         </div>
       </div>

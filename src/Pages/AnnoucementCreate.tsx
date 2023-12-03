@@ -140,7 +140,7 @@ function AnnoucementCreate() {
       document.body.append(alert);
       setTimeout(() => {
         alert.remove();
-      }, 20000);
+      }, 2000);
     }
   };
 
