@@ -1,11 +1,6 @@
-class TypeOfContract {
-  public ID: number;
-  public Name: string;
-
-  constructor(ID: number, Name: string) {
-    this.ID = ID;
-    this.Name = Name;
-  }
+interface TypeOfContract {
+  ID: number;
+  Name: string;
 }
 
 export default TypeOfContract;

@@ -1,11 +1,6 @@
-class WorkType {
-  public ID: number;
-  public Name: string;
-
-  constructor(ID: number, Name: string) {
-    this.ID = ID;
-    this.Name = Name;
-  }
+interface WorkType {
+  ID: number;
+  Name: string;
 }
 
 export default WorkType;

@@ -1,12 +1,6 @@
-class WorkingTime {
-    public ID: number;
-    public Name: string;
-  
-    constructor(ID: number, Name: string) {
-      this.ID = ID;
-      this.Name = Name;
-    }
-  }
-  
-  export default WorkingTime;
-  
+interface WorkingTime {
+  ID: number;
+  Name: string;
+}
+
+export default WorkingTime;

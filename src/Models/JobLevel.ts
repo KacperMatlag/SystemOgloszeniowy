@@ -1,11 +1,5 @@
-class JobLevel {
-  public ID: number;
-  public Name: string;
-
-  constructor(ID: number, Name: string) {
-    this.ID = ID;
-    this.Name = Name;
-  }
+interface JobLevel {
+  ID: number;
+  Name: string;
 }
-
 export default JobLevel;
