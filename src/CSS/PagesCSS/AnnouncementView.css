@@ -1,71 +1,97 @@
 .container-lg {
-    padding: 20px;
+  padding: 20px;
 }
 
 .CompanyInformations img {
-    height: 200px;
+  height: 200px;
+}
+
+.CompanyInformations h2,
+.CompanyInformations p {
+  word-break: break-word;
 }
 
 .CompanyInformations {
-    height: 400px;
+  height: 400px;
+  margin-bottom: 20px;
 }
 
-ul {
-    list-style-type: none;
-    line-height: 50px;
+ul.AnnouncementView {
+  list-style-type: none;
+  line-height: 50px;
 }
 
-ul li svg {
-    font-size: 25px;
+ul.AnnouncementView li svg {
+  font-size: 25px;
 }
 
-ul li {
-    width: 300px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    text-align: center;
+ul.AnnouncementView li {
+  width: 300px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
 }
 
-ul li svg {
-    width: 30%;
+ul.AnnouncementView li svg {
+  width: 30%;
+  font-size: 30px;
 }
-
-ul li :nth-child(2) {
-    width: 70%;
-    text-align: left;
+ul.AnnouncementView li :nth-child(2) {
+  width: 70%;
+  text-align: left;
 }
 
 .WorkInfo p {
-    border: 1px solid black;
-    height: 60px !important;
-    border-radius: 10px;
-    width: 200px;
-    text-align: center;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0 !important;
+  border: 1px solid black;
+  height: 60px !important;
+  border-radius: 10px;
+  width: 200px;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0 !important;
 }
 
-hr {
-    max-width: 90%;
-    margin: 0 auto;
-    margin-top: 2em;
-    margin-bottom: 2em;
+header hr {
+  max-width: 90%;
+  margin: 0 auto;
+  margin-top: 2em;
+  margin-bottom: 2em;
 }
 
-section p {
-    padding-left: 20px;
+section.InfoSection p {
+  padding-left: 20px;
 }
 
 iframe {
-    height: 100%;
-    max-width: 100%;
+  height: 100%;
+  max-width: 100%;
 }
 
 @media only screen and (max-width: 1000px) {
-    .CompanyInformations {
-        flex-direction: column;
-    }
+  .CompanyInformations {
+    flex-direction: column;
+  }
+}
+
+@media only screen and (max-width: 500px) {
+  div.d-flex {
+    flex-direction: column;
+    gap: 10px;
+  }
+  section.CompanyInformations {
+    height: max-content;
+    gap: 10px;
+  }
+  div.d-flex img {
+    object-fit: contain;
+  }
+  div.d-flex h2 {
+    text-align: center;
+  }
+  .WorkInfo {
+    align-items: center !important;
+  }
 }

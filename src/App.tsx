@@ -10,6 +10,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBars } from "@fortawesome/free-solid-svg-icons";
 import AnnoucementCreate from "./Pages/AnnoucementCreate";
 import LoginRegister from "./Pages/LoginRegister";
+import EditProfile from "./Pages/EdirProfile";
+import Profile from "./Pages/Profile";
 
 function App() {
   const [menuIsActive, MenuSetActivity] = useState(false);
@@ -57,6 +59,9 @@ function App() {
             <Route path="/Ogloszenia/:id" element={<AnnouncementView />} />
             <Route path="/Dodaj" element={<AnnoucementCreate />} />
             <Route path="/Logowanie" element={<LoginRegister />} />
+            <Route path="/Profil" element={<Profile />} />
+            <Route path="/EdycjaProfilu" element={<EditProfile />} />
+            <Route path="/*" element={<Home />} />
           </Routes>
         </BrowserRouter>
         <footer className="bg-black">

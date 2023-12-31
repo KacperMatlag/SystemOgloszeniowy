@@ -4,6 +4,8 @@ import { useParams } from "react-router-dom";
 import LoadingScreen from "./LoadingScreen";
 import {} from "../CSS/PagesCSS/AnnouncementView.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import * as tmp from "../temporary/announcementSample.json";
+
 import {
   faWallet,
   faLocationDot,
@@ -16,16 +18,22 @@ function AnnouncementView() {
   const [announcement, SetAnnouncement] = useState<Annoucement>(
     {} as Annoucement
   );
-  const [loading, Setloading] = useState(true);
+  const [loading, SetLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
-      axios.get("http://localhost:2137/announcement/" + id).then((res) => {
+      try {
+        const res = await axios.get(`http://localhost:2137/announcement/${id}`);
         SetAnnouncement(res.data);
-        Setloading(false);
-      });
+      } catch (error) {
+        //tymczasowe pod sprawdzanie widokow
+        SetAnnouncement(tmp as unknown as Annoucement);
+      } finally {
+        SetLoading(false);
+      }
     };
+
     fetchData();
-  }, []);
+  }, [id]);
   if (loading) return <LoadingScreen />;
   return (
     <div className="container-xl">
@@ -34,7 +42,7 @@ function AnnouncementView() {
         <h1>{announcement.Title}</h1>
         <h3>{announcement.JobPosition.Name}</h3>
         <hr />
-        <ul>
+        <ul className="AnnouncementView">
           <li>
             <FontAwesomeIcon icon={faWallet} />
             <b>
@@ -50,7 +58,10 @@ function AnnouncementView() {
             <span>{announcement.WorkingTime.Name}</span>
           </li>
         </ul>
-        <div className="d-flex flex-wrap WorkInfo justify-content-sm-start justify-content-center" style={{ gap: "10px" }}>
+        <div
+          className="d-flex flex-wrap WorkInfo justify-content-sm-start justify-content-center"
+          style={{ gap: "10px" }}
+        >
           <p>Kategoria: {announcement.WorkCategory.Name}</p>
           <p>Typ umowy: {announcement.TypeOfContract.Name}</p>
           <p>Poziom pracy: {announcement.JobLevel.Name}</p>
@@ -58,7 +69,7 @@ function AnnouncementView() {
         </div>
         <hr />
       </header>
-      <section>
+      <section className="InfoSection">
         <b>Opis</b>
         <p>{announcement.Description}</p>
         <b>Wymagania</b>
@@ -79,11 +90,11 @@ function AnnouncementView() {
           referrerPolicy="no-referrer-when-downgrade"
         />
         <div className="d-flex">
-            <img src={announcement.Company.Image} alt="Logo firmy" />
-            <div>
+          <img src={announcement.Company.Image} alt="Logo firmy" />
+          <div>
             <h2>{announcement.Company.Name}</h2>
             <p>{announcement.Company.Description}</p>
-            </div>
+          </div>
         </div>
       </section>
     </div>

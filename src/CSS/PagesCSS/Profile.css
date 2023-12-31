@@ -1,0 +1,72 @@
+.ProfileView {
+  display: flex;
+  justify-content: center;
+}
+.ProfileView img {
+  object-fit: contain;
+  max-height: 200px;
+}
+.CenterInfo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ProfileContainer {
+  background-color: rgb(243, 243, 243);
+  margin: 0;
+  padding-bottom: 50px;
+}
+.row {
+  margin: 0;
+}
+.Style {
+  background-color: white !important;
+  border-radius: 10px !important;
+  padding: 10px;
+  height: 100%;
+  max-height: 400px !important;
+  overflow-y: auto;
+}
+.LanguageView ul li {
+  display: flex !important;
+  width: 100% !important;
+  font-size: 20px;
+}
+.LanguageView ul {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+.Style hr {
+  margin: 0, auto !important;
+  width: 100% !important;
+}
+
+.LanguageView ul li div {
+  width: 50%;
+  text-align: center;
+}
+.LanguageView ul li div:nth-child(2) {
+  aspect-ratio: 1/1;
+  width: 40px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: black;
+  font-weight: bold;
+}
+.Platforms {
+  row-gap: 20px;
+}
+.Platforms div {
+  width: 50%;
+  height: 100px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-direction: column;
+}
+.Style p {
+  font-size: 15px;
+}

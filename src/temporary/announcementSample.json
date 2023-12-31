@@ -1,0 +1,33 @@
+{
+  "ID": 12,
+  "Title": "Quality Assurance Engineer",
+  "Description": "Ensure the quality of our software products.",
+  "JobPositionID": 3,
+  "WorkCategoryID": 1,
+  "JobLevelID": 1,
+  "TypeOfContractID": 2,
+  "WorkingTimeID": 1,
+  "WorkTypeID": 1,
+  "MinWage": 60000,
+  "MaxWage": 90000,
+  "CreatedAt": "2023-10-29",
+  "Responsibilities": "",
+  "WhatTheEmployerOffers": "Professional development and growth opportunities.",
+  "Requirements": "Experience in software testing and knowledge of testing tools.",
+  "ExpirationDate": "2024-01-10",
+  "daysSincePosted": 59,
+  "daysUntilExpiration": 14,
+  "randomID": 0.8531976573664674,
+  "JobPosition": { "ID": 3, "Name": "Inżynier Sieciowy" },
+  "WorkCategory": { "ID": 1, "Name": "IT" },
+  "Company": {
+    "ID": 1,
+    "Name": "Lenovo Polska",
+    "Description": null,
+    "Image": "https://www.kadencewp.com/wp-content/uploads/2020/10/alogo-2.png"
+  },
+  "JobLevel": { "ID": 1, "Name": "praktykant/stażysta" },
+  "TypeOfContract": { "ID": 2, "Name": "o dzieło" },
+  "WorkingTime": { "ID": 1, "Name": "część etatu" },
+  "WorkType": { "ID": 1, "Name": "zdalnie" }
+}

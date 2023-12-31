@@ -205,14 +205,6 @@ const LoginRegister = () => {
               <button className="btn btn-primary">Zaloguj</button>
             </form>
           </div>
-          <ul>
-            <li style={{ maxWidth: "400px", wordBreak: "break-word" }}>
-              {JSON.stringify(login)}
-            </li>
-            <li style={{ maxWidth: "400px", wordBreak: "break-word" }}>
-              {JSON.stringify(user)}
-            </li>
-          </ul>
         </div>
       </div>
     </div>

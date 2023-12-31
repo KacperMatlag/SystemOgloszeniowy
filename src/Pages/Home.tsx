@@ -9,6 +9,7 @@ import { Link, useNavigate } from "react-router-dom";
 import "../CSS/PagesCSS/Home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LoadingScreen from "./LoadingScreen";
+import * as tmp from "../temporary/announcementSample.json";
 import type {
   Annoucement,
   Company,
@@ -77,11 +78,13 @@ const Home: React.FC = () => {
         SetSpotlight(spotlight.data);
         Setloading(false);
       } catch (error) {
+        //tymczasowe pod sprawdzanie widokow
+        announcements.push(tmp as unknown as Annoucement);
+
         console.error("Błąd podczas pobierania danych", error);
         Setloading(false);
       }
     };
-    console.log(JSON.parse(localStorage.getItem("user") || "{}"));
 
     fetchData();
   }, []);
@@ -196,7 +199,7 @@ const Home: React.FC = () => {
       <section className="row row-xl AnnouncementsSection w-100">
         <div className="col-xxl-8 p-3 JobSection">
           <h2 className="text-center">Ostatnio Dodane</h2>
-          <div className="w-100 m-3 JobsList">
+          <div className="w-100 JobsList">
             {announcements.length <= 0 ? (
               <h4 className="text-center">Brak ostatio dodanych</h4>
             ) : (

@@ -1,28 +1,25 @@
 import "../CSS/ComponentsCSS/JobRowControl.css";
-import 'react-bootstrap/Button'
+import "react-bootstrap/Button";
 import { Annoucement } from "../Models";
 const JobRowControl: React.FC<any> = ({ data }: { data: Annoucement }) => {
-  function getColor(name: string){
+  function getColor(name: string) {
     switch (name) {
-      case 'hybrydowo':
-        return 'success';
-      case 'zdalnie':
-          return 'warning';
-      case 'stacjonarnie':
-        return 'danger'
+      case "hybrydowo":
+        return "success";
+      case "zdalnie":
+        return "warning";
+      case "stacjonarnie":
+        return "danger";
       default:
-        return 'primary';
+        return "primary";
     }
   }
-  const subText=(string: string)=>{
-    return string.substring(0,50)+((string.length>50)?'...':'');
-  }
+  const subText = (string: string) => {
+    return string.substring(0, 50) + (string.length > 50 ? "..." : "");
+  };
   return (
-    <div className="d-flex align-items-center justify-content-evenly Container">
-      <img
-        src={data.Company.Image}
-        alt="Logo Firmy"
-      />
+    <div className="RowContainer d-flex align-items-center justify-content-evenly Container">
+      <img src={data.Company.Image} alt="Logo Firmy" />
       <div className="Informations">
         <div className="d-flex flex-column align-items-center justify-content-evenly">
           <span className="Title">{data.Title}</span>
@@ -34,8 +31,12 @@ const JobRowControl: React.FC<any> = ({ data }: { data: Annoucement }) => {
           <span>Nazwa Miasta</span>
         </div>
         <div className="d-flex flex-column align-items-center justify-content-evenly">
-          <button className={`btn btn-${getColor(data.WorkType.Name)} w-75`}>{data.WorkType.Name}</button>
-          <span><b>{data.MinWage+'-'+data.MaxWage+'zl'}</b></span>
+          <button className={`btn btn-${getColor(data.WorkType.Name)} w-75`}>
+            {data.WorkType.Name}
+          </button>
+          <span>
+            <b>{data.MinWage + "-" + data.MaxWage + "zl"}</b>
+          </span>
           <span>Dni do wygaśnięcia: {data.daysUntilExpiration} dni</span>
         </div>
       </div>
