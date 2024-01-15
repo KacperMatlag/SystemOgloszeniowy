@@ -111,6 +111,10 @@ header p {
   justify-content: space-evenly;
 }
 
+.Company * {
+  word-break: keep-all;
+}
+
 iframe {
   width: 100%;
 }

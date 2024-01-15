@@ -8,6 +8,7 @@
   background-color: white;
   transition: all ease-in-out 0.3s;
   border-radius: 10px;
+  color: black !important;
 }
 .RowContainer span {
   display: block !important;

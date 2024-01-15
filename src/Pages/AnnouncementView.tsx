@@ -203,7 +203,7 @@ const AnnouncementView: React.FC = () => {
         />
         <div className="d-flex Company flex-column">
           <img src={announcement.Company.Image} alt="Logo firmy" />
-          <div>
+          <div className="text-center">
             <h2>{announcement.Company.Name}</h2>
             <p>{announcement.Company.Description}</p>
           </div>

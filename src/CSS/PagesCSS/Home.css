@@ -154,6 +154,11 @@
   display: none;
 }
 
+.JobSpotlight a {
+  text-decoration: none !important;
+  color: black !important;
+}
+
 @media only screen and (max-width: 1350px) {
   #SearchForm {
     width: 90% !important;

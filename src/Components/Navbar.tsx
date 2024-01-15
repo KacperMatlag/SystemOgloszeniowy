@@ -4,6 +4,10 @@ import axios from "axios";
 import { Link } from "react-router-dom";
 import logo from "../assets/react.svg";
 import { useState } from "react";
+
+import "../CSS/main.css";
+import "../CSS/index.css";
+
 const Navbar: React.FC = () => {
   const [menuIsActive, MenuSetActivity] = useState(false);
   const MenuChangeState = () => {
