@@ -13,7 +13,7 @@ const LanguageColor = (text: string) => {
   }
 };
 
-const Profile = () => {
+const Profile: React.FC = () => {
   return (
     <div className="ProfileContainer">
       <div className="container-xxl">

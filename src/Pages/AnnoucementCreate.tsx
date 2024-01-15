@@ -10,8 +10,9 @@ import type {
   WorkingTime,
   WorkType,
 } from "../Models/index";
+import { ButtonProps } from "react-bootstrap";
 
-function AnnoucementCreate() {
+const AnnoucementCreate: React.FC = () => {
   const [loading, SetLoading] = useState(true);
   const [announcement, SetAnnouncementOptions] = useState({
     Title: "",
@@ -25,11 +26,18 @@ function AnnoucementCreate() {
     ExpirationDate: "",
     MinWage: 0,
     MaxWage: 0,
-    Requirements: "",
-    Responsibilities: "",
-    WhatTheEmployerOffers: "",
     CompanyID: 1,
   });
+
+  const [requirement, SetRequirement] = useState<string>("");
+  const [requirements, SetRequirements] = useState<string[]>([]);
+
+  const [duty, SetDuty] = useState<string>("");
+  const [duties, Setduties] = useState<string[]>([]);
+
+  const [emploeyOffer, SetEmploeyOffer] = useState<string>("");
+  const [emploeyOffers, SetEmploeyOffers] = useState<string[]>([]);
+
   const [categories, SetCategories] = useState<WorkCategory[]>([]);
   const [positions, SetJobPositions] = useState<any[]>([]);
   const [jobLevels, SetJobLevels] = useState<JobLevel[]>([]);
@@ -100,37 +108,59 @@ function AnnoucementCreate() {
       .min(0, "Wynagrodzenie maksymalne nie może być ujemne")
       .when("MinWage", (minWage, schema) => {
         return schema.min(
-          minWage,
+          minWage as unknown as number,
           "Wynagrodzenie maksymalne nie może być mniejsze niż minimalne"
         );
       }),
-    Requirements: Yup.string()
-      .required("Wymagania są wymagane")
-      .min(10, "Wymagania muszą mieć minimum 10 znaków")
-      .max(1000, "Wymagania muszą mieć maksymalnie 1000 znakow"),
-    Responsibilities: Yup.string()
-      .required("Obowiązki są wymagane")
-      .min(10, "Obowiązki muszą mieć minimum 10 znaków")
-      .max(1000, "Obowiązki muszą mieć maksymalnie 1000 znakow"),
-    WhatTheEmployerOffers: Yup.string()
-      .required("Oferty pracodawcy są wymagane")
-      .min(10, "Co oferuje pracodawca musi mieć minimum 10 znaków")
-      .max(1000, "Co oferuje pracodawca musi mieć maksymalnie 1000 znakow"),
+  });
+  const employerOfferValidator = Yup.object().shape({
+    emploeyOffer: Yup.string()
+      .required()
+      .min(4, "Tekst musi mieć co najmniej 4 znaki")
+      .max(150, "Tekst nie może przekraczać 150 znaków"),
+  });
+  const requirementsValidator = Yup.object().shape({
+    requirement: Yup.string()
+      .required()
+      .min(4, "Tekst musi mieć co najmniej 4 znaki")
+      .max(150, "Tekst nie może przekraczać 150 znaków"),
+  });
+  const dutiesValidator = Yup.object().shape({
+    duty: Yup.string()
+      .required()
+      .min(4, "Tekst musi mieć co najmniej 4 znaki")
+      .max(150, "Tekst nie może przekraczać 150 znaków"),
   });
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      console.log(announcement);
-      console.log(positions);
       await validationSchema.validate(announcement, { abortEarly: false });
       axios
         .post("http://localhost:2137/announcement/", announcement)
-        .then((res) => {
-          if (res.status === 200) {
+        .then(async (res) => {
+          if (res.status === 201) {
+            setTimeout(async () => {
+              await axios.post(
+                "http://localhost:2137/duties",
+                duties.map((e) => {
+                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
+                })
+              );
+              await axios.post(
+                "http://localhost:2137/requirements",
+                requirements.map((e) => {
+                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
+                })
+              );
+              await axios.post(
+                "http://localhost:2137/WhatTheEmployerOffers",
+                emploeyOffers.map((e) => {
+                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
+                })
+              );
+            });
             alert("Pomyślnie dodano");
-          } else {
-            alert("Jakiś błąd");
           }
         });
     } catch (error: any) {
@@ -180,10 +210,11 @@ function AnnoucementCreate() {
             SetAnnouncementOptions({
               ...announcement,
               WorkCategoryID: parseInt(e.target.value),
+              JobPositionID: 0,
             });
           }}
         >
-          <option value="0" selected disabled>
+          <option value="0" selected>
             Wybierz Kategorie
           </option>
           {categories.map((key: WorkCategory, value) => {
@@ -198,16 +229,16 @@ function AnnoucementCreate() {
         <select
           className="form-control"
           name="PositionID"
+          value={announcement.JobPositionID}
           onChange={(e) => {
             SetAnnouncementOptions({
               ...announcement,
               JobPositionID: parseInt(e.target.value),
             });
             console.log(e.target.value);
-            
           }}
         >
-          <option value="0" selected disabled>
+          <option value="0" selected>
             Wybierz Pozycje
           </option>
           {positions.map((key, value) => {
@@ -332,7 +363,7 @@ function AnnoucementCreate() {
               })
             }
           />
-          -
+          <span>-</span>
           <input
             className="form-control"
             type="number"
@@ -346,53 +377,201 @@ function AnnoucementCreate() {
             }
           />
         </div>
-        <span>Wymagania</span>
-        <textarea
-          cols={30}
-          rows={10}
-          name="Requirements"
-          placeholder="Wymagania postawione kandydatowi"
-          className="form-control"
-          onChange={(e) =>
-            SetAnnouncementOptions({
-              ...announcement,
-              Requirements: e.target.value,
-            })
-          }
-        ></textarea>
         <span>Obowiazki</span>
-        <textarea
-          className="form-control"
-          cols={30}
-          placeholder="Obowiazki kandydata"
-          rows={10}
-          name="Responsibilities"
-          onChange={(e) =>
-            SetAnnouncementOptions({
-              ...announcement,
-              Responsibilities: e.target.value,
-            })
-          }
-        ></textarea>
+        <div className="d-flex AnnouncementOptions">
+          <div className="d-flex w-100 AnnouncementInput">
+            <input
+              type="text"
+              className="form-control"
+              name="Responsibilities"
+              value={duty}
+              onChange={(e) => {
+                SetDuty(e.target.value);
+              }}
+            />
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={async () => {
+                try {
+                  await dutiesValidator.validate(
+                    { duty },
+                    {
+                      abortEarly: false,
+                    }
+                  );
+                  if (
+                    !duties
+                      .map((r) => r.toLowerCase())
+                      .includes(duty.toLowerCase())
+                  ) {
+                    Setduties([...duties, duty]);
+                    SetDuty("");
+                  } else alert("Taki element juz istnieje");
+                } catch (error: any) {
+                  alert(error.errors[0]);
+                }
+              }}
+            >
+              Dodaj
+            </button>
+          </div>
+          <ul>
+            {duties.map((element) => {
+              return (
+                <li className="d-flex">
+                  <div>{element}</div>
+                  <button
+                    className="btn btn-danger"
+                    type="button"
+                    id={element}
+                    onClick={(e) => {
+                      Setduties(
+                        duties.filter((z) => z != (e.target as ButtonProps).id)
+                      );
+                    }}
+                  >
+                    Usun
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <span>Wymagania</span>
+        <div className="d-flex AnnouncementOptions">
+          <div className="d-flex w-100 AnnouncementInput">
+            <input
+              type="text"
+              className="form-control"
+              name="Requirements"
+              value={requirement}
+              onChange={(e) => {
+                SetRequirement(e.target.value);
+              }}
+            />
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={async () => {
+                try {
+                  await requirementsValidator.validate(
+                    { requirement },
+                    {
+                      abortEarly: false,
+                    }
+                  );
+                  if (
+                    !requirements
+                      .map((r) => r.toLowerCase())
+                      .includes(requirement.toLowerCase())
+                  ) {
+                    SetRequirements([...requirements, requirement]);
+                    SetRequirement("");
+                  } else alert("Taki element juz istnieje");
+                } catch (error: any) {
+                  alert(error.errors[0]);
+                }
+              }}
+            >
+              Dodaj
+            </button>
+          </div>
+          <ul>
+            {requirements.map((element) => {
+              return (
+                <li className="d-flex">
+                  <div>{element}</div>
+                  <button
+                    className="btn btn-danger"
+                    type="button"
+                    id={element}
+                    onClick={(e) => {
+                      SetRequirements(
+                        requirements.filter(
+                          (z) => z != (e.target as ButtonProps).id
+                        )
+                      );
+                    }}
+                  >
+                    Usun
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
         <span>Oferowane przez pracodawce</span>
-        <textarea
-          cols={30}
-          rows={10}
-          name="WhatTheEmployerOffers"
-          placeholder="Co pracodawca oferuje kandydatowi"
-          className="form-control"
-          onChange={(e) =>
-            SetAnnouncementOptions({
-              ...announcement,
-              WhatTheEmployerOffers: e.target.value,
-            })
-          }
-        ></textarea>
+        <div className="d-flex flex-row AnnouncementOptions">
+          <div className="d-flex w-100 AnnouncementInput">
+            <input
+              type="text"
+              className="form-control"
+              name="employeroffer"
+              value={emploeyOffer}
+              onChange={(e) => {
+                SetEmploeyOffer(e.target.value);
+              }}
+            />
+            <button
+              className="btn btn-primary"
+              type="button"
+              onClick={async () => {
+                try {
+                  await employerOfferValidator.validate(
+                    { emploeyOffer },
+                    {
+                      abortEarly: false,
+                    }
+                  );
+                  if (
+                    !emploeyOffers
+                      .map((o) => o.toLowerCase())
+                      .includes(emploeyOffer.toLowerCase())
+                  ) {
+                    SetEmploeyOffers([...emploeyOffers, emploeyOffer]);
+                    SetEmploeyOffer("");
+                  } else alert("Taki element juz istnieje");
+                } catch (error: any) {
+                  alert(error.errors[0]);
+                }
+              }}
+            >
+              Dodaj
+            </button>
+          </div>
+          <ul>
+            {emploeyOffers.map((element) => {
+              return (
+                <li className="d-flex">
+                  <div>{element}</div>
+                  <button
+                    className="btn btn-danger"
+                    type="button"
+                    id={element}
+                    onClick={(e) => {
+                      SetEmploeyOffers(
+                        emploeyOffers.filter(
+                          (z) => z != (e.target as ButtonProps).id
+                        )
+                      );
+                    }}
+                  >
+                    Usun
+                  </button>
+                </li>
+              );
+            })}
+          </ul>
+        </div>
+        <pre>{JSON.stringify(duties)}</pre>
+        <pre>{JSON.stringify(requirements)}</pre>
+        <pre>{JSON.stringify(emploeyOffers)}</pre>
         <pre>{JSON.stringify(announcement)}</pre>
         <input type="submit" value="Dodaj" className="btn btn-primary" />
       </form>
     </div>
   );
-}
+};
 
 export default AnnoucementCreate;

@@ -12,7 +12,7 @@
   justify-content: center;
 }
 .ProfileContainer {
-  background-color: rgb(243, 243, 243);
+  background-color: var(--background);
   margin: 0;
   padding-bottom: 50px;
 }

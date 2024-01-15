@@ -1,23 +1,24 @@
 .menu form {
-    position: fixed;
-    margin-top: 20px;
-    gap: 20px;
-    background-color: white;
-    z-index: 1;
-    width: 300px;
-    align-items: center;
-    
+  position: absolute;
+  margin-top: 20px;
+  gap: 20px;
+  background-color: transparent;
+  z-index: 1;
+  width: 300px;
+  align-items: center;
 }
-.menu form input,.menu form select,.menu form button{
-    min-width: 300px !important;
+.menu form input,
+.menu form select,
+.menu form button {
+  min-width: 300px !important;
 }
 @media only screen and (max-width: 1200px) {
-    .menu form {
-        position: static;
-        width: 80%;
-        margin-top: 10px;
-    }
-    .menu button{
-        width: 100%;
-    }
+  .menu form {
+    position: static;
+    width: 80%;
+    margin-top: 10px;
+  }
+  .menu button {
+    width: 100%;
+  }
 }

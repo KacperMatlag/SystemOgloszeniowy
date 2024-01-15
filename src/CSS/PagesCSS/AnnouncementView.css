@@ -1,97 +1,126 @@
-.container-lg {
-  padding: 20px;
-}
-
-.CompanyInformations img {
-  height: 200px;
-}
-
-.CompanyInformations h2,
-.CompanyInformations p {
-  word-break: break-word;
-}
-
-.CompanyInformations {
-  height: 400px;
-  margin-bottom: 20px;
-}
-
-ul.AnnouncementView {
-  list-style-type: none;
-  line-height: 50px;
-}
-
-ul.AnnouncementView li svg {
-  font-size: 25px;
-}
-
-ul.AnnouncementView li {
-  width: 300px;
+.AnnouncementVievContainer {
+  background-color: var(--background);
   display: flex;
-  align-items: center;
-  justify-content: space-between;
-  text-align: center;
+  flex-direction: column;
+  gap: 20px;
+  margin-top: 30px;
+  margin-bottom: 30px;
 }
 
-ul.AnnouncementView li svg {
-  width: 30%;
-  font-size: 30px;
-}
-ul.AnnouncementView li :nth-child(2) {
-  width: 70%;
-  text-align: left;
-}
-
-.WorkInfo p {
-  border: 1px solid black;
-  height: 60px !important;
+.AnnouncementVievContainer header {
+  background-color: white;
   border-radius: 10px;
-  width: 200px;
+  gap: 20px;
+}
+
+.HeaderInfo {
+  width: 60%;
+}
+
+.HeaderInfo img {
+  height: 100px;
+}
+
+#MainInfo {
+  min-height: 260px;
+}
+
+#MainInfo h5,
+#MainInfo h3 {
+  display: block;
+  word-break: keep-all !important;
   text-align: center;
+}
+.AnnouncementVievContainer hr {
+  width: 90%;
+  margin: auto;
+}
+
+.AnnouncementVievContainer #MainInfo {
+  word-wrap: break-word !important;
+  height: 150px;
+}
+
+.AnnouncementVievContainer #SalaryInfo {
+  background-color: var(--support);
+  width: 230px;
+  height: 100px;
+  border-radius: 10px;
+}
+
+#SalaryInfo svg {
+  font-size: 20px;
+}
+
+.InfoElementWrapper {
+  height: 100px;
+  width: 50%;
+}
+
+.InfoElementWrapper span {
+  display: block;
+  word-break: keep-all !important;
+}
+
+.InfoElementWrapper .IconBackground {
+  aspect-ratio: 1/1;
+  height: 60px;
+  background-color: var(--support);
+  margin: 0 auto;
   display: flex;
   align-items: center;
   justify-content: center;
-  flex-shrink: 0 !important;
+  font-size: 20px;
+  border-radius: 10px;
+  color: black;
 }
 
-header hr {
-  max-width: 90%;
+.ElementsList {
+  background-color: white;
+  border-radius: 10px;
+  padding: 20px;
+}
+
+.ElementsList h2 {
+  margin-bottom: 20px;
+}
+
+.ListElements {
+  display: flex;
+  gap: 10px !important;
+}
+
+.IconListContainer {
+  gap: 20px;
+}
+
+header p {
+  width: 90%;
   margin: 0 auto;
-  margin-top: 2em;
-  margin-bottom: 2em;
+  margin-bottom: 20px;
+  word-break: keep-all !important;
 }
 
-section.InfoSection p {
-  padding-left: 20px;
+.Company img {
+  height: 200px;
+}
+
+.Company {
+  width: 70%;
+  align-items: center;
+  justify-content: space-evenly;
 }
 
 iframe {
-  height: 100%;
-  max-width: 100%;
+  width: 100%;
 }
 
-@media only screen and (max-width: 1000px) {
-  .CompanyInformations {
-    flex-direction: column;
+@media only screen and (max-width: 768px) {
+  #SalaryInfo {
+    width: 90% !important;
+    padding: 10px;
   }
-}
-
-@media only screen and (max-width: 500px) {
-  div.d-flex {
-    flex-direction: column;
-    gap: 10px;
-  }
-  section.CompanyInformations {
-    height: max-content;
-    gap: 10px;
-  }
-  div.d-flex img {
-    object-fit: contain;
-  }
-  div.d-flex h2 {
-    text-align: center;
-  }
-  .WorkInfo {
-    align-items: center !important;
+  .InfoElementWrapper {
+    width: 100%;
   }
 }

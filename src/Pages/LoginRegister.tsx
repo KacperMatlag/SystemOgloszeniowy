@@ -4,7 +4,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "../Components";
-const LoginRegister = () => {
+const LoginRegister: React.FC = () => {
   const navigate = useNavigate();
   const [user, SetUser] = useState<any>({
     Login: "",
@@ -62,7 +62,7 @@ const LoginRegister = () => {
     e.preventDefault();
     try {
       await userSchema.validate(user, { abortEarly: false });
-      const res = await axios.post("http://localhost:2137/user/", user);
+      const res = await axios.post("http://localhost:2137/user/", user, {});
       if (res.status === 201) navigate("/");
     } catch (error: any) {
       if (error.response) DisplayError(error.response.data.error);
@@ -74,10 +74,17 @@ const LoginRegister = () => {
     try {
       await loginShema.validate(login, { abortEarly: false });
       await axios
-        .post("http://localhost:2137/user/Login", login)
+        .post("http://localhost:2137/user/Login", login, {
+          headers: {
+            "Content-Type": "application/json",
+          },
+          withCredentials: true,
+        })
         .then(async (res) => {
           if (res.status == 200) {
-            localStorage.setItem("user", JSON.stringify(res.data));
+            console.log(res);
+            console.log(res.data);
+
             navigate("/");
             DisplayError(res.data.error);
           }

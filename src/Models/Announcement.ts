@@ -1,3 +1,5 @@
+import { AnnouncementOptions } from ".";
+
 interface Annoucement {
   ID: number;
   Title: string;
@@ -12,8 +14,8 @@ interface Annoucement {
   MaxWage: number;
   CreatedAt: string;
   Responsibilities: string;
-  WhatTheEmployerOffers: string;
-  Requirements: string;
+  WhatTheEmployerOffers: AnnouncementOptions[];
+  Requirements: AnnouncementOptions[];
   ExpirationDate: string;
   daysSincePosted: number;
   daysUntilExpiration: number;
@@ -25,5 +27,6 @@ interface Annoucement {
   TypeOfContract: { ID: number; Name: string };
   WorkingTime: { ID: number; Name: string };
   WorkType: { ID: number; Name: string };
+  Duties: AnnouncementOptions[];
 }
 export default Annoucement;

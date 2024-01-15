@@ -9,8 +9,13 @@ nav {
   align-items: center;
   height: 100px;
   justify-content: space-around;
+  position: sticky !important;
+  top: 0px;
+  z-index: 100;
 }
-
+nav a img {
+  height: 50px;
+}
 .NavbarLinksContainer {
   width: 600px;
   display: flex;
@@ -96,10 +101,9 @@ footer .row p {
   nav {
     padding: 10px;
     height: max-content;
-    position: fixed;
     top: 0;
     width: 100vw;
-    z-index: 999999;
+    z-index: 2;
   }
   .menu-active {
     height: 300px;

@@ -4,6 +4,8 @@ import {
   JobSpotlight,
   CertainSelect,
 } from "../Components/index";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faMagnifyingGlass, faX } from "@fortawesome/free-solid-svg-icons";
 import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../CSS/PagesCSS/Home.css";
@@ -42,6 +44,9 @@ const Home: React.FC = () => {
   const [workingTimeSelect, SetWorkingTimeSelect] = useState("");
   const [title, SetTitleInput] = useState<string>("");
   const [spotlight, SetSpotlight] = useState<Annoucement | null>(null);
+  const [count, SetCount] = useState<number>(0);
+  //
+  const [menu, SetMenu] = useState<boolean>(false);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -56,6 +61,7 @@ const Home: React.FC = () => {
           workingTime,
           workType,
           spotlight,
+          count,
         ] = await Promise.all([
           axios.get("http://localhost:2137/cwp"),
           axios.get("http://localhost:2137/company"),
@@ -66,6 +72,7 @@ const Home: React.FC = () => {
           axios.get("http://localhost:2137/workingtime"),
           axios.get("http://localhost:2137/workType"),
           axios.get("http://localhost:2137/announcement/random"),
+          axios.get("http://localhost:2137/announcement/getcount"),
         ]);
         SetJobPosition(jobPositions.data);
         SetCompanies(companies.data);
@@ -76,7 +83,18 @@ const Home: React.FC = () => {
         SetWorkingTime(workingTime.data);
         SetWorktype(workType.data);
         SetSpotlight(spotlight.data);
+        SetCount(count.data.count);
         Setloading(false);
+        console.log(
+          (
+            await axios.get("http://localhost:2137/user/check", {
+              headers: {
+                "Content-Type": "application/json",
+              },
+              withCredentials: true,
+            })
+          ).data
+        );
       } catch (error) {
         //tymczasowe pod sprawdzanie widokow
         announcements.push(tmp as unknown as Annoucement);
@@ -105,7 +123,7 @@ const Home: React.FC = () => {
 
   if (loading) return <LoadingScreen />;
   return (
-    <div>
+    <div id="HomeContainer">
       <div className="Banner">
         <div className="BannerInformations">
           <h2>Szukanie pracy nigdy nie było prostsze</h2>
@@ -120,6 +138,7 @@ const Home: React.FC = () => {
       <section className="SearchSection">
         <h2 className="text-center">Wyszukiwarka</h2>
         <form
+          id="SearchForm"
           className="d-flex flex-wrap"
           onSubmit={(e) => {
             e.preventDefault();
@@ -136,64 +155,88 @@ const Home: React.FC = () => {
           }}
         >
           <div id="SearchBarItems">
-            <CertainSelect
-              name="WorkCategoryID"
-              options={categories}
-              onSelect={SetSelectCategory}
-              placeholder="Kategoria"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="JobPositionID"
-              options={jobPosition.map((item) => item.JobPosition)}
-              onSelect={SetJobPositionSelect}
-              placeholder="Stanowisko"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="CompanyID"
-              options={companies}
-              onSelect={SetCompanySelect}
-              placeholder="Firma"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="JobLevelID"
-              options={jobLevel}
-              onSelect={SetJobLevelSelect}
-              placeholder="Poziom"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="TypeOfContractID"
-              options={typeOfContract}
-              onSelect={SetTypeOfContractSelect}
-              placeholder="Umowa"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="WorkingTimeID"
-              options={workingTime}
-              onSelect={SetWorkingTimeSelect}
-              placeholder="Czas pracy"
-              clases="form-select"
-            />
-            <CertainSelect
-              name="WorkTypeID"
-              options={workType}
-              onSelect={SetWorkTypeSelect}
-              placeholder="Rodzaj pracy"
-              clases="form-select"
-            />
-            <input
-              type="text"
-              name="Title"
-              placeholder="Tytuł ogłoszenia"
-              className="form-control"
-              onChange={(e) => SetTitleInput(e.target.value)}
-            />
-            <button className="btn btn-primary">Szukaj</button>
+            <div id="SearchText">
+              <input
+                type="text"
+                name="Title"
+                className="form-control shadow-none"
+                placeholder={"Mamy w swojej ofercie " + count + " ogloszen/ia"}
+                onChange={(e) => SetTitleInput(e.target.value)}
+              />
+              <CertainSelect
+                name="WorkCategoryID"
+                options={categories}
+                onSelect={SetSelectCategory}
+                placeholder="Kategoria"
+                clases="form-select shadow-none"
+              />
+              <CertainSelect
+                name="JobPositionID"
+                options={jobPosition.map((item) => item.JobPosition)}
+                onSelect={SetJobPositionSelect}
+                placeholder="Stanowisko"
+                clases="form-select shadow-none"
+              />
+              <button className="btn">
+                <FontAwesomeIcon icon={faMagnifyingGlass} />
+              </button>
+            </div>
+            <div
+              id="AdvanceSearchOptions"
+              className={menu ? "d-block visible" : "d-none"}
+            >
+              <FontAwesomeIcon
+                icon={faX}
+                id="CloseAdvanceSearch"
+                onClick={() => {
+                  SetMenu(!menu);
+                }}
+              />
+              <CertainSelect
+                name="CompanyID"
+                options={companies}
+                onSelect={SetCompanySelect}
+                placeholder="Firma"
+                clases="form-select"
+              />
+              <CertainSelect
+                name="JobLevelID"
+                options={jobLevel}
+                onSelect={SetJobLevelSelect}
+                placeholder="Poziom"
+                clases="form-select"
+              />
+              <CertainSelect
+                name="TypeOfContractID"
+                options={typeOfContract}
+                onSelect={SetTypeOfContractSelect}
+                placeholder="Umowa"
+                clases="form-select"
+              />
+              <CertainSelect
+                name="WorkingTimeID"
+                options={workingTime}
+                onSelect={SetWorkingTimeSelect}
+                placeholder="Czas pracy"
+                clases="form-select"
+              />
+              <CertainSelect
+                name="WorkTypeID"
+                options={workType}
+                onSelect={SetWorkTypeSelect}
+                placeholder="Rodzaj pracy"
+                clases="form-select"
+              />
+            </div>
           </div>
+          <p
+            id="AdvanceSearchIndicator"
+            onClick={() => {
+              SetMenu(!menu);
+            }}
+          >
+            zaawansowane wyszukiwanie
+          </p>
         </form>
       </section>
       <section className="row row-xl AnnouncementsSection w-100">
@@ -218,7 +261,7 @@ const Home: React.FC = () => {
           </div>
         </div>
         <div className="col-xxl-4 p-3 JobSpotlight">
-          <h2 className="text-center">Wyróżnione</h2>
+          <h2 className="text-center m-3">Wyróżnione</h2>
           <div className="w-75 m-auto">
             {spotlight == null ? (
               <h4 className="text-center">Brak wyróżnionego ogloszenia</h4>

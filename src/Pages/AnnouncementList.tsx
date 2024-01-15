@@ -13,10 +13,10 @@ import type {
   WorkCategory,
   WorkType,
   WorkingTime,
-  CategoryWithPositions
+  CategoryWithPositions,
 } from "../Models/index";
 
-const AnnouncementList = () => {
+const AnnouncementList: React.FC = () => {
   const location = useLocation();
   const params = useParams();
   const queryParams = new URLSearchParams(location.search);
@@ -131,7 +131,7 @@ const AnnouncementList = () => {
   if (loading) return <LoadingScreen />;
   return (
     <div className="overflow-hidden w-100 row">
-      <div className="col-lg-12 col-xl-2 menu">
+      <div className="col-lg-12 col-xl-4 menu">
         <div className="m-auto p-3 FormWrap">
           <form
             className="m-auto d-flex flex-column"
@@ -215,9 +215,9 @@ const AnnouncementList = () => {
           </form>
         </div>
       </div>
-      <div className="col-lg-12 col-xl-10">
+      <div className="col-lg-12 col-xl-8 menu2">
         <div
-          className="w-75 d-flex m-auto flex-column mt-5"
+          className="w-100 d-flex flex-column my-5"
           style={{ gap: "50px", minHeight: "80vh" }}
         >
           {announcements.length > 0 ? (

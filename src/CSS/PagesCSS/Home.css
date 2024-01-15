@@ -1,94 +1,264 @@
 @import url(../main.css);
 
 .Banner {
-    height: 650px;
-    background-image: url('https://images.pexels.com/photos/927451/pexels-photo-927451.jpeg?cs=srgb&dl=pexels-andrea-piacquadio-927451.jpg&fm=jpg');
-    background-repeat: no-repeat;
-    background-attachment: fixed;
-    background-position:top;
-    background-size: cover;
-    color: white;
-    gap: 10px;
-    position: relative;
+  height: 650px;
+  background-image: url("https://png.pngtree.com/thumb_back/fw800/background/20230715/pngtree-d-render-of-modern-dark-office-room-with-ample-copy-space-image_3853784.jpg");
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: bottom;
+  background-size: cover;
+  color: white;
+  gap: 10px;
+  position: relative;
 }
 
 .BannerInformations h2 {
-    font-size: 30px;
+  font-size: 30px;
+  word-break: keep-all !important;
 }
 
 .BannerInformations p {
-    font-size: 15px;
+  font-size: 15px;
+  text-align: center;
+  word-break: keep-all !important;
 }
 
 .BannerInformations {
-    position: absolute;
-    top: 50%;
-    transform: translate(30%, -50%);
-    width: 500px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: space-around;
-    height: 300px;
+  position: absolute;
+  top: 50%;
+  transform: translate(30%, -50%);
+  width: 550px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-around;
+  height: 300px;
+  word-break: keep-all !important;
 }
 
 .BannerInformations h2 {
-    color: white;
-    text-align: center;
+  color: white;
+  text-align: center;
 }
 
 .BannerInformations button {
-    background-color: var(--blue_1);
-    border: none;
-    padding: 15px;
-    border-radius: 10px;
-    font-size: 20px;
-    width: 200px;
-    color: white;
+  background-color: var(--blue_1);
+  border: none;
+  padding: 15px;
+  border-radius: 10px;
+  font-size: 20px;
+  width: 200px;
+  color: white;
+}
+/* if problem */
+.SearchSection h2 {
+  margin-bottom: 50px;
+  margin-top: 50px;
 }
 
-section h2 {
-    margin-bottom: 50px;
-    margin-top: 50px;
+.JobsList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 50px;
+  margin-bottom: 30px;
 }
 
 .JobsList a {
-    text-decoration: none !important;
-    color: black !important;
+  text-decoration: none !important;
+  color: black !important;
 }
 
 .SearchSection {
-    padding: 30px;
+  padding: 30px;
 }
 
-form{
-    width: 70%;
+#SearchForm {
+  width: 70%;
+  margin: 0 auto;
+}
+
+#SearchBarItems {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#SearchText {
+  display: flex;
+  border-radius: 10px;
+  height: 60px;
+  background-color: white;
+}
+#SearchText input {
+  width: 90%;
+  border-radius: 10px 0 0 10px;
+  background-color: transparent;
+  outline: none;
+  border: none;
+  font-size: 20px;
+  background-color: white;
+}
+#SearchText button {
+  width: 10%;
+  border-radius: 0 10px 10px 0;
+  background-color: transparent;
+}
+#SearchText select {
+  border: none;
+  width: 25%;
+  text-align: center;
+  outline: none;
+}
+.SearchSection .form-select,
+.SearchSection button,
+.SearchSection input {
+  width: 20%;
+}
+
+#AdvanceSearchOptions {
+  min-width: none;
+  display: flex !important;
+  gap: 10px;
+  justify-content: center;
+  align-items: center;
+}
+#AdvanceSearchOptions select {
+  border: none;
+  width: 20%;
+}
+
+.cosik {
+  width: 30%;
+  height: 200px;
+  background-color: yellow;
+}
+
+#SearchText select,
+#SearchText button {
+  border-radius: 0;
+  border-left: 1px solid lightgray;
+  margin: 3px;
+}
+
+#AdvanceSearchIndicator {
+  display: none;
+  color: var(--blue_1);
+  font-weight: 500;
+}
+
+#CloseAdvanceSearch {
+  font-size: 40px;
+  margin: 20px;
+  display: none;
+}
+
+@media only screen and (max-width: 1350px) {
+  #SearchForm {
+    width: 90% !important;
+  }
+  .JobSpotlight div {
+    width: 500px !important;
     margin: 0 auto;
-    gap: 10px;
-}
-
-#SearchBarItems{
-    width: 100%;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    gap: 20px;
-}
-
-.SearchSection .form-select,.SearchSection button,.SearchSection input{
-    width: 30%;
+  }
 }
 
 @media only screen and (max-width: 1200px) {
-    .SearchSection form{
-        width: 90%;
-    }
+  .SearchSection #SearchForm {
+    width: 90%;
+  }
 }
-@media only screen and (max-width: 768px){
-    .SearchSection #SearchBarItems{
-        flex-direction: column !important;
-    }
-    #SearchBarItems *{
-        width: 100%;
-    }
+@media only screen and (max-width: 900px) {
+  #AdvanceSearchOptions {
+    visibility: collapse;
+  }
+  #AdvanceSearchIndicator {
+    display: block;
+  }
+  #SearchText select {
+    width: 35%;
+  }
+  #SearchForm {
+    width: 100% !important;
+    margin: 0;
+  }
+  #AdvanceSearchOptions {
+    position: fixed;
+    top: 0px;
+    left: 0;
+    z-index: 10000;
+    margin: 0;
+    padding: 0;
+    background-color: white;
+    height: 100%;
+    width: 100vw;
+    flex-direction: column;
+    align-items: end;
+    justify-content: flex-start;
+  }
+  #AdvanceSearchOptions select {
+    width: 100%;
+    margin: 10px 0;
+  }
+  #CloseAdvanceSearch {
+    display: block;
+  }
+  #AdvanceSearchIndicator {
+    margin-top: 30px;
+    display: block;
+  }
+}
+@media only screen and (max-width: 768px) {
+  .Banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    word-wrap: break-word;
+    padding: 20px;
+  }
+  .BannerInformations {
+    position: static;
+    width: 100%;
+    transform: translate(0, 0);
+  }
+  .JobSpotlight div {
+    width: 95% !important;
+    margin: 0 auto;
+  }
+  #SearchText {
+    background-color: transparent;
+    flex-direction: column !important;
+    height: 100%;
+    gap: 20px;
+  }
+  #SearchText input,
+  #SearchText select,
+  #SearchText button {
+    height: 50px;
+  }
+  #SearchText input {
+    border-radius: 10px;
+    padding: 10px;
+  }
+  #SearchForm {
+    height: 300px;
+  }
+  #SearchText * {
+    width: 100% !important;
+    border: none !important;
+  }
+  #SearchText select {
+    border-radius: 10px;
+    vertical-align: center;
+  }
+  #SearchText button {
+    background-color: #007bff;
+    border-radius: 10px;
+    font-size: 20px;
+    color: white;
+  }
+  .BannerInformations {
+    width: 400px;
+  }
 }

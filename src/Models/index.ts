@@ -9,3 +9,4 @@ export type { default as WorkCategory } from "./WorkCategory";
 export type { default as CategoryWithPositions } from "./CategoryWithPositions";
 export type { default as Profile } from "./Profile";
 export type { default as User } from "./User";
+export type { default as AnnouncementOptions } from "./AnnouncementOptions";

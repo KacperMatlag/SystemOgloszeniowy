@@ -1,14 +1,28 @@
 @import url(../main.css);
-.SpotlightAd{
-    height: 600px;
-    border-radius: 10px;
-    border: 2px solid gray;
+.SpotlightAd {
+  height: 600px;
+  border-radius: 10px;
+  background-color: white;
+  transition: all ease-in-out 0.3s;
 }
-.SpotlightBanner{
-    height: 300px !important;
-    width: 100%;
-    border-bottom: 2px solid gray;
+.SpotlightBanner {
+  height: 300px !important;
+  width: 100%;
 }
-.SpotlightBanner img{
-    height: 70%;
+.SpotlightBanner img {
+  height: 70%;
+}
+.SpotlightAd hr {
+  width: 80%;
+  display: block;
+}
+.SpotlightAd:hover {
+  transform: translateY(-50px);
+  -webkit-box-shadow: 8px 8px 24px 0px rgba(66, 68, 90, 1);
+  -moz-box-shadow: 8px 8px 24px 0px rgba(66, 68, 90, 1);
+  box-shadow: 8px 8px 24px 0px rgba(66, 68, 90, 1);
+}
+
+.SpotlightInfo {
+  padding: 10px;
 }
