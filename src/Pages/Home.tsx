@@ -22,6 +22,7 @@ import type {
   WorkType,
   CategoryWithPositions,
 } from "../Models/index";
+import { useAuth } from "../AuthContext/authContect";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -47,6 +48,7 @@ const Home: React.FC = () => {
   const [count, SetCount] = useState<number>(0);
   //
   const [menu, SetMenu] = useState<boolean>(false);
+  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -85,16 +87,6 @@ const Home: React.FC = () => {
         SetSpotlight(spotlight.data);
         SetCount(count.data.count);
         Setloading(false);
-        console.log(
-          (
-            await axios.get("http://localhost:2137/user/check", {
-              headers: {
-                "Content-Type": "application/json",
-              },
-              withCredentials: true,
-            })
-          ).data
-        );
       } catch (error) {
         //tymczasowe pod sprawdzanie widokow
         announcements.push(tmp as unknown as Annoucement);

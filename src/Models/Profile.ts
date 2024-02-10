@@ -1,15 +1,15 @@
 interface Profile {
-  id: number;
-  name: string;
-  surname: string;
-  dateOfBirth: Date;
-  email: string;
-  phoneNumber: string | null;
-  profilePicture: string | null;
-  addressID: number | null;
-  professionalSummary: string | null;
-  currentJobPositionID: number | null;
-  currentJobPositionDescription: string | null;
-  skills: string | null;
+  ID: number | null;
+  Name: string | null;
+  Surname: string | null;
+  DateOfBirth: Date | null;
+  Email: string | null;
+  PhoneNumber: string | null;
+  ProfilePicture: string | null;
+  AddressID: number | null;
+  ProfessionalSummary: string | null;
+  CurrentJobPositionID: number | null;
+  CurrentJobPositionDescription: string | null;
+  Skills: string | null;
 }
 export default Profile;

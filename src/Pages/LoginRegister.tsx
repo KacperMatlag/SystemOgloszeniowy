@@ -4,6 +4,7 @@ import { useState } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "../Components";
+import { useAuth } from "../AuthContext/authContect";
 const LoginRegister: React.FC = () => {
   const navigate = useNavigate();
   const [user, SetUser] = useState<any>({
@@ -24,6 +25,7 @@ const LoginRegister: React.FC = () => {
     Login: Yup.string().required("Wprowadź Login"),
     Password: Yup.string().required("Wprowadź Hasło"),
   });
+  const { _login } = useAuth();
   const userSchema = Yup.object().shape({
     Login: Yup.string()
       .required("Login jest wymagany")
@@ -82,12 +84,12 @@ const LoginRegister: React.FC = () => {
         })
         .then(async (res) => {
           if (res.status == 200) {
-            console.log(res);
-            console.log(res.data);
-
+            _login(res.data);
             navigate("/");
-            DisplayError(res.data.error);
           }
+        })
+        .catch((err) => {
+          DisplayError(err.data.error);
         });
     } catch (error: any) {
       if (error.response) DisplayError(error.response.data.error);

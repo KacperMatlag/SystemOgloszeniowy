@@ -1,4 +1,10 @@
-import {} from "../CSS/PagesCSS/Profile.css";
+import { useEffect, useState } from "react";
+import "../CSS/PagesCSS/Profile.css";
+import { Profile, User } from "../Models";
+import axios from "axios";
+import { useAuth } from "../AuthContext/authContect";
+import { LoadingScreen } from ".";
+import { useNavigate } from "react-router-dom";
 
 const LanguageColor = (text: string) => {
   switch (text[0]) {
@@ -13,7 +19,28 @@ const LanguageColor = (text: string) => {
   }
 };
 
-const Profile: React.FC = () => {
+const ProfilePage: React.FC = () => {
+  const navigate = useNavigate();
+  const { _User, isAuthenticated } = useAuth();
+  const [userProfile, SetUserProfile] = useState<User>({} as User);
+  const [loading, SetLoading] = useState<boolean>(true);
+  useEffect(() => {
+    const LoadProfile = async () => {
+      if (!isAuthenticated) navigate("/");
+      try {
+        if (_User.ID) {
+          const res = await axios.get("http://localhost:2137/user/" + _User.ID);
+          SetUserProfile(res.data);
+          SetLoading(false);
+        }
+      } catch (error) {
+        console.error("Error loading profile:", error);
+        SetLoading(false);
+      }
+    };
+    LoadProfile();
+  }, [_User]);
+  if (loading) return <LoadingScreen />;
   return (
     <div className="ProfileContainer">
       <div className="container-xxl">
@@ -27,7 +54,7 @@ const Profile: React.FC = () => {
                   src="https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
                   alt="zdjecie"
                 />
-                <h4 className="text-center">Nazwa uzytkownika</h4>
+                <h4 className="text-center">{userProfile.Login}</h4>
               </div>
             </div>
           </div>
@@ -41,37 +68,39 @@ const Profile: React.FC = () => {
                     <td>
                       <b>Imie</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>{userProfile.Profile?.Name}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Nazwisko</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>{userProfile.Profile?.Surname}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Data urodzenia</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>
+                      {userProfile.Profile?.DateOfBirth?.toISOString() ?? "-"}
+                    </td>
                   </tr>
                   <tr>
                     <td>
                       <b>Email</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>{userProfile.Profile?.Email}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Numer telefonu</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>{userProfile.Profile?.PhoneNumber ?? "-"}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Adres</b>
                     </td>
-                    <td>Przyklad</td>
+                    <td>{userProfile.Profile?.AddressID ?? "-"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -147,10 +176,8 @@ const Profile: React.FC = () => {
                 <div className="d-flex flex-column" style={{ gap: "30px" }}>
                   <b>Nazwa zajmowanego stanowiska</b>
                   <p>
-                    Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-                    Nesciunt doloribus ratione cumque eum atque. Non nostrum cum
-                    rerum tempore ex magnam eos soluta? Facere id facilis
-                    soluta, iste eligendi vel.
+                    {userProfile.Profile?.CurrentJobPositionDescription ??
+                      "Nie podano"}
                   </p>
                 </div>
               </h5>
@@ -272,4 +299,4 @@ const Profile: React.FC = () => {
     </div>
   );
 };
-export default Profile;
+export default ProfilePage;
