@@ -22,7 +22,6 @@ import type {
   WorkType,
   CategoryWithPositions,
 } from "../Models/index";
-import { useAuth } from "../AuthContext/authContect";
 
 const Home: React.FC = () => {
   const navigate = useNavigate();
@@ -48,7 +47,6 @@ const Home: React.FC = () => {
   const [count, SetCount] = useState<number>(0);
   //
   const [menu, SetMenu] = useState<boolean>(false);
-  const { isAuthenticated } = useAuth();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -88,9 +86,6 @@ const Home: React.FC = () => {
         SetCount(count.data.count);
         Setloading(false);
       } catch (error) {
-        //tymczasowe pod sprawdzanie widokow
-        announcements.push(tmp as unknown as Annoucement);
-
         console.error("Błąd podczas pobierania danych", error);
         Setloading(false);
       }

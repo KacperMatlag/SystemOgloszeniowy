@@ -11,7 +11,7 @@ import {
   AnnouncementCreate,
 } from "./Pages";
 import { AuthProvider } from "./AuthContext/authContect";
-import EditProfile from "./Pages/EdirProfile";
+import EditProfile from "./Pages/EditProfile";
 
 function App() {
   return (
@@ -25,8 +25,8 @@ function App() {
             <Route path="/Ogloszenia/:id" element={<AnnouncementView />} />
             <Route path="/Dodaj" element={<AnnouncementCreate />} />
             <Route path="/Logowanie" element={<LoginRegister />} />
-            <Route path="/Profil" element={<Profile />} />
-            <Route path="/pp" element={<EditProfile />} />
+            <Route path="/Profil/:id" element={<Profile />} />
+            <Route path="/Profil/Edytuj" element={<EditProfile />} />
             <Route path="/*" element={<Home />} />
           </Routes>
           <Footer />

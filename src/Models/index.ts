@@ -10,3 +10,5 @@ export type { default as CategoryWithPositions } from "./CategoryWithPositions";
 export type { default as Profile } from "./Profile";
 export type { default as User } from "./User";
 export type { default as AnnouncementOptions } from "./AnnouncementOptions";
+export type { default as Language } from "./Language";
+export type { default as UserLanguage } from "./UserLanguages";

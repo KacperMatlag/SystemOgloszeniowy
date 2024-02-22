@@ -5,6 +5,6 @@ interface User {
   Login: string;
   Password: string;
   ProfileID: number | null;
-  Profile: Profile | null;
+  Profile: Profile;
 }
 export default User;

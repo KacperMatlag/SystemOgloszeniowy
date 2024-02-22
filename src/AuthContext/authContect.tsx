@@ -12,7 +12,9 @@ interface AuthContextProps {
   isAuthenticated: boolean;
   _login: (res: User) => void;
   _logout: () => void;
-  _User: User | null; // Allow user to be null
+  _User: User | null;
+  _extendSession: () => Promise<void>;
+  _ReloadUser: () => void;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -35,6 +37,27 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     setUserData(null);
   };
 
+  const _ReloadUser = async () => {
+    setTimeout(async () => {
+      const fetchUser = async () => {
+        await axios
+          .get("http://localhost:2137/user/" + userData?.ID)
+          .then((res) => {
+            setUserData(res.data);
+            console.log("Byla zmiana");
+          });
+      };
+      fetchUser();
+    });
+  };
+
+  const _extendSession = async () => {
+    await axios.post("http://localhost:2137/user/extendsession", userData, {
+      headers: { "Content-Type": "application/json" },
+      withCredentials: true,
+    });
+  };
+
   useEffect(() => {
     const checkSession = async () => {
       try {
@@ -47,10 +70,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         if (res.data.user) {
           _login(res.data.user);
         } else {
-          if (isAuthenticated) {
-            console.log(123);
-            alert("Sesja wygasła");
-            _logout();
+          if (isAuthenticated && userData) {
+            if (confirm("Sesja wygasła")) {
+              _extendSession();
+            } else _logout();
           }
         }
       } catch (error) {
@@ -62,7 +85,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     checkSession();
 
     // Set up interval for periodic checks
-    const intervalId = setInterval(checkSession, 10000);
+    const intervalId = setInterval(checkSession, 60000);
 
     // Clean up interval when component unmounts
     return () => {
@@ -76,8 +99,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       _login,
       _logout,
       _User: userData,
+      _extendSession,
+      _ReloadUser,
     }),
-    [isAuthenticated, userData]
+    [isAuthenticated, userData, _ReloadUser]
   );
 
   return (

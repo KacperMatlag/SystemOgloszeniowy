@@ -31,8 +31,7 @@ const AnnouncementView: React.FC = () => {
         SetAnnouncement(res.data);
         console.log(res);
       } catch (error) {
-        //tymczasowe pod sprawdzanie widokow
-        SetAnnouncement(tmp as unknown as Annoucement);
+        console.log(error);
       } finally {
         SetLoading(false);
       }

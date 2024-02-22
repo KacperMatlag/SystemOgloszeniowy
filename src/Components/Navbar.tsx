@@ -19,7 +19,7 @@ const Navbar: React.FC = () => {
   const MenuChangeState = () => {
     MenuSetActivity(!menuIsActive);
   };
-  const { isAuthenticated, _logout } = useAuth();
+  const { isAuthenticated, _logout, _User } = useAuth();
   return (
     <nav>
       <Link to={"/"}>
@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
           </Link>
         )}
         <Link
-          to={isAuthenticated ? "/Profil" : "/Logowanie"}
+          to={isAuthenticated ? "/Profil/" + _User?.ID : "/Logowanie"}
           className="menuItem"
           onClick={MenuChangeState}
         >

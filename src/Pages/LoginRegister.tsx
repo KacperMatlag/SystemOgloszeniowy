@@ -1,10 +1,12 @@
-import axios from "axios";
+import axios, { AxiosError } from "axios";
 import "../CSS/PagesCSS/LoginRegister.css";
 import { useState } from "react";
 import * as Yup from "yup";
 import { useNavigate } from "react-router-dom";
 import { Alert } from "../Components";
 import { useAuth } from "../AuthContext/authContect";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 const LoginRegister: React.FC = () => {
   const navigate = useNavigate();
   const [user, SetUser] = useState<any>({
@@ -20,7 +22,7 @@ const LoginRegister: React.FC = () => {
     Login: "",
     Password: "",
   });
-  const [errorAlert, SetErrorAlert] = useState<any>("");
+  const [errorAlert, SetErrorAlert] = useState<string | undefined>(undefined);
   const loginShema = Yup.object().shape({
     Login: Yup.string().required("Wprowadź Login"),
     Password: Yup.string().required("Wprowadź Hasło"),
@@ -56,7 +58,7 @@ const LoginRegister: React.FC = () => {
   const DisplayError = (msg: string) => {
     SetErrorAlert(msg);
     setTimeout(() => {
-      SetErrorAlert("");
+      SetErrorAlert(undefined);
     }, 2000);
   };
 
@@ -88,18 +90,18 @@ const LoginRegister: React.FC = () => {
             navigate("/");
           }
         })
-        .catch((err) => {
-          DisplayError(err.data.error);
+        .catch((err: AxiosError) => {
+          if (err.response?.status == 401)
+            DisplayError("Niepoprawny login lub haslo");
+          console.log(err);
         });
     } catch (error: any) {
-      if (error.response) DisplayError(error.response.data.error);
-      else DisplayError(error.errors[0]);
+      console.log(error);
     }
   };
-
   return (
     <div className="container-fluid">
-      {errorAlert != "" ? <Alert data={errorAlert} /> : ""}
+      {errorAlert && <Alert data={errorAlert} />}
       <div className="row forms-container">
         <div className="col-lg-6 col-md">
           <div className="register-form-wrapper">
@@ -107,77 +109,85 @@ const LoginRegister: React.FC = () => {
               <header>
                 <h1>Rejestracja</h1>
               </header>
+              <hr />
               <h4>Login</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Login"
-                  onChange={(e) => {
-                    SetUser({ ...user, Login: e.target.value });
-                  }}
-                />
-                <label form="floatingInput">Login</label>
+              <div className="registerInputs">
+                <div className="form-floating mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Login"
+                    onChange={(e) => {
+                      SetUser({ ...user, Login: e.target.value });
+                    }}
+                  />
+                  <label form="floatingInput">Login</label>
+                </div>
+                <h4>Hasło</h4>
+                <div className="form-floating">
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Password"
+                    onChange={(e) => {
+                      SetUser({ ...user, Password: e.target.value });
+                    }}
+                  />
+                  <label form="floatingPassword">Password</label>
+                </div>
+                <h4>Potwierdź hasło</h4>
+                <div className="form-floating">
+                  <input
+                    type="password"
+                    className="form-control"
+                    placeholder="Password"
+                    onChange={(e) => {
+                      SetUser({
+                        ...user,
+                        PasswordVerification: e.target.value,
+                      });
+                    }}
+                  />
+                  <label form="floatingPassword">Password</label>
+                </div>
+                <h4>Imie</h4>
+                <div className="form-floating mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="name@example.com"
+                    onChange={(e) => SetUser({ ...user, Name: e.target.value })}
+                  />
+                  <label form="floatingInput">Imie</label>
+                </div>
+                <h4>Nazwisko</h4>
+                <div className="form-floating mb-3">
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="name@example.com"
+                    onChange={(e) =>
+                      SetUser({ ...user, Surname: e.target.value })
+                    }
+                  />
+                  <label form="floatingInput">Nazwisko</label>
+                </div>
+                <h4>Email</h4>
+                <div className="form-floating mb-3">
+                  <input
+                    type="email"
+                    className="form-control"
+                    placeholder="name@example.com"
+                    onChange={(e) =>
+                      SetUser({ ...user, Email: e.target.value })
+                    }
+                  />
+                  <label form="floatingInput">Email</label>
+                </div>
+                <button type="submit" className="btn btn-primary text-center">
+                  Zarejestruj
+                </button>
               </div>
-              <h4>Hasło</h4>
-              <div className="form-floating">
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Password"
-                  onChange={(e) => {
-                    SetUser({ ...user, Password: e.target.value });
-                  }}
-                />
-                <label form="floatingPassword">Password</label>
-              </div>
-              <h4>Potwierdź hasło</h4>
-              <div className="form-floating">
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Password"
-                  onChange={(e) => {
-                    SetUser({ ...user, PasswordVerification: e.target.value });
-                  }}
-                />
-                <label form="floatingPassword">Password</label>
-              </div>
-              <h4>Imie</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="name@example.com"
-                  onChange={(e) => SetUser({ ...user, Name: e.target.value })}
-                />
-                <label form="floatingInput">Imie</label>
-              </div>
-              <h4>Nazwisko</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="name@example.com"
-                  onChange={(e) =>
-                    SetUser({ ...user, Surname: e.target.value })
-                  }
-                />
-                <label form="floatingInput">Nazwisko</label>
-              </div>
-              <h4>Email</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="email"
-                  className="form-control"
-                  placeholder="name@example.com"
-                  onChange={(e) => SetUser({ ...user, Email: e.target.value })}
-                />
-                <label form="floatingInput">Email</label>
-              </div>
-              <button type="submit" className="btn btn-primary text-center">
-                Zarejestruj
-              </button>
             </form>
           </div>
         </div>
@@ -187,31 +197,42 @@ const LoginRegister: React.FC = () => {
               <header>
                 <h1>Logowanie</h1>
               </header>
+              <hr />
               <h4>Login</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="text"
-                  className="form-control"
-                  placeholder="Login"
-                  onChange={(e) => {
-                    SetLogin({ ...login, Login: e.target.value });
-                  }}
-                />
-                <label form="floatingInput">Login</label>
+              <div className="loginInputs">
+                <div className="input-group flex-nowrap">
+                  <span className="input-group-text" id="addon-wrapping">
+                    <FontAwesomeIcon icon={faUser} />
+                  </span>
+                  <input
+                    type="text"
+                    className="form-control shadow-none"
+                    aria-label="Username"
+                    aria-describedby="addon-wrapping"
+                    placeholder="Login"
+                    onChange={(e) => {
+                      SetLogin({ ...login, Login: e.target.value });
+                    }}
+                  />
+                </div>
+                <h4>Hasło</h4>
+                <div className="input-group flex-nowrap">
+                  <span className="input-group-text" id="addon-wrapping">
+                    <FontAwesomeIcon icon={faLock} />
+                  </span>
+                  <input
+                    type="password"
+                    className="form-control shadow-none"
+                    aria-label="Username"
+                    aria-describedby="addon-wrapping"
+                    placeholder="Login"
+                    onChange={(e) => {
+                      SetLogin({ ...login, Password: e.target.value });
+                    }}
+                  />
+                </div>
+                <button className="btn btn-primary">Zaloguj</button>
               </div>
-              <h4>Hasło</h4>
-              <div className="form-floating mb-3">
-                <input
-                  type="password"
-                  className="form-control"
-                  placeholder="Login"
-                  onChange={(e) => {
-                    SetLogin({ ...login, Password: e.target.value });
-                  }}
-                />
-                <label form="floatingInput">Login</label>
-              </div>
-              <button className="btn btn-primary">Zaloguj</button>
             </form>
           </div>
         </div>

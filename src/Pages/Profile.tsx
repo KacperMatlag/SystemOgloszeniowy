@@ -1,17 +1,17 @@
 import { useEffect, useState } from "react";
 import "../CSS/PagesCSS/Profile.css";
-import { Profile, User } from "../Models";
+import { User } from "../Models";
 import axios from "axios";
 import { useAuth } from "../AuthContext/authContect";
 import { LoadingScreen } from ".";
-import { useNavigate } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 
 const LanguageColor = (text: string) => {
   switch (text[0]) {
     case "A":
       return "Red";
     case "B":
-      return "Yellow";
+      return "lightgreen";
     case "C":
       return "Green";
     default:
@@ -20,19 +20,16 @@ const LanguageColor = (text: string) => {
 };
 
 const ProfilePage: React.FC = () => {
-  const navigate = useNavigate();
-  const { _User, isAuthenticated } = useAuth();
+  const { _User } = useAuth();
   const [userProfile, SetUserProfile] = useState<User>({} as User);
   const [loading, SetLoading] = useState<boolean>(true);
+  const { id } = useParams();
   useEffect(() => {
     const LoadProfile = async () => {
-      if (!isAuthenticated) navigate("/");
       try {
-        if (_User.ID) {
-          const res = await axios.get("http://localhost:2137/user/" + _User.ID);
-          SetUserProfile(res.data);
-          SetLoading(false);
-        }
+        const res = await axios.get("http://localhost:2137/user/" + id);
+        SetUserProfile(res.data);
+        SetLoading(false);
       } catch (error) {
         console.error("Error loading profile:", error);
         SetLoading(false);
@@ -56,6 +53,11 @@ const ProfilePage: React.FC = () => {
                 />
                 <h4 className="text-center">{userProfile.Login}</h4>
               </div>
+              {_User?.ID == id && (
+                <Link to="/Profil/Edytuj">
+                  <button className="btn btn-primary">Edytuj</button>
+                </Link>
+              )}
             </div>
           </div>
           <div className="col-xl-6 co-md-12">
@@ -81,7 +83,9 @@ const ProfilePage: React.FC = () => {
                       <b>Data urodzenia</b>
                     </td>
                     <td>
-                      {userProfile.Profile?.DateOfBirth?.toISOString() ?? "-"}
+                      {new Date(
+                        userProfile.Profile?.DateOfBirth as Date
+                      ).toLocaleDateString() ?? "Nie podano"}
                     </td>
                   </tr>
                   <tr>
@@ -149,22 +153,23 @@ const ProfilePage: React.FC = () => {
               <h4 className="text-center">Jezyki</h4>
               <hr />
               <ul>
-                <li>
-                  <div>Polski</div>
-                  <div style={{ backgroundColor: LanguageColor("B1") }}>B1</div>
-                </li>
-                <li>
-                  <div>Niemiecki</div>
-                  <div style={{ backgroundColor: LanguageColor("A2") }}>A2</div>
-                </li>
-                <li>
-                  <div>Wloski</div>
-                  <div style={{ backgroundColor: LanguageColor("C1") }}>C1</div>
-                </li>
-                <li>
-                  <div>Hiszpanski</div>
-                  <div style={{ backgroundColor: LanguageColor("C1") }}>C1</div>
-                </li>
+                {userProfile.Profile?.Languages.map((element, indext) => {
+                  return (
+                    <li key={indext}>
+                      <div>{element.Language.Name}</div>
+                      <div>
+                        <div
+                          style={{
+                            backgroundColor: LanguageColor(element.Level),
+                          }}
+                          className="Radius"
+                        >
+                          {element.Level}
+                        </div>
+                      </div>
+                    </li>
+                  );
+                })}
               </ul>
             </div>
           </div>
@@ -174,9 +179,11 @@ const ProfilePage: React.FC = () => {
               <hr />
               <h5 className="text-center">
                 <div className="d-flex flex-column" style={{ gap: "30px" }}>
-                  <b>Nazwa zajmowanego stanowiska</b>
+                  <b>
+                    {userProfile.Profile?.JobPosition?.Name ?? "Nie podano"}
+                  </b>
                   <p>
-                    {userProfile.Profile?.CurrentJobPositionDescription ??
+                    {userProfile.Profile?.CurrentJobPositionDescription ||
                       "Nie podano"}
                   </p>
                 </div>

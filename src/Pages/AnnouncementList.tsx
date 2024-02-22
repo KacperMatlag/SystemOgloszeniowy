@@ -220,15 +220,11 @@ const AnnouncementList: React.FC = () => {
           className="w-100 d-flex flex-column my-5"
           style={{ gap: "50px", minHeight: "80vh" }}
         >
-          {announcements.length > 0 ? (
-            announcements.map((announcement, index) => (
-              <Link key={index} to={`/ogloszenia/${announcement.ID}`}>
-                <JobRowControl data={announcement} />
-              </Link>
-            ))
-          ) : (
-            <h1 className="text-center">No announcements available</h1>
-          )}
+          {announcements.map((announcement, index) => (
+            <Link key={index} to={`/ogloszenia/${announcement.ID}`}>
+              <JobRowControl data={announcement} />
+            </Link>
+          )) || <h1 className="text-center">No announcements available</h1>}
         </div>
       </div>
     </div>

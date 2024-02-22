@@ -4,8 +4,8 @@
   display: flex;
   align-items: center;
 }
+
 .ProfileContainer {
-  margin: 0 auto;
   margin-top: 20px;
   margin-bottom: 20px;
 }
@@ -19,6 +19,10 @@
   width: 100%;
 }
 
+.ProfileStyle h4 {
+  margin: 15px 0;
+}
+
 .row {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -29,17 +33,56 @@
   margin: 0;
   width: 100%;
   padding: 20px;
-  height: 80%;
+  height: max-content;
 }
-.ProfileSection img {
+
+.ProfileStyle img {
   object-fit: contain;
   width: 100%;
   max-height: 300px;
   margin-bottom: 20px;
 }
-.Center {
+
+.ProfileStyle hr {
+  width: 90% !important;
+  margin: 0 auto;
+}
+
+.LanguageRow {
+  max-height: 300px;
+  height: 300px;
+}
+
+.LanguageRow>div {
+  height: 100%;
+}
+
+.UserLanguageList {
+  overflow-y: auto;
+}
+
+.UserLanguageList ul {
+  list-style: none;
+  margin: 0 auto;
+}
+
+.UserLanguageList ul li {
+  display: flex;
+  justify-content: space-around;
+  margin: 10px 0;
+}
+
+.UserLanguageList ul li>* {
+  width: 150px;
+}
+
+.UserLanguageList .LanguageLevel {
+  border-radius: 50%;
+  background-color: yellow;
+  width: 40px;
+  height: 40px;
   display: flex;
   align-items: center;
-  flex-direction: column;
   justify-content: center;
+  color: white;
 }
