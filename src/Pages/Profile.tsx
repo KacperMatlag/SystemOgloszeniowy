@@ -114,63 +114,62 @@ const ProfilePage: React.FC = () => {
         <div className="row gy-5" style={{ minHeight: "400px" }}>
           <div className="col-xl-4 col-md-6">
             <div className="Style">
-              <h4 className="text-center">Platformy</h4>
-              <hr />
-              <div className="Platforms d-flex flex-wrap">
-                <div>
-                  <img
-                    src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
-                    alt="github"
-                  />
-                  <b>Konto 1</b>
-                </div>
-                <div>
-                  <img
-                    src="https://logowik.com/content/uploads/images/bitbucket9553.jpg"
-                    alt="bitbucket"
-                  />
-                  <b>Konto 1</b>
-                </div>
-                <div>
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/c/ca/LinkedIn_logo_initials.png/600px-LinkedIn_logo_initials.png"
-                    alt="github"
-                  />
-                  <b>Konto 1</b>
-                </div>
-                <div>
-                  <img
-                    src="https://github.githubassets.com/assets/GitHub-Mark-ea2971cee799.png"
-                    alt="github"
-                  />
-                  <b>Konto 1</b>
-                </div>
+              <div>
+                <h4 className="text-center">Platformy</h4>
+                <hr />
+              </div>
+              <div className="Platforms Scroll d-flex flex-wrap">
+                {userProfile.Profile.Services.length === 0 ? (
+                  <h5>Brak usług dostępnych</h5>
+                ) : (
+                  userProfile.Profile.Services.map((element, index) => (
+                    <div className="PlatformElement" key={index}>
+                      <div className="ImageBox">
+                        <img
+                          src={element.Service.ImageUrl}
+                          alt={element.Service.Name}
+                        />
+                      </div>
+                      <a href={element.Link} target="_blank">
+                        {element.Link}
+                      </a>
+                    </div>
+                  ))
+                )}
               </div>
             </div>
           </div>
           <div className="col-xl-4 col-md-6">
             <div className="Style LanguageView">
-              <h4 className="text-center">Jezyki</h4>
-              <hr />
-              <ul>
-                {userProfile.Profile?.Languages.map((element, indext) => {
-                  return (
-                    <li key={indext}>
-                      <div>{element.Language.Name}</div>
-                      <div>
-                        <div
-                          style={{
-                            backgroundColor: LanguageColor(element.Level),
-                          }}
-                          className="Radius"
-                        >
-                          {element.Level}
-                        </div>
-                      </div>
-                    </li>
-                  );
-                })}
-              </ul>
+              <div>
+                <h4 className="text-center">Jezyki</h4>
+                <hr />
+              </div>
+              <div className="Scroll">
+                <ul>
+                  {userProfile.Profile.Languages.length == 0 ? (
+                    <h5 className="text-center">Nie podano</h5>
+                  ) : (
+                    userProfile.Profile?.Languages.map((element, indext) => {
+                      return (
+                        <li key={indext}>
+                          <div>{element.Language.Name}</div>
+                          <div>
+                            <div
+                              style={{
+                                backgroundColor: LanguageColor(element.Level),
+                              }}
+                              className="Radius"
+                            >
+                              {element.Level}
+                            </div>
+                          </div>
+                        </li>
+                      );
+                    })
+                  )}
+                </ul>
+              </div>
             </div>
           </div>
           <div className="col-xl-4 col-md-12">
@@ -178,7 +177,10 @@ const ProfilePage: React.FC = () => {
               <h4 className="text-center">Aktualne stanowisko pracy</h4>
               <hr />
               <h5 className="text-center">
-                <div className="d-flex flex-column" style={{ gap: "30px" }}>
+                <div
+                  className="d-flex flex-column Scroll"
+                  style={{ gap: "30px" }}
+                >
                   <b>
                     {userProfile.Profile?.JobPosition?.Name ?? "Nie podano"}
                   </b>

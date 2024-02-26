@@ -5,6 +5,7 @@ import {
   CategoryWithPositions,
   Language,
   Profile,
+  Service,
   User,
   WorkCategory,
 } from "../Models";
@@ -54,6 +55,10 @@ const EditProfile = () => {
   const [languages, SetLanguages] = useState<Language[]>([]);
   const [languageID, SetLanguageID] = useState<number | undefined>(undefined);
   const [level, SetLevel] = useState<string | undefined>(undefined);
+  //Services
+  const [services, SetServices] = useState<Service[]>([]);
+  const [service, SetService] = useState<number>(0);
+  const [link, SetLink] = useState<string>("");
   //
   const LanguageColor = (text: string) => {
     switch (text[0]) {
@@ -69,36 +74,41 @@ const EditProfile = () => {
   };
   //
   useEffect(() => {
-    SetLoading(true);
-    const loadProfile = async () => {
+    const updateProfile = async () => {
       if (_User?.Profile) {
         const profile: User = (
           await axios.get("http://localhost:2137/user/" + _User.ProfileID)
         ).data;
-
         SetProfile(profile.Profile);
-        const [categories, languages] = await Promise.all([
-          await axios.get("http://localhost:2137/workcategory/"),
-          await axios.get("http://localhost:2137/languages"),
-        ]);
-
-        if (profile.Profile.CurrentJobPositionID) {
-          const CategoryID = (
-            await axios.get(
-              "http://localhost:2137/cwp/category/" +
-                _User.Profile.CurrentJobPositionID
-            )
-          ).data;
-          SetSelectedCategory(CategoryID.WorkCategoryID);
-          SetSelectedPosition(profile.Profile.CurrentJobPositionID);
-        }
-        SetCategories(categories.data);
-        SetLanguages(languages.data);
-        SetLoading(false);
       }
     };
+    updateProfile();
+  }, [_User]);
+  useEffect(() => {
+    SetLoading(true);
+    const loadProfile = async () => {
+      const [categories, languages, services] = await Promise.all([
+        axios.get("http://localhost:2137/workcategory/"),
+        axios.get("http://localhost:2137/languages"),
+        axios.get("http://localhost:2137/services/services"),
+      ]);
+
+      if (profile.CurrentJobPositionID) {
+        const CategoryID = (
+          await axios.get(
+            "http://localhost:2137/cwp/category/" + profile.CurrentJobPositionID
+          )
+        ).data;
+        SetSelectedCategory(CategoryID.WorkCategoryID);
+        SetSelectedPosition(profile.CurrentJobPositionID);
+      }
+      SetCategories(categories.data);
+      SetLanguages(languages.data);
+      SetServices(services.data);
+      SetLoading(false);
+    };
     loadProfile();
-  }, [isAuthenticated]);
+  }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -112,7 +122,6 @@ const EditProfile = () => {
     };
     fetchData();
   }, [selectedCategory]);
-
   if (loading) return <LoadingScreen />;
 
   return (
@@ -127,6 +136,7 @@ const EditProfile = () => {
             <img
               src="https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
               alt="profile image"
+              className="ProfilePicture"
             />
             <form
               className="ProfileInfo d-flex flex-column"
@@ -416,9 +426,11 @@ const EditProfile = () => {
                   {profile?.Languages?.map((element, index) => {
                     return (
                       <li key={index}>
-                        <p>{element.Language.Name}</p>
+                        <p className="m-0 text-middle">
+                          {element.Language.Name}
+                        </p>
                         <div
-                          className="LanguageLevel"
+                          className="LanguageLevel text-middle"
                           style={{
                             backgroundColor: LanguageColor(element.Level),
                           }}
@@ -446,7 +458,122 @@ const EditProfile = () => {
                         </button>
                       </li>
                     );
-                  }) || <h4 className="text-center">Brak dodanych jezykow</h4>}
+                  })}
+                </ul>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row LanguageRow p-0">
+          <div className="col-4">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div>
+                <h4 className="text-center">Serwisy</h4>
+                <hr />
+              </div>
+              <form
+                className=" ProfileInfo d-flex flex-column"
+                onSubmit={async (e) => {
+                  try {
+                    e.preventDefault();
+                    if (profile.Services.find((z) => z.ServiceID == service)) {
+                      const patchUserLink = await axios.patch(
+                        "http://localhost:2137/services/updateuserlink",
+                        {
+                          ProfileID: profile.ID,
+                          ServiceID: service,
+                          Link: link,
+                        }
+                      );
+                      if (patchUserLink.status == 200) {
+                        alert("OK");
+                        _ReloadUser();
+                      }
+                    } else {
+                      const userService = await axios.post(
+                        "http://localhost:2137/services/adduserlink",
+                        {
+                          ProfileID: profile.ID,
+                          ServiceID: service,
+                          Link: link,
+                        }
+                      );
+                      if (userService.status == 200) {
+                        alert("OK");
+                        _ReloadUser();
+                      }
+                    }
+                  } catch (error) {
+                    console.log(error);
+                  }
+                }}
+              >
+                <CertainSelect
+                  clases="form-select"
+                  name="Services"
+                  onSelect={SetService}
+                  placeholder="Serwisy"
+                  options={services}
+                />
+                <input
+                  type="text"
+                  name="Link"
+                  className="form-control"
+                  placeholder="URL"
+                  onChange={(e) => {
+                    SetLink(e.target.value);
+                  }}
+                />
+                {JSON.stringify(link)}
+                <button type="submit" className="btn btn-primary">
+                  Zatwierdz
+                </button>
+              </form>
+            </div>
+          </div>
+          <div className="col-8">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div>
+                <h4 className="text-center">Twoje jezyki</h4>
+                <hr />
+              </div>
+              <div className="ProfileInfo ServiceList">
+                <ul>
+                  {profile?.Services?.map((element, index) => {
+                    return (
+                      <li key={index} className="ServiceListElement d-flex">
+                        <div className="ServiceImage">
+                          <img
+                            src={element.Service.ImageUrl}
+                            alt={element.Service.ImageUrl}
+                          />
+                        </div>
+                        <p className="text-middle m-0">
+                          {element.Service.Name}
+                        </p>
+                        <div className="Link text-middle">{element.Link}</div>
+                        <button
+                          className="btn btn-danger"
+                          id={element.ID.toString()}
+                          onClick={async () => {
+                            await axios
+                              .delete(
+                                "http://localhost:2137/services/deleteuserLink/" +
+                                  element.ID
+                              )
+                              .then((res) => {
+                                if (res.status == 200) {
+                                  alert("OK");
+                                  _ReloadUser();
+                                }
+                              });
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    );
+                  })}
                 </ul>
               </div>
             </div>

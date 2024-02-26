@@ -18,7 +18,6 @@ import type {
 
 const AnnouncementList: React.FC = () => {
   const location = useLocation();
-  const params = useParams();
   const queryParams = new URLSearchParams(location.search);
 
   const [loading, Setloading] = useState<boolean>(true);
@@ -58,11 +57,9 @@ const AnnouncementList: React.FC = () => {
           axios.get("http://localhost:2137/cwp"),
           axios.get("http://localhost:2137/company"),
           axios.get("http://localhost:2137/workcategory"),
-          params
-            ? axios.get(
-                "http://localhost:2137/announcement/filter?" + queryParams
-              )
-            : axios.get("http://localhost:2137/announcement/"),
+          axios.get(
+            "http://localhost:2137/announcement/filter?" + queryParams ?? ""
+          ),
           axios.get("http://localhost:2137/joblevel"),
           axios.get("http://localhost:2137/typeofcontract"),
           axios.get("http://localhost:2137/workingtime"),

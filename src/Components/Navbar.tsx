@@ -73,10 +73,7 @@ const Navbar: React.FC = () => {
           </Link>
         )}
       </div>
-      <button
-        onClick={MenuChangeState}
-        className="menu-activator btn d-sm-block d-md-none"
-      >
+      <button onClick={MenuChangeState} className="menu-activator btn">
         <FontAwesomeIcon icon={faBars} />
       </button>
     </nav>

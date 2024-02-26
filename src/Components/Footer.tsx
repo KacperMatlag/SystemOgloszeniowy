@@ -30,7 +30,7 @@ const Footer: React.FC<any> = () => {
             <div></div>
             <div></div>
           </section>
-          <p>Copyright</p>
+          <p>Copyright: {new Date().getFullYear() + " - now"}</p>
         </div>
       </div>
     </footer>

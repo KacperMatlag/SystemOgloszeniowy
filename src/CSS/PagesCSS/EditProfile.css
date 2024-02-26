@@ -36,11 +36,9 @@
   height: max-content;
 }
 
-.ProfileStyle img {
-  object-fit: contain;
-  width: 100%;
-  max-height: 300px;
-  margin-bottom: 20px;
+.ProfilePicture {
+  width: 100px !important;
+  height: 300px !important;
 }
 
 .ProfileStyle hr {
@@ -85,4 +83,56 @@
   align-items: center;
   justify-content: center;
   color: white;
+}
+
+.ServiceListElement img {
+  aspect-ratio: 1/1;
+  height: 50px;
+  width: 50px;
+}
+
+.ProfilePicture {
+  width: 100% !important;
+  height: 300px !important;
+  object-fit: contain;
+  margin: 10px;
+}
+
+
+.ServiceList p {
+  width: 100px;
+}
+
+.ServiceList img {
+  width: 100px;
+  object-fit: contain;
+}
+
+.ServiceList div.Link {
+  width: 250px;
+}
+
+.ServiceList button {
+  width: 100px;
+}
+
+.ServiceListElement {
+  justify-content: space-between;
+}
+
+.ServiceList ul {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.ServiceList {
+  overflow-y: auto;
+}
+
+
+.text-middle {
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
