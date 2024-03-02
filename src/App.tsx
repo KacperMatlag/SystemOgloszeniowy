@@ -26,7 +26,7 @@ function App() {
             <Route path="/Dodaj" element={<AnnouncementCreate />} />
             <Route path="/Logowanie" element={<LoginRegister />} />
             <Route path="/Profil/:id" element={<Profile />} />
-            <Route path="/Profil/Edytuj" element={<EditProfile />} />
+            <Route path="/Profil/:id/Edytuj" element={<EditProfile />} />
             <Route path="/*" element={<Home />} />
           </Routes>
           <Footer />

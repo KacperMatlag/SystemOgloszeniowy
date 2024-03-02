@@ -2,7 +2,7 @@ import { Ref } from "react";
 
 interface SelectProps {
   name: string;
-  options: any[];
+  options?: any[];
   onSelect: React.Dispatch<React.SetStateAction<any>>;
   placeholder: string;
   clases: string;
@@ -26,7 +26,7 @@ const CertainSelect: React.FC<SelectProps> = ({
       <option value="" selected>
         {placeholder}
       </option>
-      {options.map((option: any, index: number) => (
+      {options?.map((option: any, index: number) => (
         <option
           key={index}
           value={option.ID}

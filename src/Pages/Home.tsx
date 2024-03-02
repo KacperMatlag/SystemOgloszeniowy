@@ -11,7 +11,6 @@ import { Link, useNavigate } from "react-router-dom";
 import "../CSS/PagesCSS/Home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LoadingScreen from "./LoadingScreen";
-import * as tmp from "../temporary/announcementSample.json";
 import type {
   Annoucement,
   Company,
@@ -23,7 +22,11 @@ import type {
   CategoryWithPositions,
 } from "../Models/index";
 
+import { selectsDataValues } from "../Utils/HomeUtils";
+import { useApi } from "../ApiMenager/ApiContext";
+
 const Home: React.FC = () => {
+  const api = useApi();
   const navigate = useNavigate();
   const [loading, Setloading] = useState<boolean>(true);
   const [jobPosition, SetJobPosition] = useState<CategoryWithPositions[]>([]);
@@ -51,46 +54,25 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          jobPositions,
-          companies,
-          categories,
-          announcements,
-          jobLevel,
-          typeOfContract,
-          workingTime,
-          workType,
-          spotlight,
-          count,
-        ] = await Promise.all([
-          axios.get("http://localhost:2137/cwp"),
-          axios.get("http://localhost:2137/company"),
-          axios.get("http://localhost:2137/workcategory"),
-          axios.get("http://localhost:2137/announcement/latest"),
-          axios.get("http://localhost:2137/joblevel"),
-          axios.get("http://localhost:2137/typeofcontract"),
-          axios.get("http://localhost:2137/workingtime"),
-          axios.get("http://localhost:2137/workType"),
-          axios.get("http://localhost:2137/announcement/random"),
-          axios.get("http://localhost:2137/announcement/getcount"),
-        ]);
-        SetJobPosition(jobPositions.data);
-        SetCompanies(companies.data);
-        SetCategories(categories.data);
-        SetAnnouncements(announcements.data);
-        SetJobLevel(jobLevel.data);
-        SetTypeOfContract(typeOfContract.data);
-        SetWorkingTime(workingTime.data);
-        SetWorktype(workType.data);
-        SetSpotlight(spotlight.data);
-        SetCount(count.data.count);
+        const SearchData = selectsDataValues("", api);
+        console.log(jobPosition);
+
+        SetJobPosition((await SearchData).jobPositions);
+        SetCompanies((await SearchData).companies);
+        SetCategories((await SearchData).categories);
+        SetAnnouncements((await SearchData).announcements);
+        SetJobLevel((await SearchData).jobLevel);
+        SetTypeOfContract((await SearchData).typeOfContract);
+        SetWorkingTime((await SearchData).workingTime);
+        SetWorktype((await SearchData).workType);
+        SetSpotlight((await SearchData).jobbSpotlight);
+        SetCount((await SearchData).count);
         Setloading(false);
       } catch (error) {
         console.error("Błąd podczas pobierania danych", error);
         Setloading(false);
       }
     };
-
     fetchData();
   }, []);
 

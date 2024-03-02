@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { JobRowControl, CertainSelect } from "../Components/index";
 import axios from "axios";
-import { Link, useLocation, useParams } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import {} from "../CSS/PagesCSS/AnnouncementList.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LoadingScreen from "./LoadingScreen";
@@ -15,6 +15,7 @@ import type {
   WorkingTime,
   CategoryWithPositions,
 } from "../Models/index";
+import { selectsDataValues } from "../Utils/AnnouncementList";
 
 const AnnouncementList: React.FC = () => {
   const location = useLocation();
@@ -44,41 +45,21 @@ const AnnouncementList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const [
-          jobPositions,
-          companies,
-          categories,
-          announcements,
-          jobLevel,
-          typeOfContract,
-          workingTime,
-          workType,
-        ] = await Promise.all([
-          axios.get("http://localhost:2137/cwp"),
-          axios.get("http://localhost:2137/company"),
-          axios.get("http://localhost:2137/workcategory"),
-          axios.get(
-            "http://localhost:2137/announcement/filter?" + queryParams ?? ""
-          ),
-          axios.get("http://localhost:2137/joblevel"),
-          axios.get("http://localhost:2137/typeofcontract"),
-          axios.get("http://localhost:2137/workingtime"),
-          axios.get("http://localhost:2137/workType"),
-        ]);
+        const data = await selectsDataValues(queryParams);
         setTimeout(() => {
-          SetJobPosition(jobPositions.data);
-          SetCompanies(companies.data);
-          SetCategories(categories.data);
+          SetJobPosition(data.jobPositions);
+          SetCompanies(data.companies);
+          SetCategories(data.categories);
           SetAnnouncements(
-            announcements.data.filter(
+            data.announcements.filter(
               (announcement: Annoucement) =>
                 announcement.daysUntilExpiration >= 0
             )
           );
-          SetJobLevel(jobLevel.data);
-          SetTypeOfContract(typeOfContract.data);
-          SetWorkingTime(workingTime.data);
-          SetWorktype(workType.data);
+          SetJobLevel(data.jobLevel);
+          SetTypeOfContract(data.typeOfContract);
+          SetWorkingTime(data.workingTime);
+          SetWorktype(data.workType);
           Setloading(false);
         }, 100);
       } catch (error) {

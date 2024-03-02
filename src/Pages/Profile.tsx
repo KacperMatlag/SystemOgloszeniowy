@@ -54,7 +54,7 @@ const ProfilePage: React.FC = () => {
                 <h4 className="text-center">{userProfile.Login}</h4>
               </div>
               {_User?.ID == id && (
-                <Link to="/Profil/Edytuj">
+                <Link to={`/Profil/${id}/Edytuj/`}>
                   <button className="btn btn-primary">Edytuj</button>
                 </Link>
               )}
@@ -130,7 +130,7 @@ const ProfilePage: React.FC = () => {
                           alt={element.Service.Name}
                         />
                       </div>
-                      <a href={element.Link} target="_blank">
+                      <a href={`${element.Link}`} target="_blank">
                         {element.Link}
                       </a>
                     </div>

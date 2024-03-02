@@ -1,11 +1,5 @@
 import axios from "axios";
-import React, {
-  createContext,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from "react";
+import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { User } from "../Models";
 
 interface AuthContextProps {
@@ -15,6 +9,7 @@ interface AuthContextProps {
   _User: User | null;
   _extendSession: () => Promise<void>;
   _ReloadUser: () => void;
+  _SetUser: React.Dispatch<React.SetStateAction<User | null>>;
 }
 
 const AuthContext = createContext<AuthContextProps | undefined>(undefined);
@@ -43,8 +38,10 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
         await axios
           .get("http://localhost:2137/user/" + userData?.ID)
           .then((res) => {
-            setUserData(res.data);
-            console.log("Byla zmiana");
+            setTimeout(() => {
+              setUserData(res.data);
+            }, 100);
+            console.log(userData);
           });
       };
       fetchUser();
@@ -101,8 +98,9 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
       _User: userData,
       _extendSession,
       _ReloadUser,
+      _SetUser: setUserData,
     }),
-    [isAuthenticated, userData, _ReloadUser]
+    [isAuthenticated, userData]
   );
 
   return (

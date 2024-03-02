@@ -1,10 +1,8 @@
-import axios from "axios";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { useParams } from "react-router-dom";
 import LoadingScreen from "./LoadingScreen";
 import {} from "../CSS/PagesCSS/AnnouncementView.css";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import * as tmp from "../temporary/announcementSample.json";
 
 import {
   faWallet,
@@ -17,19 +15,20 @@ import {
   faCircleCheck,
 } from "@fortawesome/free-solid-svg-icons";
 import type { Annoucement } from "../Models/index";
+import { useApi } from "../ApiMenager/ApiContext";
 
 const AnnouncementView: React.FC = () => {
   const { id } = useParams();
   const [announcement, SetAnnouncement] = useState<Annoucement>(
     {} as Annoucement
   );
+  const ApiMenager = useApi();
   const [loading, SetLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await axios.get(`http://localhost:2137/announcement/${id}`);
+        const res = await ApiMenager.getData(`announcement/${id}`);
         SetAnnouncement(res.data);
-        console.log(res);
       } catch (error) {
         console.log(error);
       } finally {

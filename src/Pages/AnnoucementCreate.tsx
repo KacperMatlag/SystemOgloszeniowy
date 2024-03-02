@@ -2,7 +2,6 @@ import axios from "axios";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import "../CSS/PagesCSS/AnnoucementCreate.css";
-import * as Yup from "yup";
 import type {
   JobLevel,
   TypeOfContract,
@@ -11,8 +10,17 @@ import type {
   WorkType,
 } from "../Models/index";
 import { ButtonProps } from "react-bootstrap";
+import {
+  AnnoucementValidationShema,
+  dutiesValidator,
+  employerOfferValidator,
+  requirementsValidator,
+  selectsDataValues,
+} from "../Utils/AnnoucementCreate";
+import { useApi } from "../ApiMenager/ApiContext";
 
 const AnnoucementCreate: React.FC = () => {
+  const api = useApi();
   const [loading, SetLoading] = useState(true);
   const [announcement, SetAnnouncementOptions] = useState({
     Title: "",
@@ -47,19 +55,12 @@ const AnnoucementCreate: React.FC = () => {
   useEffect(() => {
     try {
       const fetchData = async () => {
-        const [Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels] =
-          await Promise.all([
-            axios.get("http://localhost:2137/workcategory"),
-            axios.get("http://localhost:2137/typeofcontract"),
-            axios.get("http://localhost:2137/workingtime"),
-            axios.get("http://localhost:2137/workType"),
-            axios.get("http://localhost:2137/joblevel"),
-          ]);
-        SetCategories(Categories.data);
-        SetTypeOfContract(TypesOfContracts.data);
-        SetWorkingTimes(WorkingTime.data);
-        SetWorkTypes(WorkType.data);
-        SetJobLevels(JobLevels.data);
+        const selectValues = selectsDataValues(api);
+        SetCategories((await selectValues).Categories);
+        SetTypeOfContract((await selectValues).TypesOfContracts);
+        SetWorkingTimes((await selectValues).WorkingTime);
+        SetWorkTypes((await selectValues).WorkType);
+        SetJobLevels((await selectValues).JobLevels);
         SetLoading(false);
       };
       fetchData();
@@ -85,58 +86,13 @@ const AnnoucementCreate: React.FC = () => {
     fetchData();
   }, [announcement.WorkCategoryID]);
 
-  const validationSchema = Yup.object().shape({
-    Title: Yup.string()
-      .required("Tytuł jest wymagany")
-      .min(5, "Tytuł musi mieć minimum 5 znaków")
-      .max(100, "Tytuł musi mieć maksymalnie 100 znaków"),
-    Description: Yup.string()
-      .required("Opis jest wymagany")
-      .min(10, "Opis musi mieć minimum 10 znaków")
-      .max(1000, "Opis musi mieć maksymalnie 1000 znakow"),
-    WorkCategoryID: Yup.number().min(1, "Kategoria jest wymagana"),
-    JobPositionID: Yup.number().min(1, "Pozycja jest wymagana"),
-    JobLevelID: Yup.number().min(1, "Poziom pracy jest wymagany"),
-    TypeOfContractID: Yup.number().min(1, "Rodzaj umowy jest wymagany"),
-    WorkingTimeID: Yup.number().min(1, "Czas pracy jest wymagany"),
-    WorkTypeID: Yup.number().min(1, "Typ pracy jest wymagany"),
-    ExpirationDate: Yup.date()
-      .required("Data ważności jest wymagana")
-      .nullable(),
-    MinWage: Yup.number().min(0, "Wynagrodzenie minimalne nie może być ujemne"),
-    MaxWage: Yup.number()
-      .min(0, "Wynagrodzenie maksymalne nie może być ujemne")
-      .when("MinWage", (minWage, schema) => {
-        return schema.min(
-          minWage as unknown as number,
-          "Wynagrodzenie maksymalne nie może być mniejsze niż minimalne"
-        );
-      }),
-  });
-  const employerOfferValidator = Yup.object().shape({
-    emploeyOffer: Yup.string()
-      .required()
-      .min(4, "Tekst musi mieć co najmniej 4 znaki")
-      .max(150, "Tekst nie może przekraczać 150 znaków"),
-  });
-  const requirementsValidator = Yup.object().shape({
-    requirement: Yup.string()
-      .required()
-      .min(4, "Tekst musi mieć co najmniej 4 znaki")
-      .max(150, "Tekst nie może przekraczać 150 znaków"),
-  });
-  const dutiesValidator = Yup.object().shape({
-    duty: Yup.string()
-      .required()
-      .min(4, "Tekst musi mieć co najmniej 4 znaki")
-      .max(150, "Tekst nie może przekraczać 150 znaków"),
-  });
-
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     try {
-      await validationSchema.validate(announcement, { abortEarly: false });
-      axios
+      await AnnoucementValidationShema.validate(announcement, {
+        abortEarly: false,
+      });
+      await axios
         .post("http://localhost:2137/announcement/", announcement)
         .then(async (res) => {
           if (res.status === 201) {
@@ -164,13 +120,7 @@ const AnnoucementCreate: React.FC = () => {
           }
         });
     } catch (error: any) {
-      const alert = document.createElement("div");
-      alert.classList.add("alert", "alert-danger", "alert-visible");
-      alert.innerText += error.errors[0];
-      document.body.append(alert);
-      setTimeout(() => {
-        alert.remove();
-      }, 2000);
+      console.log(error);
     }
   };
 

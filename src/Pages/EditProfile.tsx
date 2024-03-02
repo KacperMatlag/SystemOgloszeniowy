@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { useAuth } from "../AuthContext/authContect";
 import "../CSS/PagesCSS/EditProfile.css";
 import {
@@ -10,33 +10,20 @@ import {
   WorkCategory,
 } from "../Models";
 import { LoadingScreen } from ".";
-import axios from "axios";
-import * as yup from "yup";
 import { CertainSelect } from "../Components";
-
-interface ChangePassword {
-  Password: string;
-  NewPassword: string;
-  NewPassword2: string;
-}
-const changePasswordSchema = yup.object().shape({
-  Password: yup.string().required("Aktualne hasło jest wymagane"),
-  NewPassword: yup
-    .string()
-    .min(8, "Nowe hasło musi mieć co najmniej 8 znaków")
-    .required("Nowe hasło jest wymagane"),
-  NewPassword2: yup
-    .string()
-    .oneOf(
-      [yup.ref("NewPassword")],
-      "Potwierdzenie nowego hasła musi być identyczne"
-    )
-    .required("Potwierdzenie nowego hasła jest wymagane"),
-});
-
+import {
+  ChangePassword,
+  changePasswordSchema,
+  LanguageColor,
+  LoadSelects,
+  DefaultResponseAction,
+  LanguageLevels,
+} from "../Utils/EditProfileUtils";
+import { useApi } from "../ApiMenager/ApiContext";
 const EditProfile = () => {
+  const api = useApi();
   //Page Var's
-  const { _User, _ReloadUser, isAuthenticated } = useAuth();
+  const { _User, _ReloadUser } = useAuth();
   const [profile, SetProfile] = useState<Profile>({} as Profile);
   const [loading, SetLoading] = useState<boolean>(true);
   //Password Change
@@ -46,10 +33,14 @@ const EditProfile = () => {
     NewPassword2: "",
   });
   //Current Job Position
-  const [selectedCategory, SetSelectedCategory] = useState<number>(0);
-  const [selectedPosition, SetSelectedPosition] = useState<number>(0);
+  const [selectedCategory, SetSelectedCategory] = useState<number | undefined>(
+    undefined
+  );
+  const [selectedPosition, SetSelectedPosition] = useState<number | undefined>(
+    undefined
+  );
   const [jobDescription, SelectedJobDescription] = useState<string>("");
-  const [categories, SetCategories] = useState<WorkCategory[]>([]);
+  const [categories, SetCategories] = useState<WorkCategory[]>();
   const [positions, SetPositions] = useState<CategoryWithPositions[]>([]);
   //Language
   const [languages, SetLanguages] = useState<Language[]>([]);
@@ -59,63 +50,49 @@ const EditProfile = () => {
   const [services, SetServices] = useState<Service[]>([]);
   const [service, SetService] = useState<number>(0);
   const [link, SetLink] = useState<string>("");
-  //
-  const LanguageColor = (text: string) => {
-    switch (text[0]) {
-      case "A":
-        return "Red";
-      case "B":
-        return "lightgreen";
-      case "C":
-        return "Green";
-      default:
-        break;
-    }
-  };
-  //
+
   useEffect(() => {
     const updateProfile = async () => {
       if (_User?.Profile) {
-        const profile: User = (
-          await axios.get("http://localhost:2137/user/" + _User.ProfileID)
-        ).data;
-        SetProfile(profile.Profile);
+        await api.getData<User>("user/" + _User.ProfileID).then((res) => {
+          SetProfile(res.data.Profile);
+        });
       }
+      const CategoryID = (
+        await api.getData<CategoryWithPositions>(
+          "cwp/category/" + profile.CurrentJobPositionID
+        )
+      ).data;
+
+      setTimeout(() => {
+        SetSelectedCategory(CategoryID?.WorkCategoryID ?? 0);
+        SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
+      }, 0);
     };
     updateProfile();
-  }, [_User]);
+  }, [_User, selectedCategory, selectedPosition]);
   useEffect(() => {
     SetLoading(true);
     const loadProfile = async () => {
-      const [categories, languages, services] = await Promise.all([
-        axios.get("http://localhost:2137/workcategory/"),
-        axios.get("http://localhost:2137/languages"),
-        axios.get("http://localhost:2137/services/services"),
-      ]);
+      const selectData = LoadSelects(api);
 
-      if (profile.CurrentJobPositionID) {
-        const CategoryID = (
-          await axios.get(
-            "http://localhost:2137/cwp/category/" + profile.CurrentJobPositionID
-          )
-        ).data;
-        SetSelectedCategory(CategoryID.WorkCategoryID);
-        SetSelectedPosition(profile.CurrentJobPositionID);
-      }
-      SetCategories(categories.data);
-      SetLanguages(languages.data);
-      SetServices(services.data);
-      SetLoading(false);
+      setTimeout(async () => {
+        SetCategories((await selectData).categories);
+        SetLanguages((await selectData).languages);
+        SetServices((await selectData).services);
+        SetLoading(false);
+      }, 0);
     };
     loadProfile();
   }, []);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const response = await axios.get(
-          "http://localhost:2137/cwp/position/" + selectedCategory
-        );
-        SetPositions(response.data);
+        await api
+          .getData<CategoryWithPositions[]>("cwp/position/" + selectedCategory)
+          .then((res) => {
+            SetPositions(res.data);
+          });
       } catch (error) {
         console.error("Error fetching data:", error);
       }
@@ -127,7 +104,7 @@ const EditProfile = () => {
   return (
     <div className="container-xl">
       <div className="row">
-        <div className="col-6">
+        <div className="col-6 d-flex flex-column">
           <div className="ProfileStyle">
             <div>
               <h4 className="text-center">Profil Uzytkownika</h4>
@@ -143,20 +120,14 @@ const EditProfile = () => {
               onSubmit={async (e) => {
                 e.preventDefault();
                 try {
-                  await axios
-                    .patch("http://localhost:2137/profile/update", profile, {
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      withCredentials: true,
-                    })
+                  await api
+                    .patchData<Profile>("profile/update", profile)
                     .then((res) => {
-                      if (res.status === 200) {
-                        alert("Pomyślnie zaktualizowano profil");
-                        setTimeout(() => {
-                          _ReloadUser();
-                        });
-                      }
+                      DefaultResponseAction(
+                        _ReloadUser,
+                        res,
+                        "Pomyślnie zaktualizowano profil"
+                      );
                     });
                 } catch (error: any) {
                   console.log(error.error);
@@ -230,25 +201,19 @@ const EditProfile = () => {
                 changePasswordSchema
                   .validate(password, { abortEarly: false })
                   .then(async () => {
-                    await axios
-                      .post(
-                        "http://localhost:2137/user/changepassword",
-                        {
-                          ID: _User?.ID,
-                          Password: password.Password,
-                          NewPassword: password.NewPassword,
-                        },
-                        {
-                          headers: {
-                            "Content-Type": "application/json",
-                          },
-                          withCredentials: true,
-                        }
-                      )
+                    await api
+                      .postData("user/changepassword", {
+                        ID: _User?.ID,
+                        Password: password.Password,
+                        NewPassword: password.NewPassword,
+                      })
                       .then((res) => {
-                        if (res.status == 200)
-                          alert("Pomyslnie zmieniono haslo");
-                        else alert("Wystapil problem podczas zmiany hasla");
+                        DefaultResponseAction(
+                          _ReloadUser,
+                          res,
+                          "Pomyslnie zmieniono haslo",
+                          "Wystapil problem podczas zmiany hasla"
+                        );
                       })
                       .catch((err) => alert(err.message ?? ""));
                   });
@@ -290,25 +255,14 @@ const EditProfile = () => {
               className="ProfileInfo d-flex flex-column Center"
               onSubmit={async (e) => {
                 e.preventDefault();
-                await axios
-                  .post(
-                    "http://localhost:2137/profile/updatecurrentjob",
-                    {
-                      ID: _User?.ID,
-                      JobPosition: selectedPosition,
-                      JobDescription: jobDescription,
-                    },
-                    {
-                      headers: {
-                        "Content-Type": "application/json",
-                      },
-                      withCredentials: true,
-                    }
-                  )
+                await api
+                  .postData<Profile>("profile/updatecurrentjob", {
+                    ID: _User?.ID,
+                    JobPosition: selectedPosition,
+                    JobDescription: jobDescription,
+                  })
                   .then((res) => {
-                    if (res.status == 200) {
-                      alert("OK");
-                    }
+                    DefaultResponseAction(_ReloadUser, res);
                   })
                   .catch((err) => console.log(err));
               }}
@@ -317,7 +271,7 @@ const EditProfile = () => {
                 clases="form-select"
                 name="JobCategory"
                 onSelect={SetSelectedCategory}
-                options={categories.sort((z) => z.ID)}
+                options={categories?.sort((z) => z.ID)}
                 placeholder="Wybierz Kategorie"
                 selectedIndex={selectedCategory}
               />
@@ -327,7 +281,7 @@ const EditProfile = () => {
                 onSelect={SetSelectedPosition}
                 placeholder="Wybierz Pozycje"
                 options={positions.map((z) => z.JobPosition)}
-                selectedIndex={selectedPosition}
+                selectedIndex={profile.CurrentJobPositionID}
               />
               <textarea
                 className="form-control"
@@ -356,36 +310,23 @@ const EditProfile = () => {
                 className=" ProfileInfo d-flex flex-column"
                 onSubmit={async (e) => {
                   e.preventDefault();
+
+                  const data = {
+                    ProfileID: profile.ID,
+                    LanguageID: languageID,
+                    Level: level,
+                  };
+
+                  let res;
                   if (
                     profile.Languages.find((z) => z.LanguageID == languageID)
                   ) {
-                    await axios
-                      .patch("http://localhost:2137/languages", {
-                        ProfileID: profile.ID,
-                        LanguageID: languageID,
-                        Level: level,
-                      })
-                      .then(async (res) => {
-                        if (res.status == 200) {
-                          alert("OK");
-                          _ReloadUser();
-                        }
-                      });
-                  } else {
-                    await axios
-                      .post("http://localhost:2137/languages", {
-                        ProfileID: _User?.ID,
-                        Level: level,
-                        LanguageID: languageID,
-                      })
-                      .then(async (res) => {
-                        if (res.status == 200) {
-                          alert("OK");
-                          _ReloadUser();
-                        }
-                      })
-                      .catch((err) => console.log(err));
-                  }
+                    res = await api.patchData(
+                      "http://localhost:2137/languages",
+                      data
+                    );
+                  } else res = await api.postData("languages", data);
+                  DefaultResponseAction(_ReloadUser, res);
                 }}
               >
                 <CertainSelect
@@ -399,14 +340,7 @@ const EditProfile = () => {
                   clases="form-select"
                   name="Language"
                   placeholder="Poziom"
-                  options={[
-                    { ID: "A1", Name: "A1" },
-                    { ID: "A2", Name: "A2" },
-                    { ID: "B1", Name: "B1" },
-                    { ID: "B2", Name: "B2" },
-                    { ID: "C1", Name: "C1" },
-                    { ID: "C2", Name: "C2" },
-                  ]}
+                  options={LanguageLevels}
                   onSelect={SetLevel}
                 />
                 <button type="submit" className="btn btn-primary">
@@ -441,16 +375,10 @@ const EditProfile = () => {
                           className="btn btn-danger"
                           id={element.ID.toString()}
                           onClick={async () => {
-                            await axios
-                              .delete(
-                                "http://localhost:2137/languages/userlanguage/" +
-                                  element.ID
-                              )
+                            await api
+                              .deleteData("languages/userlanguage/", element.ID)
                               .then((res) => {
-                                if (res.status == 200) {
-                                  alert("OK");
-                                  _ReloadUser();
-                                }
+                                DefaultResponseAction(_ReloadUser, res);
                               });
                           }}
                         >
@@ -474,37 +402,24 @@ const EditProfile = () => {
               <form
                 className=" ProfileInfo d-flex flex-column"
                 onSubmit={async (e) => {
-                  try {
-                    e.preventDefault();
-                    if (profile.Services.find((z) => z.ServiceID == service)) {
-                      const patchUserLink = await axios.patch(
-                        "http://localhost:2137/services/updateuserlink",
-                        {
-                          ProfileID: profile.ID,
-                          ServiceID: service,
-                          Link: link,
-                        }
-                      );
-                      if (patchUserLink.status == 200) {
-                        alert("OK");
-                        _ReloadUser();
-                      }
-                    } else {
-                      const userService = await axios.post(
-                        "http://localhost:2137/services/adduserlink",
-                        {
-                          ProfileID: profile.ID,
-                          ServiceID: service,
-                          Link: link,
-                        }
-                      );
-                      if (userService.status == 200) {
-                        alert("OK");
-                        _ReloadUser();
-                      }
-                    }
-                  } catch (error) {
-                    console.log(error);
+                  const data = {
+                    ProfileID: profile.ID,
+                    ServiceID: service,
+                    Link: link,
+                  };
+                  e.preventDefault();
+                  if (profile.Services.find((z) => z.ServiceID == service)) {
+                    await api
+                      .patchData("services/updateuserlink", data)
+                      .then((res) => {
+                        DefaultResponseAction(_ReloadUser, res);
+                      });
+                  } else {
+                    await api
+                      .postData("services/adduserlink", data)
+                      .then((res) => {
+                        DefaultResponseAction(_ReloadUser, res);
+                      });
                   }
                 }}
               >
@@ -556,16 +471,10 @@ const EditProfile = () => {
                           className="btn btn-danger"
                           id={element.ID.toString()}
                           onClick={async () => {
-                            await axios
-                              .delete(
-                                "http://localhost:2137/services/deleteuserLink/" +
-                                  element.ID
-                              )
+                            await api
+                              .deleteData("services/deleteuserLink", element.ID)
                               .then((res) => {
-                                if (res.status == 200) {
-                                  alert("OK");
-                                  _ReloadUser();
-                                }
+                                DefaultResponseAction(_ReloadUser, res);
                               });
                           }}
                         >
