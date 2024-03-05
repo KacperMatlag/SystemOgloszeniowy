@@ -3,7 +3,7 @@ import axios, { AxiosResponse } from "axios";
 export default class ApiManager implements ApiRequests {
   private baseUrl;
   constructor() {
-    this.baseUrl = "http://localhost:2137";
+    this.baseUrl = "http://127.0.0.1:2137";
   }
 
   async getData<T>(endpoint: string): Promise<AxiosResponse<T>> {

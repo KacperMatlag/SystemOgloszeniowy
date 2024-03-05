@@ -6,7 +6,6 @@ import {
 } from "../Components/index";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faX } from "@fortawesome/free-solid-svg-icons";
-import axios from "axios";
 import { Link, useNavigate } from "react-router-dom";
 import "../CSS/PagesCSS/Home.css";
 import "bootstrap/dist/css/bootstrap.min.css";
@@ -54,8 +53,7 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const SearchData = selectsDataValues("", api);
-        console.log(jobPosition);
+        const SearchData = selectsDataValues(api);
 
         SetJobPosition((await SearchData).jobPositions);
         SetCompanies((await SearchData).companies);
@@ -79,9 +77,11 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        axios.get("http://localhost:2137/cwp/" + selectCategory).then((res) => {
-          SetJobPosition(res.data);
-        });
+        api
+          .getData<CategoryWithPositions[]>("cwp/" + selectCategory)
+          .then((res) => {
+            SetJobPosition(res.data);
+          });
       } catch (error) {
         console.error("Error fetching data:", error);
       }

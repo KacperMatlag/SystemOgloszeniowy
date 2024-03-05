@@ -1,5 +1,3 @@
-import { Ref } from "react";
-
 interface SelectProps {
   name: string;
   options?: any[];
@@ -7,7 +5,6 @@ interface SelectProps {
   placeholder: string;
   clases: string;
   selectedIndex?: number;
-  ref?: Ref<HTMLElement>;
 }
 const CertainSelect: React.FC<SelectProps> = ({
   name,
@@ -20,7 +17,9 @@ const CertainSelect: React.FC<SelectProps> = ({
   return (
     <select
       name={name}
-      onChange={(e) => onSelect(e.target.value)}
+      onChange={(e) => {
+        onSelect(e.target.value);
+      }}
       className={clases}
     >
       <option value="" selected>

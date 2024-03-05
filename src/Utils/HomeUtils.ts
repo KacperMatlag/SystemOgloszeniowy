@@ -1,5 +1,4 @@
 import ApiManager from "../ApiMenager/ApiManager";
-import { JobSpotlight } from "../Components";
 import {
   Annoucement,
   CategoryWithPositions,
@@ -10,7 +9,7 @@ import {
   WorkType,
   WorkingTime,
 } from "../Models";
-export const selectsDataValues = async (queryParams: any, api: ApiManager) => {
+export const selectsDataValues = async (api: ApiManager) => {
   try {
     const [
       jobPositions,

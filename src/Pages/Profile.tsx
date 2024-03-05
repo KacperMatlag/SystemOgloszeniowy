@@ -5,6 +5,7 @@ import axios from "axios";
 import { useAuth } from "../AuthContext/authContect";
 import { LoadingScreen } from ".";
 import { Link, useParams } from "react-router-dom";
+import { useApi } from "../ApiMenager/ApiContext";
 
 const LanguageColor = (text: string) => {
   switch (text[0]) {
@@ -20,6 +21,7 @@ const LanguageColor = (text: string) => {
 };
 
 const ProfilePage: React.FC = () => {
+  const api = useApi();
   const { _User } = useAuth();
   const [userProfile, SetUserProfile] = useState<User>({} as User);
   const [loading, SetLoading] = useState<boolean>(true);
@@ -27,7 +29,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const LoadProfile = async () => {
       try {
-        const res = await axios.get("http://localhost:2137/user/" + id);
+        const res = await api.getData<User>("user/" + id);
         SetUserProfile(res.data);
         SetLoading(false);
       } catch (error) {
@@ -41,7 +43,7 @@ const ProfilePage: React.FC = () => {
   return (
     <div className="ProfileContainer">
       <div className="container-xxl">
-        <div className="row gy-5">
+        <div className="row gy-2">
           <div className="col-xl-6 col-md-12">
             <div className="ProfileView Style flex-column">
               <h4 className="text-center">Profil</h4>
@@ -111,7 +113,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="row gy-5" style={{ minHeight: "400px" }}>
+        <div className="row gy-2" style={{ minHeight: "400px" }}>
           <div className="col-xl-4 col-md-6">
             <div className="Style">
               <div>
@@ -194,7 +196,7 @@ const ProfilePage: React.FC = () => {
           </div>
         </div>
         <div
-          className="row gy-5"
+          className="row gy-2"
           style={{ height: "400px", maxHeight: "400px" }}
         >
           <div className="col-12">
@@ -234,7 +236,7 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
-        <div className="row gy-5" style={{ height: "400px", margin: "20px 0" }}>
+        <div className="row gy-2" style={{ height: "400px", margin: "20px 0" }}>
           <div className="col-12">
             <div className="Style">
               <h4 className="text-center">Wyksztalcenie</h4>

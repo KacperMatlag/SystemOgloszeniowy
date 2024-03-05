@@ -1,3 +1,5 @@
+import Address from "./Address";
+
 interface Company {
   ID: number;
   Name: string;
@@ -5,6 +7,7 @@ interface Company {
   Map: string;
   Description: string;
   Image: string;
+  Address: Address;
 }
 
 export default Company;

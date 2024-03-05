@@ -15,7 +15,7 @@ import type {
   WorkingTime,
   CategoryWithPositions,
 } from "../Models/index";
-import { selectsDataValues } from "../Utils/AnnouncementList";
+import { selectsDataValues } from "../Utils/AnnouncementListUtils";
 
 const AnnouncementList: React.FC = () => {
   const location = useLocation();

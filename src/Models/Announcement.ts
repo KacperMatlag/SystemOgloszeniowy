@@ -1,4 +1,4 @@
-import { AnnouncementOptions } from ".";
+import { AnnouncementOptions, Company } from ".";
 
 interface Annoucement {
   ID: number;
@@ -22,7 +22,7 @@ interface Annoucement {
   randomID: number;
   JobPosition: { ID: number; Name: string };
   WorkCategory: { ID: number; Name: string };
-  Company: { ID: number; Name: string; Description: string; Image: string };
+  Company: Company;
   JobLevel: { ID: number; Name: string };
   TypeOfContract: { ID: number; Name: string };
   WorkingTime: { ID: number; Name: string };

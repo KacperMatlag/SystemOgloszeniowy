@@ -1,4 +1,4 @@
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import LoadingScreen from "./LoadingScreen";
 import {} from "../CSS/PagesCSS/AnnouncementView.css";
@@ -16,18 +16,27 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { Annoucement } from "../Models/index";
 import { useApi } from "../ApiMenager/ApiContext";
+import axios from "axios";
 
 const AnnouncementView: React.FC = () => {
   const { id } = useParams();
   const [announcement, SetAnnouncement] = useState<Annoucement>(
     {} as Annoucement
   );
-  const ApiMenager = useApi();
+  const api = useApi();
   const [loading, SetLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const res = await ApiMenager.getData(`announcement/${id}`);
+        const res = await api.getData<Annoucement>(`announcement/${id}`);
+        //await axios
+        // .get(
+        //   "https://dev.virtualearth.net/REST/v1/Locations?query=Limanowa+25&include=queryParse&key=Ah8IETdh7EXnIISK_lPCwE0JB1TIdgMk3gmWYO84yuwPQkij-sP0u3o-zHZAG0HT"
+        // )
+        // .then((res) => {
+        //   console.log(res);
+        // });
+
         SetAnnouncement(res.data);
       } catch (error) {
         console.log(error);
@@ -192,7 +201,7 @@ const AnnouncementView: React.FC = () => {
       </section>
       <section className="CompanyInformations ElementsList d-flex flex-column flex-md-row justify-content-center align-items-center w-100">
         <iframe
-          src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d20489.978263788085!2d19.921366329460113!3d50.06293042684066!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47165b11bb2ba5ed%3A0x4e9197ac6101863a!2sStare%20Miasto%2C%20Krak%C3%B3w!5e0!3m2!1spl!2spl!4v1699194599422!5m2!1spl!2spl"
+          src={`https://maps.google.com/maps/place?q=${announcement.Company.Address.Longitude}, ${announcement.Company.Address.Latitude}&z=15&output=embed`}
           width="600"
           height="450"
           style={{ border: "0px" }}

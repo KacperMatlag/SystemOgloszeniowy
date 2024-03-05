@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import "../CSS/PagesCSS/AnnoucementCreate.css";
 import type {
+  Annoucement,
   JobLevel,
   TypeOfContract,
   WorkCategory,
@@ -12,11 +13,12 @@ import type {
 import { ButtonProps } from "react-bootstrap";
 import {
   AnnoucementValidationShema,
+  SideEffectPost,
   dutiesValidator,
   employerOfferValidator,
   requirementsValidator,
   selectsDataValues,
-} from "../Utils/AnnoucementCreate";
+} from "../Utils/AnnoucementCreateUtils";
 import { useApi } from "../ApiMenager/ApiContext";
 
 const AnnoucementCreate: React.FC = () => {
@@ -92,32 +94,10 @@ const AnnoucementCreate: React.FC = () => {
       await AnnoucementValidationShema.validate(announcement, {
         abortEarly: false,
       });
-      await axios
-        .post("http://localhost:2137/announcement/", announcement)
-        .then(async (res) => {
-          if (res.status === 201) {
-            setTimeout(async () => {
-              await axios.post(
-                "http://localhost:2137/duties",
-                duties.map((e) => {
-                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
-                })
-              );
-              await axios.post(
-                "http://localhost:2137/requirements",
-                requirements.map((e) => {
-                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
-                })
-              );
-              await axios.post(
-                "http://localhost:2137/WhatTheEmployerOffers",
-                emploeyOffers.map((e) => {
-                  return { ID: null, Name: e, AnnouncementID: res.data.ID };
-                })
-              );
-            });
-            alert("Pomyślnie dodano");
-          }
+      await api
+        .postData<Annoucement>("announcement/", announcement)
+        .then(async (res: any) => {
+          SideEffectPost(res, api, duties, requirements, emploeyOffers);
         });
     } catch (error: any) {
       console.log(error);

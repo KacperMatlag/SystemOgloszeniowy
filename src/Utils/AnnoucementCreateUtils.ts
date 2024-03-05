@@ -1,27 +1,29 @@
 import * as Yup from "yup";
 import ApiManager from "../ApiMenager/ApiManager";
+import {
+  JobLevel,
+  TypeOfContract,
+  WorkCategory,
+  WorkType,
+  WorkingTime,
+  AnnouncementOptions,
+} from "../Models";
+import { AxiosResponse } from "axios";
 export const selectsDataValues = async (api: ApiManager) => {
-  const promises = [
-    api.getData("workcategory"),
-    api.getData("typeofcontract"),
-    api.getData("workingtime"),
-    api.getData("workType"),
-    api.getData("joblevel"),
+  const [Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels] = [
+    await api.getData<WorkCategory[]>("workcategory"),
+    await api.getData<TypeOfContract[]>("typeofcontract"),
+    await api.getData<WorkingTime[]>("workingtime"),
+    await api.getData<WorkType[]>("workType"),
+    await api.getData<JobLevel[]>("joblevel"),
   ];
-
-  const results = await Promise.allSettled(promises);
-
-  const data = results.map((result) => {
-    if (result.status === "fulfilled") {
-      return result.value.data;
-    } else {
-      return null;
-    }
-  });
-
-  const [Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels] = data;
-
-  return { Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels };
+  return {
+    Categories: Categories.data,
+    TypesOfContracts: TypesOfContracts.data,
+    WorkingTime: WorkingTime.data,
+    WorkType: WorkType.data,
+    JobLevels: JobLevels.data,
+  };
 };
 
 export const AnnoucementValidationShema = Yup.object().shape({
@@ -69,3 +71,35 @@ export const dutiesValidator = Yup.object().shape({
     .min(4, "Tekst musi mieć co najmniej 4 znaki")
     .max(150, "Tekst nie może przekraczać 150 znaków"),
 });
+
+export const SideEffectPost = async (
+  res: AxiosResponse,
+  api: ApiManager,
+  duties: string[],
+  requirements: string[],
+  emploeyOffers: string[]
+) => {
+  if (res.status === 201) {
+    setTimeout(async () => {
+      await api.postData(
+        "duties",
+        duties.map((e) => {
+          return { ID: null, Name: e, AnnouncementID: res.data.ID };
+        })
+      );
+      await api.postData(
+        "requirements",
+        requirements.map((e) => {
+          return { ID: null, Name: e, AnnouncementID: res.data.ID };
+        })
+      );
+      await api.postData(
+        "WhatTheEmployerOffers",
+        emploeyOffers.map((e) => {
+          return { ID: null, Name: e, AnnouncementID: res.data.ID };
+        })
+      );
+    });
+    alert("Pomyślnie dodano");
+  }
+};

@@ -57,17 +57,18 @@ const EditProfile = () => {
         await api.getData<User>("user/" + _User.ProfileID).then((res) => {
           SetProfile(res.data.Profile);
         });
-      }
-      const CategoryID = (
-        await api.getData<CategoryWithPositions>(
-          "cwp/category/" + profile.CurrentJobPositionID
-        )
-      ).data;
+        const CategoryID = (
+          await api.getData<CategoryWithPositions>(
+            "cwp/category/" + profile.CurrentJobPositionID
+          )
+        ).data;
 
-      setTimeout(() => {
-        SetSelectedCategory(CategoryID?.WorkCategoryID ?? 0);
-        SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
-      }, 0);
+        if (!selectedPosition) {
+          SetSelectedCategory(CategoryID?.WorkCategoryID ?? 0);
+          SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
+        }
+        SelectedJobDescription(profile.CurrentJobPositionDescription ?? "");
+      }
     };
     updateProfile();
   }, [_User, selectedCategory, selectedPosition]);
@@ -99,6 +100,7 @@ const EditProfile = () => {
     };
     fetchData();
   }, [selectedCategory]);
+
   if (loading) return <LoadingScreen />;
 
   return (
@@ -408,7 +410,10 @@ const EditProfile = () => {
                     Link: link,
                   };
                   e.preventDefault();
-                  if (profile.Services.find((z) => z.ServiceID == service)) {
+                  const searchUserService = profile.Services?.find(
+                    (z) => z.ServiceID == service
+                  );
+                  if (searchUserService) {
                     await api
                       .patchData("services/updateuserlink", data)
                       .then((res) => {
@@ -435,11 +440,11 @@ const EditProfile = () => {
                   name="Link"
                   className="form-control"
                   placeholder="URL"
+                  value={link}
                   onChange={(e) => {
                     SetLink(e.target.value);
                   }}
                 />
-                {JSON.stringify(link)}
                 <button type="submit" className="btn btn-primary">
                   Zatwierdz
                 </button>
