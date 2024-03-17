@@ -14,3 +14,4 @@ export type { default as Language } from "./Language";
 export type { default as UserLanguage } from "./UserLanguages";
 export type { default as Service } from "./Service";
 export type { default as UserLinks } from "./UserLinks";
+export type { default as Address } from "./Address";

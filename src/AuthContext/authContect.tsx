@@ -1,6 +1,6 @@
-import axios from "axios";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { User } from "../Models";
+import { useApi } from "../ApiMenager/ApiContext";
 
 interface AuthContextProps {
   isAuthenticated: boolean;
@@ -21,7 +21,7 @@ interface AuthProviderProps {
 const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [userData, setUserData] = useState<User | null>(null);
-
+  const api = useApi();
   const _login = (res: User) => {
     setUserData(res);
     setIsAuthenticated(true);
@@ -33,49 +33,30 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const _ReloadUser = async () => {
-    setTimeout(async () => {
-      const fetchUser = async () => {
-        await axios
-          .get("http://localhost:2137/user/" + userData?.ID)
-          .then((res) => {
-            setTimeout(() => {
-              setUserData(res.data);
-            }, 100);
-            console.log(userData);
-          });
-      };
-      fetchUser();
-    });
+    const fetchUser = async () => {
+      await api.get<User>("user/" + userData?.ID).then((res) => {
+        setUserData(res.data);
+        console.log(userData);
+      });
+    };
+    fetchUser();
   };
 
   const _extendSession = async () => {
-    await axios.post("http://localhost:2137/user/extendsession", userData, {
-      headers: { "Content-Type": "application/json" },
-      withCredentials: true,
-    });
+    await api.post<any>("user/extendsession", userData);
   };
 
   useEffect(() => {
     const checkSession = async () => {
-      try {
-        const res = await axios.get("http://localhost:2137/user/check", {
-          headers: {
-            "Content-Type": "application/json",
-          },
-          withCredentials: true,
-        });
+      await api.get<any>("user/check").then((res) => {
         if (res.data.user) {
           _login(res.data.user);
-        } else {
-          if (isAuthenticated && userData) {
-            if (confirm("Sesja wygasła")) {
-              _extendSession();
-            } else _logout();
-          }
+        } else if (isAuthenticated && userData) {
+          if (confirm("Sesja wygasła")) {
+            _extendSession();
+          } else _logout();
         }
-      } catch (error) {
-        console.error("Error checking session:", error);
-      }
+      });
     };
 
     // Call checkSession immediately when the component mounts

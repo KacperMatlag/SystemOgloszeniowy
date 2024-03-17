@@ -16,7 +16,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import type { Annoucement } from "../Models/index";
 import { useApi } from "../ApiMenager/ApiContext";
-import axios from "axios";
 
 const AnnouncementView: React.FC = () => {
   const { id } = useParams();
@@ -27,24 +26,10 @@ const AnnouncementView: React.FC = () => {
   const [loading, SetLoading] = useState(true);
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const res = await api.getData<Annoucement>(`announcement/${id}`);
-        //await axios
-        // .get(
-        //   "https://dev.virtualearth.net/REST/v1/Locations?query=Limanowa+25&include=queryParse&key=Ah8IETdh7EXnIISK_lPCwE0JB1TIdgMk3gmWYO84yuwPQkij-sP0u3o-zHZAG0HT"
-        // )
-        // .then((res) => {
-        //   console.log(res);
-        // });
-
-        SetAnnouncement(res.data);
-      } catch (error) {
-        console.log(error);
-      } finally {
-        SetLoading(false);
-      }
+      const res = await api.get(`announcement/${id}`);
+      SetAnnouncement(res.data);
+      SetLoading(false);
     };
-
     fetchData();
   }, [id]);
   if (loading) return <LoadingScreen />;
@@ -85,7 +70,7 @@ const AnnouncementView: React.FC = () => {
               </div>
             </div>
             <div className="w-50 d-flex justify-content-left">
-              <span>Kiedys bedzie</span>
+              <span>{announcement.Company.Address.Address}</span>
             </div>
           </div>
           <div className="d-flex align-items-center justify-content-around InfoElementWrapper text-center">

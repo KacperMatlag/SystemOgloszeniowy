@@ -1,21 +1,14 @@
 import * as Yup from "yup";
 import ApiManager from "../ApiMenager/ApiManager";
-import {
-  JobLevel,
-  TypeOfContract,
-  WorkCategory,
-  WorkType,
-  WorkingTime,
-  AnnouncementOptions,
-} from "../Models";
+
 import { AxiosResponse } from "axios";
 export const selectsDataValues = async (api: ApiManager) => {
   const [Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels] = [
-    await api.getData<WorkCategory[]>("workcategory"),
-    await api.getData<TypeOfContract[]>("typeofcontract"),
-    await api.getData<WorkingTime[]>("workingtime"),
-    await api.getData<WorkType[]>("workType"),
-    await api.getData<JobLevel[]>("joblevel"),
+    await api.get("workcategory"),
+    await api.get("typeofcontract"),
+    await api.get("workingtime"),
+    await api.get("workType"),
+    await api.get("joblevel"),
   ];
   return {
     Categories: Categories.data,
@@ -53,24 +46,10 @@ export const AnnoucementValidationShema = Yup.object().shape({
     }),
 });
 
-export const employerOfferValidator = Yup.object().shape({
-  emploeyOffer: Yup.string()
-    .required()
-    .min(4, "Tekst musi mieć co najmniej 4 znaki")
-    .max(150, "Tekst nie może przekraczać 150 znaków"),
-});
-export const requirementsValidator = Yup.object().shape({
-  requirement: Yup.string()
-    .required()
-    .min(4, "Tekst musi mieć co najmniej 4 znaki")
-    .max(150, "Tekst nie może przekraczać 150 znaków"),
-});
-export const dutiesValidator = Yup.object().shape({
-  duty: Yup.string()
-    .required()
-    .min(4, "Tekst musi mieć co najmniej 4 znaki")
-    .max(150, "Tekst nie może przekraczać 150 znaków"),
-});
+export const listElementValidator = Yup.string()
+  .required()
+  .min(4, "Tekst musi mieć co najmniej 4 znaki")
+  .max(150, "Tekst nie może przekraczać 150 znaków");
 
 export const SideEffectPost = async (
   res: AxiosResponse,
@@ -81,19 +60,19 @@ export const SideEffectPost = async (
 ) => {
   if (res.status === 201) {
     setTimeout(async () => {
-      await api.postData(
+      await api.post(
         "duties",
         duties.map((e) => {
           return { ID: null, Name: e, AnnouncementID: res.data.ID };
         })
       );
-      await api.postData(
+      await api.post(
         "requirements",
         requirements.map((e) => {
           return { ID: null, Name: e, AnnouncementID: res.data.ID };
         })
       );
-      await api.postData(
+      await api.post(
         "WhatTheEmployerOffers",
         emploeyOffers.map((e) => {
           return { ID: null, Name: e, AnnouncementID: res.data.ID };
@@ -101,5 +80,58 @@ export const SideEffectPost = async (
       );
     });
     alert("Pomyślnie dodano");
+  }
+};
+
+export const handleSubmit = async (
+  e: React.FormEvent,
+  api: ApiManager,
+  duties: any,
+  requirements: any,
+  emploeyOffers: any,
+  announcement: any
+) => {
+  e.preventDefault();
+  try {
+    await AnnoucementValidationShema.validate(announcement, {
+      abortEarly: false,
+    });
+    await api.post("announcement/", announcement).then(async (res: any) => {
+      await SideEffectPost(res, api, duties, requirements, emploeyOffers);
+    });
+  } catch (error: any) {
+    console.log(error);
+  }
+};
+
+export const getJobPositionsWithCertainCategory = async (
+  api: ApiManager,
+  announcement: any,
+  SetJobPositions: React.Dispatch<React.SetStateAction<any[]>>
+) => {
+  api.get("cwp/" + announcement.WorkCategoryID).then((res) => {
+    SetJobPositions(res.data);
+  });
+};
+
+export const addToListIfValid = async (
+  getList: string[],
+  getElement: string,
+  SetElement: React.Dispatch<React.SetStateAction<string>>,
+  SetList: React.Dispatch<React.SetStateAction<string[]>>
+) => {
+  try {
+    await listElementValidator.validate(getElement, {
+      abortEarly: false,
+    });
+    if (!getList.find((z) => z.toLowerCase() === getElement.toLowerCase())) {
+      SetList([...getList, getElement]);
+      SetElement("");
+    } else {
+      alert("Taki element juz istnieje");
+    }
+  } catch (error: any) {
+    console.log(error);
+    alert(error.errors[0]);
   }
 };

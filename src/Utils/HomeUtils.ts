@@ -1,14 +1,5 @@
 import ApiManager from "../ApiMenager/ApiManager";
-import {
-  Annoucement,
-  CategoryWithPositions,
-  Company,
-  JobLevel,
-  TypeOfContract,
-  WorkCategory,
-  WorkType,
-  WorkingTime,
-} from "../Models";
+
 export const selectsDataValues = async (api: ApiManager) => {
   try {
     const [
@@ -23,16 +14,16 @@ export const selectsDataValues = async (api: ApiManager) => {
       jobbSpotlight,
       count,
     ] = await Promise.all([
-      api.getData<CategoryWithPositions[]>("cwp"),
-      api.getData<Company[]>("company"),
-      api.getData<WorkCategory[]>("workcategory"),
-      api.getData<Annoucement[]>("announcement/latest"),
-      api.getData<JobLevel[]>("joblevel"),
-      api.getData<TypeOfContract[]>("typeofcontract"),
-      api.getData<WorkingTime[]>("workingtime"),
-      api.getData<WorkType[]>("worktype"),
-      api.getData<Annoucement>("announcement/random"),
-      api.getData<number>("announcement/getcount"),
+      api.get("cwp"),
+      api.get("company"),
+      api.get("workcategory"),
+      api.get("announcement/latest"),
+      api.get("joblevel"),
+      api.get("typeofcontract"),
+      api.get("workingtime"),
+      api.get("worktype"),
+      api.get("announcement/random"),
+      api.get("announcement/getcount"),
     ]);
 
     return {

@@ -1,4 +1,5 @@
 import axios, { AxiosError } from "axios";
+import bcrypt from "bcryptjs-react";
 import "../CSS/PagesCSS/LoginRegister.css";
 import { useState } from "react";
 import * as Yup from "yup";
@@ -66,7 +67,11 @@ const LoginRegister: React.FC = () => {
     e.preventDefault();
     try {
       await userSchema.validate(user, { abortEarly: false });
-      const res = await axios.post("http://localhost:2137/user/", user, {});
+      const salt = await bcrypt.genSalt(10);
+      const res = await axios.post("http://localhost:2137/user/", {
+        ...user,
+        Password: await bcrypt.hash(user.Password, salt),
+      });
       if (res.status === 201) navigate("/");
     } catch (error: any) {
       if (error.response) DisplayError(error.response.data.error);

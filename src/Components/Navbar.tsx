@@ -5,16 +5,16 @@ import {
   faUser,
 } from "@fortawesome/free-solid-svg-icons";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import axios from "axios";
 import { Link } from "react-router-dom";
 import logo from "../assets/react.svg";
 import { useState } from "react";
-
 import "../CSS/main.css";
 import "../CSS/index.css";
 import { useAuth } from "../AuthContext/authContect";
+import { useApi } from "../ApiMenager/ApiContext";
 
 const Navbar: React.FC = () => {
+  const api = useApi();
   const [menuIsActive, MenuSetActivity] = useState(false);
   const MenuChangeState = () => {
     MenuSetActivity(!menuIsActive);
@@ -45,7 +45,7 @@ const Navbar: React.FC = () => {
           </Link>
         )}
         <Link
-          to={isAuthenticated ? "/Profil/" + _User?.ID : "/Logowanie"}
+          to={isAuthenticated ? "/Profil/" + _User?.Profile?.ID : "/Logowanie"}
           className="menuItem"
           onClick={MenuChangeState}
         >
@@ -56,17 +56,10 @@ const Navbar: React.FC = () => {
             to="/"
             className="menuItem"
             onClick={async () => {
-              await axios
-                .get("http://localhost:2137/user/logout", {
-                  headers: {
-                    "Content-Type": "application/json",
-                  },
-                  withCredentials: true,
-                })
-                .then(() => {
-                  _logout();
-                  MenuChangeState();
-                });
+              await api.get("user/logout").then(() => {
+                _logout();
+                MenuChangeState();
+              });
             }}
           >
             <FontAwesomeIcon icon={faRightFromBracket} />

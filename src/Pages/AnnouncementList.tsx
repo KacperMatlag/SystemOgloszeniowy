@@ -16,8 +16,10 @@ import type {
   CategoryWithPositions,
 } from "../Models/index";
 import { selectsDataValues } from "../Utils/AnnouncementListUtils";
+import { useApi } from "../ApiMenager/ApiContext";
 
 const AnnouncementList: React.FC = () => {
+  const api = useApi();
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
 
@@ -45,7 +47,7 @@ const AnnouncementList: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const data = await selectsDataValues(queryParams);
+        const data = await selectsDataValues(api, queryParams);
         setTimeout(() => {
           SetJobPosition(data.jobPositions);
           SetCompanies(data.companies);

@@ -77,11 +77,9 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        api
-          .getData<CategoryWithPositions[]>("cwp/" + selectCategory)
-          .then((res) => {
-            SetJobPosition(res.data);
-          });
+        api.get("cwp/" + selectCategory).then((res) => {
+          SetJobPosition(res.data);
+        });
       } catch (error) {
         console.error("Error fetching data:", error);
       }

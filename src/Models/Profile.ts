@@ -1,4 +1,4 @@
-import { JobPosition, UserLanguage, UserLinks } from ".";
+import { JobPosition, UserLanguage, UserLinks, Address } from ".";
 
 interface Profile {
   ID: number | undefined;
@@ -16,5 +16,7 @@ interface Profile {
   JobPosition: JobPosition | undefined;
   Languages: UserLanguage[] | [];
   Services: UserLinks[] | [];
+  ProfilePictureURL: string | undefined;
+  Address: Address | undefined;
 }
 export default Profile;

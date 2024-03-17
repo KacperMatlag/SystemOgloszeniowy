@@ -1,16 +1,6 @@
-import axios from "axios";
-import {
-  Annoucement,
-  CategoryWithPositions,
-  Company,
-  JobLevel,
-  TypeOfContract,
-  WorkCategory,
-  WorkType,
-  WorkingTime,
-} from "../Models";
+import ApiManager from "../ApiMenager/ApiManager";
 
-export const selectsDataValues = async (queryParams: any) => {
+export const selectsDataValues = async (api: ApiManager, queryParams: any) => {
   try {
     const [
       jobPositions,
@@ -22,16 +12,14 @@ export const selectsDataValues = async (queryParams: any) => {
       workingTime,
       workType,
     ] = await Promise.all([
-      axios.get<CategoryWithPositions[]>("http://localhost:2137/cwp"),
-      axios.get<Company[]>("http://localhost:2137/company"),
-      axios.get<WorkCategory[]>("http://localhost:2137/workcategory"),
-      axios.get<Annoucement[]>(
-        `http://localhost:2137/announcement/filter?${queryParams ?? ""}`
-      ),
-      axios.get<JobLevel[]>("http://localhost:2137/joblevel"),
-      axios.get<TypeOfContract[]>("http://localhost:2137/typeofcontract"),
-      axios.get<WorkingTime[]>("http://localhost:2137/workingtime"),
-      axios.get<WorkType[]>("http://localhost:2137/workType"),
+      api.get("cwp"),
+      api.get("company"),
+      api.get("workcategory"),
+      api.get(`announcement/filter?${queryParams ?? ""}`),
+      api.get("joblevel"),
+      api.get("typeofcontract"),
+      api.get("workingtime"),
+      api.get("workType"),
     ]);
 
     return {

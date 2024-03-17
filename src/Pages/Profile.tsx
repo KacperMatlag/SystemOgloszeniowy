@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import "../CSS/PagesCSS/Profile.css";
 import { User } from "../Models";
-import axios from "axios";
 import { useAuth } from "../AuthContext/authContect";
 import { LoadingScreen } from ".";
 import { Link, useParams } from "react-router-dom";
@@ -29,7 +28,7 @@ const ProfilePage: React.FC = () => {
   useEffect(() => {
     const LoadProfile = async () => {
       try {
-        const res = await api.getData<User>("user/" + id);
+        const res = await api.get("user/profile/" + id);
         SetUserProfile(res.data);
         SetLoading(false);
       } catch (error) {
@@ -38,7 +37,7 @@ const ProfilePage: React.FC = () => {
       }
     };
     LoadProfile();
-  }, [_User]);
+  }, []);
   if (loading) return <LoadingScreen />;
   return (
     <div className="ProfileContainer">
@@ -50,7 +49,10 @@ const ProfilePage: React.FC = () => {
               <hr className="w-100" />
               <div className="CenterInfo flex-column">
                 <img
-                  src="https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
+                  src={
+                    userProfile?.Profile.ProfilePictureURL ??
+                    "https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
+                  }
                   alt="zdjecie"
                 />
                 <h4 className="text-center">{userProfile.Login}</h4>
@@ -106,7 +108,7 @@ const ProfilePage: React.FC = () => {
                     <td>
                       <b>Adres</b>
                     </td>
-                    <td>{userProfile.Profile?.AddressID ?? "-"}</td>
+                    <td>{userProfile.Profile?.Address?.Address ?? "-"}</td>
                   </tr>
                 </tbody>
               </table>

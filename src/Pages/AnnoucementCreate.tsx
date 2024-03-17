@@ -1,9 +1,7 @@
-import axios from "axios";
 import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import "../CSS/PagesCSS/AnnoucementCreate.css";
 import type {
-  Annoucement,
   JobLevel,
   TypeOfContract,
   WorkCategory,
@@ -12,11 +10,9 @@ import type {
 } from "../Models/index";
 import { ButtonProps } from "react-bootstrap";
 import {
-  AnnoucementValidationShema,
-  SideEffectPost,
-  dutiesValidator,
-  employerOfferValidator,
-  requirementsValidator,
+  addToListIfValid,
+  getJobPositionsWithCertainCategory,
+  handleSubmit,
   selectsDataValues,
 } from "../Utils/AnnoucementCreateUtils";
 import { useApi } from "../ApiMenager/ApiContext";
@@ -57,12 +53,12 @@ const AnnoucementCreate: React.FC = () => {
   useEffect(() => {
     try {
       const fetchData = async () => {
-        const selectValues = selectsDataValues(api);
-        SetCategories((await selectValues).Categories);
-        SetTypeOfContract((await selectValues).TypesOfContracts);
-        SetWorkingTimes((await selectValues).WorkingTime);
-        SetWorkTypes((await selectValues).WorkType);
-        SetJobLevels((await selectValues).JobLevels);
+        const selectValues = await selectsDataValues(api);
+        SetCategories(selectValues.Categories);
+        SetTypeOfContract(selectValues.TypesOfContracts);
+        SetWorkingTimes(selectValues.WorkingTime);
+        SetWorkTypes(selectValues.WorkType);
+        SetJobLevels(selectValues.JobLevels);
         SetLoading(false);
       };
       fetchData();
@@ -73,41 +69,25 @@ const AnnoucementCreate: React.FC = () => {
   }, []);
 
   useEffect(() => {
-    const fetchData = async () => {
-      try {
-        axios
-          .get("http://localhost:2137/cwp/" + announcement.WorkCategoryID)
-          .then((res) => {
-            SetJobPositions(res.data);
-          });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
-    };
-
-    fetchData();
+    getJobPositionsWithCertainCategory(api, announcement, SetJobPositions);
   }, [announcement.WorkCategoryID]);
-
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    try {
-      await AnnoucementValidationShema.validate(announcement, {
-        abortEarly: false,
-      });
-      await api
-        .postData<Annoucement>("announcement/", announcement)
-        .then(async (res: any) => {
-          SideEffectPost(res, api, duties, requirements, emploeyOffers);
-        });
-    } catch (error: any) {
-      console.log(error);
-    }
-  };
 
   if (loading) return <LoadingScreen />;
   return (
     <div className="container-lg">
-      <form className="d-flex flex-column create-form" onSubmit={handleSubmit}>
+      <form
+        className="d-flex flex-column create-form"
+        onSubmit={(e) => {
+          handleSubmit(
+            e,
+            api,
+            duties,
+            requirements,
+            emploeyOffers,
+            announcement
+          );
+        }}
+      >
         <span>Tytuł</span>
         <input
           type="text"
@@ -165,7 +145,6 @@ const AnnoucementCreate: React.FC = () => {
               ...announcement,
               JobPositionID: parseInt(e.target.value),
             });
-            console.log(e.target.value);
           }}
         >
           <option value="0" selected>
@@ -323,24 +302,7 @@ const AnnoucementCreate: React.FC = () => {
               className="btn btn-primary"
               type="button"
               onClick={async () => {
-                try {
-                  await dutiesValidator.validate(
-                    { duty },
-                    {
-                      abortEarly: false,
-                    }
-                  );
-                  if (
-                    !duties
-                      .map((r) => r.toLowerCase())
-                      .includes(duty.toLowerCase())
-                  ) {
-                    Setduties([...duties, duty]);
-                    SetDuty("");
-                  } else alert("Taki element juz istnieje");
-                } catch (error: any) {
-                  alert(error.errors[0]);
-                }
+                await addToListIfValid(duties, duty, SetDuty, Setduties);
               }}
             >
               Dodaj
@@ -384,24 +346,12 @@ const AnnoucementCreate: React.FC = () => {
               className="btn btn-primary"
               type="button"
               onClick={async () => {
-                try {
-                  await requirementsValidator.validate(
-                    { requirement },
-                    {
-                      abortEarly: false,
-                    }
-                  );
-                  if (
-                    !requirements
-                      .map((r) => r.toLowerCase())
-                      .includes(requirement.toLowerCase())
-                  ) {
-                    SetRequirements([...requirements, requirement]);
-                    SetRequirement("");
-                  } else alert("Taki element juz istnieje");
-                } catch (error: any) {
-                  alert(error.errors[0]);
-                }
+                await addToListIfValid(
+                  requirements,
+                  requirement,
+                  SetRequirement,
+                  SetRequirements
+                );
               }}
             >
               Dodaj
@@ -447,24 +397,12 @@ const AnnoucementCreate: React.FC = () => {
               className="btn btn-primary"
               type="button"
               onClick={async () => {
-                try {
-                  await employerOfferValidator.validate(
-                    { emploeyOffer },
-                    {
-                      abortEarly: false,
-                    }
-                  );
-                  if (
-                    !emploeyOffers
-                      .map((o) => o.toLowerCase())
-                      .includes(emploeyOffer.toLowerCase())
-                  ) {
-                    SetEmploeyOffers([...emploeyOffers, emploeyOffer]);
-                    SetEmploeyOffer("");
-                  } else alert("Taki element juz istnieje");
-                } catch (error: any) {
-                  alert(error.errors[0]);
-                }
+                await addToListIfValid(
+                  emploeyOffers,
+                  emploeyOffer,
+                  SetEmploeyOffer,
+                  SetEmploeyOffers
+                );
               }}
             >
               Dodaj
