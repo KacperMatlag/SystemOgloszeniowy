@@ -9,6 +9,7 @@ import {
   LoginRegister,
   Profile,
   AnnouncementCreate,
+  AddCompany,
 } from "./Pages";
 import { AuthProvider } from "./AuthContext/authContect";
 import EditProfile from "./Pages/EditProfile";
@@ -27,6 +28,7 @@ function App() {
             <Route path="/Logowanie" element={<LoginRegister />} />
             <Route path="/Profil/:id" element={<Profile />} />
             <Route path="/Profil/:id/Edytuj" element={<EditProfile />} />
+            <Route path="/Profil/:id/Edytuj/firma" element={<AddCompany />} />
             <Route path="/*" element={<Home />} />
           </Routes>
           <Footer />

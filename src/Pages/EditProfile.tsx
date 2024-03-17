@@ -28,7 +28,7 @@ import {
 } from "../Utils/EditProfileUtils";
 import { useApi } from "../ApiMenager/ApiContext";
 import BingMapResponse from "../Models/BingMapsResponse";
-import { useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 
 const EditProfile = () => {
   const api = useApi();
@@ -351,6 +351,24 @@ const EditProfile = () => {
                 Aktualizuj profil
               </button>
             </form>
+          </div>
+        </div>
+        <div className="row p-0 companiesrow">
+          <div className="col-6">
+            <div className="ProfileStyle h-100">
+              <div>
+                <h4 className="text-center">Zarzadzaj firmami</h4>
+                <hr />
+              </div>
+              <div className="companies d-flex flex-column">
+                <div className="companieslist"></div>
+                <div className="companymenu">
+                  <Link to={`/Profil/${id}/edytuj/firma`}>
+                    <button className="btn btn-primary">Dodaj Firme</button>
+                  </Link>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
         <div

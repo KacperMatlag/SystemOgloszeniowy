@@ -1,0 +1,28 @@
+.CompanyImage {
+    object-fit: contain;
+    height: 200px;
+}
+
+.SearchBar {
+    display: flex;
+    height: 40px;
+    background-color: rgb(238, 234, 234);
+    border-radius: 10px;
+    overflow: hidden;
+    justify-content: space-between;
+}
+
+.SearchBar>* {
+    border: none;
+    outline: none;
+    background-color: transparent;
+}
+
+.SearchBar button {
+    width: 50px;
+}
+
+.SearchBar input {
+    flex: 1;
+    padding: 0 10px;
+}

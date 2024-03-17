@@ -58,7 +58,7 @@ const ProfilePage: React.FC = () => {
                 <h4 className="text-center">{userProfile.Login}</h4>
               </div>
               {_User?.ID == id && (
-                <Link to={`/Profil/${id}/Edytuj/`}>
+                <Link to={`/Profil/${id}/Edytuj`}>
                   <button className="btn btn-primary">Edytuj</button>
                 </Link>
               )}

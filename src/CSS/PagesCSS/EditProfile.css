@@ -29,7 +29,7 @@
   margin: 0 !important;
 }
 
-.ProfileStyle div:nth-child(1) {
+.ProfileStyle>div {
   display: flex;
   flex-direction: column;
   gap: 10px;
@@ -178,4 +178,20 @@
 
 .ImageContainer:hover .ImageChange {
   opacity: 1;
+}
+
+.companiesrow {
+  height: 300px;
+}
+
+.companies {
+  height: calc(100% - 58px);
+  justify-content: space-between;
+  overflow: hidden;
+}
+
+.companymenu {
+  height: 50px;
+  overflow: hidden;
+  margin: 0 10px;
 }
