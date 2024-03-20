@@ -33,7 +33,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 const EditProfile = () => {
   const api = useApi();
   //Page Var's
-  const { _User, _ReloadUser } = useAuth();
+  const { _User, _ReloadUser, isAuthenticated } = useAuth();
   const [profile, SetProfile] = useState<Profile | undefined>(undefined);
   //Password Change
   const [password, SetPassword] = useState<ChangePassword>({
@@ -87,7 +87,7 @@ const EditProfile = () => {
           SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
         }
         SelectedJobDescription(profile?.CurrentJobPositionDescription ?? "");
-      } else if (_User?.Profile && Number(id) !== _User?.Profile?.ID) {
+      } else if (Number(id) !== _User?.Profile?.ID) {
         console.log("syf");
       }
     };
@@ -144,122 +144,126 @@ const EditProfile = () => {
     <div className="container-xl">
       <div className="row">
         <div className="col-6 d-flex flex-column">
-          <div className="ProfileStyle">
-            <div>
+          <div className="ProfileStyle" style={{ height: "800px" }}>
+            <div className="Header">
               <h4 className="text-center">Profil Uzytkownika</h4>
               <hr />
             </div>
-            <div
-              className="ImageContainer"
-              onClick={() => {
-                inputFile.current?.click();
-              }}
-            >
-              <img
-                src={
-                  profile.ProfilePictureURL ??
-                  "https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
-                }
-                alt="profile image"
-                className="ProfilePicture"
-                ref={profileImage}
-              />
-              <img
-                src="https://static.thenounproject.com/png/3322766-200.png"
-                alt="change image"
-                className="ImageChange"
-              />
-            </div>
             <form
-              className="ProfileInfo d-flex flex-column"
+              className="ProfileInfo d-flex flex-column MainContent"
               encType="multipart/form-data"
               onSubmit={async (e) => {
                 e.preventDefault();
                 UpdateProfileInfo(_ReloadUser, api, profile, file);
               }}
             >
-              <button
-                type="button"
-                className="btn btn-danger w-25"
-                onClick={async () => {
-                  SetProfile({ ...profile, ProfilePictureURL: undefined });
-                }}
-              >
-                usun zdjecie
-              </button>
-              <input
-                type="file"
-                name="files"
-                className="d-none"
-                ref={inputFile}
-                onChange={(e) => {
-                  if (e.target.files?.length) {
-                    Setfile(e.target.files[0]);
-                  }
-                }}
-              />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Imie"
-                defaultValue={profile.Name ?? ""}
-                onChange={(e) => {
-                  SetProfile({ ...profile, Name: e.target.value });
-                }}
-              />
-              <input
-                type="text"
-                className="form-control"
-                placeholder="Nazwisko"
-                value={profile.Surname ?? ""}
-                onChange={(e) => {
-                  SetProfile({ ...profile, Surname: e.target.value });
-                }}
-              />
-              <input
-                type="email"
-                className="form-control"
-                placeholder="Email"
-                value={profile.Email ?? ""}
-                onChange={(e) => {
-                  SetProfile({ ...profile, Email: e.target.value });
-                }}
-              />
-              <input
-                type="number"
-                className="form-control"
-                placeholder="Nr telefonu"
-                value={profile.PhoneNumber ?? ""}
-                onChange={(e) => {
-                  SetProfile({ ...profile, PhoneNumber: e.target.value });
-                }}
-              />
-              <input
-                type="date"
-                className="form-control"
-                placeholder="Data urodzenia"
-                defaultValue={profile?.DateOfBirth as unknown as number}
-                onChange={(e) => {
-                  SetProfile({
-                    ...profile,
-                    DateOfBirth: new Date(e.target.value),
-                  });
-                }}
-              />
-              <button type="submit" className="btn btn-primary">
-                Aktualizuj dane
-              </button>
+              <div className="d-flex flex-column justify-content-between">
+                <div
+                  className="ImageContainer"
+                  onClick={() => {
+                    inputFile.current?.click();
+                  }}
+                >
+                  <img
+                    src={
+                      profile.ProfilePictureURL ??
+                      "https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
+                    }
+                    alt="profile image"
+                    className="ProfilePicture"
+                    ref={profileImage}
+                  />
+                  <img
+                    src="https://static.thenounproject.com/png/3322766-200.png"
+                    alt="change image"
+                    className="ImageChange"
+                  />
+                </div>
+                <button
+                  type="button"
+                  className="btn btn-danger w-25"
+                  onClick={async () => {
+                    SetProfile({ ...profile, ProfilePictureURL: undefined });
+                  }}
+                >
+                  usun zdjecie
+                </button>
+                <input
+                  type="file"
+                  name="files"
+                  className="d-none"
+                  ref={inputFile}
+                  onChange={(e) => {
+                    if (e.target.files?.length) {
+                      Setfile(e.target.files[0]);
+                    }
+                  }}
+                />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Imie"
+                  defaultValue={profile.Name ?? ""}
+                  onChange={(e) => {
+                    SetProfile({ ...profile, Name: e.target.value });
+                  }}
+                />
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="Nazwisko"
+                  value={profile.Surname ?? ""}
+                  onChange={(e) => {
+                    SetProfile({ ...profile, Surname: e.target.value });
+                  }}
+                />
+                <input
+                  type="email"
+                  className="form-control"
+                  placeholder="Email"
+                  value={profile.Email ?? ""}
+                  onChange={(e) => {
+                    SetProfile({ ...profile, Email: e.target.value });
+                  }}
+                />
+                <input
+                  type="number"
+                  className="form-control"
+                  placeholder="Nr telefonu"
+                  value={profile.PhoneNumber ?? ""}
+                  onChange={(e) => {
+                    SetProfile({ ...profile, PhoneNumber: e.target.value });
+                  }}
+                />
+                <input
+                  type="date"
+                  className="form-control"
+                  placeholder="Data urodzenia"
+                  defaultValue={profile?.DateOfBirth as unknown as number}
+                  onChange={(e) => {
+                    SetProfile({
+                      ...profile,
+                      DateOfBirth: new Date(e.target.value),
+                    });
+                  }}
+                />
+              </div>
+              <div className="Footer">
+                <button type="submit" className="btn btn-primary w-100">
+                  Aktualizuj dane
+                </button>
+              </div>
             </form>
           </div>
         </div>
         <div className="col-6 d-flex flex-column" style={{ gap: "20px" }}>
           <div className="ProfileStyle h-50 Center">
-            <div>
+            <div className="Header">
               <h4 className="text-center">Profil Uzytkownika</h4>
               <hr />
             </div>
             <form
-              className="ProfileInfo d-flex flex-column Center"
+              className="ProfileInfo d-flex flex-column Center MainContent"
               onSubmit={async (e) => {
                 e.preventDefault();
                 ChangepasswordEvent(
@@ -272,45 +276,52 @@ const EditProfile = () => {
                 );
               }}
             >
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Stare haslo"
-                value={password.Password}
-                onChange={(e) => {
-                  SetPassword({ ...password, Password: e.target.value });
-                }}
-              />
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Nowe haslo"
-                value={password.NewPassword}
-                onChange={(e) => {
-                  SetPassword({ ...password, NewPassword: e.target.value });
-                }}
-              />
-              <input
-                type="password"
-                className="form-control"
-                placeholder="Powtorz nowe haslo"
-                value={password.NewPassword2}
-                onChange={(e) => {
-                  SetPassword({ ...password, NewPassword2: e.target.value });
-                }}
-              />
-              <button type="submit" className="btn btn-primary">
-                Aktualizuj profil
-              </button>
+              <div
+                className="d-flex flex-column align-items-center justify-content-center"
+                style={{ gap: "30px" }}
+              >
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Stare haslo"
+                  value={password.Password}
+                  onChange={(e) => {
+                    SetPassword({ ...password, Password: e.target.value });
+                  }}
+                />
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Nowe haslo"
+                  value={password.NewPassword}
+                  onChange={(e) => {
+                    SetPassword({ ...password, NewPassword: e.target.value });
+                  }}
+                />
+                <input
+                  type="password"
+                  className="form-control"
+                  placeholder="Powtorz nowe haslo"
+                  value={password.NewPassword2}
+                  onChange={(e) => {
+                    SetPassword({ ...password, NewPassword2: e.target.value });
+                  }}
+                />
+              </div>
+              <div className="Footer">
+                <button type="submit" className="btn btn-primary w-100">
+                  Aktualizuj profil
+                </button>
+              </div>
             </form>
           </div>
           <div className="ProfileStyle h-50 Center">
-            <div>
+            <div className="Header">
               <h4 className="text-center">Obecna praca</h4>
               <hr />
             </div>
             <form
-              className="ProfileInfo d-flex flex-column Center"
+              className="ProfileInfo d-flex flex-column MainContent"
               onSubmit={async (e) => {
                 const data = {
                   ID: _User?.ID,
@@ -321,50 +332,73 @@ const EditProfile = () => {
                 ChangeJob(api, data, _ReloadUser);
               }}
             >
-              <CertainSelect
-                clases="form-select"
-                name="JobCategory"
-                onSelect={SetSelectedCategory}
-                options={categories?.sort((z) => z.ID)}
-                placeholder="Wybierz Kategorie"
-                selectedIndex={selectedCategory}
-              />
-              <CertainSelect
-                clases="form-select"
-                name="JobPosition"
-                onSelect={SetSelectedPosition}
-                placeholder="Wybierz Pozycje"
-                options={positions.map((z) => z.JobPosition)}
-                selectedIndex={profile.CurrentJobPositionID}
-              />
-              <textarea
-                className="form-control"
-                placeholder="Opis"
-                id="floatingTextarea"
-                style={{ height: "50%" }}
-                defaultValue={profile.CurrentJobPositionDescription}
-                onChange={(e) => {
-                  SelectedJobDescription(e.target.value);
-                }}
-              ></textarea>
-              <button type="submit" className="btn btn-primary">
-                Aktualizuj profil
-              </button>
+              <div className="d-flex flex-column justify-content-around">
+                <CertainSelect
+                  clases="form-select"
+                  name="JobCategory"
+                  onSelect={SetSelectedCategory}
+                  options={categories?.sort((z) => z.ID)}
+                  placeholder="Wybierz Kategorie"
+                  selectedIndex={selectedCategory}
+                />
+                <CertainSelect
+                  clases="form-select"
+                  name="JobPosition"
+                  onSelect={SetSelectedPosition}
+                  placeholder="Wybierz Pozycje"
+                  options={positions.map((z) => z.JobPosition)}
+                  selectedIndex={profile.CurrentJobPositionID}
+                />
+                <textarea
+                  className="form-control"
+                  placeholder="Opis"
+                  id="floatingTextarea"
+                  style={{ height: "50%" }}
+                  defaultValue={profile.CurrentJobPositionDescription}
+                  onChange={(e) => {
+                    SelectedJobDescription(e.target.value);
+                  }}
+                ></textarea>
+              </div>
+              <div className="Footer">
+                <button type="submit" className="btn btn-primary w-100">
+                  Aktualizuj profil
+                </button>
+              </div>
             </form>
           </div>
         </div>
         <div className="row p-0 companiesrow">
           <div className="col-6">
             <div className="ProfileStyle h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center">Zarzadzaj firmami</h4>
                 <hr />
               </div>
-              <div className="companies d-flex flex-column">
-                <div className="companieslist"></div>
-                <div className="companymenu">
+              <div className="companies d-flex flex-column MainContent">
+                <div className="companieslist">
+                  {profile.Companies.map((z) => {
+                    return (
+                      <div className="d-flex align-items-center justify-content-between UserCompanies">
+                        <img src={z.Company.Image} alt="zdjecie" />
+                        <p>
+                          {z.Company.Name.length > 30
+                            ? z.Company.Name.substring(0, 27) + "..."
+                            : z.Company.Name}
+                        </p>
+                        <div className="d-flex" style={{ gap: "10px" }}>
+                          <button className="btn btn-info">Edytuj</button>
+                          <button className="btn btn-danger">Usun</button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+                <div className="companymenu Footer justify-content-left">
                   <Link to={`/Profil/${id}/edytuj/firma`}>
-                    <button className="btn btn-primary">Dodaj Firme</button>
+                    <button className="btn btn-primary w-100">
+                      Dodaj Firme
+                    </button>
                   </Link>
                 </div>
               </div>
@@ -377,52 +411,52 @@ const EditProfile = () => {
         >
           <div className="col-12 p-0">
             <div className="ProfileStyle h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center m-0">Adres</h4>
                 <hr />
               </div>
-              <div className="d-flex">
-                <div className="w-50 h-100">
-                  <form
-                    className="p-2 d-flex flex-column"
-                    style={{ gap: "10px" }}
-                    onSubmit={async (e) => {
-                      e.preventDefault();
-                      SearchForAddress(api, address, SetSearchedAddress);
+              <div className="d-flex flex-row">
+                <form
+                  className="w-50 MainContent p-2 d-flex flex-column MainContent"
+                  style={{ gap: "10px" }}
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    SearchForAddress(api, address, SetSearchedAddress);
+                  }}
+                >
+                  <span>Miejscowosc</span>
+                  <input
+                    type="text"
+                    value={address.Town}
+                    className="form-control"
+                    onChange={(e) => {
+                      SetAddress({ ...address, Town: e.target.value });
                     }}
-                  >
-                    <span>Miejscowosc</span>
-                    <input
-                      type="text"
-                      value={address.Town}
-                      className="form-control"
-                      onChange={(e) => {
-                        SetAddress({ ...address, Town: e.target.value });
-                      }}
-                    />
-                    <span>Numer budynku</span>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={address.BlockNumber}
-                      onChange={(e) => {
-                        SetAddress({ ...address, BlockNumber: e.target.value });
-                      }}
-                    />
-                    <span>Kod pocztowy</span>
-                    <input
-                      type="text"
-                      className="form-control"
-                      value={address.PostCode}
-                      onChange={(e) => {
-                        SetAddress({ ...address, PostCode: e.target.value });
-                      }}
-                    />
-                    <button type="submit" className="btn btn-primary">
+                  />
+                  <span>Numer budynku</span>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={address.BlockNumber}
+                    onChange={(e) => {
+                      SetAddress({ ...address, BlockNumber: e.target.value });
+                    }}
+                  />
+                  <span>Kod pocztowy</span>
+                  <input
+                    type="text"
+                    className="form-control"
+                    value={address.PostCode}
+                    onChange={(e) => {
+                      SetAddress({ ...address, PostCode: e.target.value });
+                    }}
+                  />
+                  <div className="Footer">
+                    <button type="submit" className="btn btn-primary w-100">
                       Szukaj
                     </button>
-                  </form>
-                </div>
+                  </div>
+                </form>
                 <div
                   className="w-50"
                   style={{
@@ -443,7 +477,7 @@ const EditProfile = () => {
                         : `${baseUrl}/place?q=${defaultCoordinates[0]},${defaultCoordinates[1]}&z=15&output=embed`;
                       return (
                         <div
-                          className="d-flex flex-column"
+                          className="d-flex flex-column h-100 "
                           style={{ gap: "10px" }}
                         >
                           <iframe
@@ -454,31 +488,33 @@ const EditProfile = () => {
                             loading="lazy"
                             referrerPolicy="no-referrer-when-downgrade"
                           />
-                          <button
-                            key={z.bbox?.toString()}
-                            className="btn btn-primary"
-                            onClick={async () => {
-                              await api
-                                .post("profile/updateAddress", {
-                                  Address: {
-                                    Address: z.name,
-                                    Longitude: z.point.coordinates
-                                      ? z.point.coordinates[0]
-                                      : 1,
-                                    Latitude: z.point.coordinates
-                                      ? z.point.coordinates[1]
-                                      : 1,
-                                  },
-                                  ProfileID: profile.ID ?? 2,
-                                })
-                                .then((res) => {
-                                  if (res.status == 200)
-                                    DefaultResponseAction(_ReloadUser, res);
-                                });
-                            }}
-                          >
-                            {z.name}
-                          </button>
+                          <div className="Footer">
+                            <button
+                              key={z.bbox?.toString()}
+                              className="btn btn-primary w-100"
+                              onClick={async () => {
+                                await api
+                                  .post("profile/updateAddress", {
+                                    Address: {
+                                      Address: z.name,
+                                      Longitude: z.point.coordinates
+                                        ? z.point.coordinates[0]
+                                        : 1,
+                                      Latitude: z.point.coordinates
+                                        ? z.point.coordinates[1]
+                                        : 1,
+                                    },
+                                    ProfileID: profile.ID ?? 2,
+                                  })
+                                  .then((res) => {
+                                    if (res.status == 200)
+                                      DefaultResponseAction(_ReloadUser, res);
+                                  });
+                              }}
+                            >
+                              {z.name}
+                            </button>
+                          </div>
                         </div>
                       );
                     })
@@ -493,12 +529,12 @@ const EditProfile = () => {
         <div className="row p-0 LanguageRow">
           <div className="col-4">
             <div className="ProfileStyle d-flex flex-column h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center">Jezyki</h4>
                 <hr />
               </div>
               <form
-                className=" ProfileInfo d-flex flex-column"
+                className=" ProfileInfo d-flex flex-column MainContent"
                 onSubmit={async (e) => {
                   e.preventDefault();
 
@@ -520,29 +556,36 @@ const EditProfile = () => {
                   DefaultResponseAction(_ReloadUser, res);
                 }}
               >
-                <CertainSelect
-                  clases="form-select"
-                  name="LanguageName"
-                  onSelect={SetLanguageID}
-                  placeholder="Jezyk"
-                  options={languages}
-                />
-                <CertainSelect
-                  clases="form-select"
-                  name="Language"
-                  placeholder="Poziom"
-                  options={LanguageLevels}
-                  onSelect={SetLevel}
-                />
-                <button type="submit" className="btn btn-primary">
-                  Zatwierdz
-                </button>
+                <div
+                  className="d-flex flex-column aling-items-center justify-content-center"
+                  style={{ gap: "30px" }}
+                >
+                  <CertainSelect
+                    clases="form-select"
+                    name="LanguageName"
+                    onSelect={SetLanguageID}
+                    placeholder="Jezyk"
+                    options={languages}
+                  />
+                  <CertainSelect
+                    clases="form-select"
+                    name="Language"
+                    placeholder="Poziom"
+                    options={LanguageLevels}
+                    onSelect={SetLevel}
+                  />
+                </div>
+                <div className="Footer">
+                  <button type="submit" className="btn btn-primary w-100">
+                    Zatwierdz
+                  </button>
+                </div>
               </form>
             </div>
           </div>
           <div className="col-8">
             <div className="ProfileStyle d-flex flex-column h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center">Twoje jezyki</h4>
                 <hr />
               </div>
@@ -566,12 +609,12 @@ const EditProfile = () => {
         <div className="row LanguageRow p-0">
           <div className="col-4">
             <div className="ProfileStyle d-flex flex-column h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center">Serwisy</h4>
                 <hr />
               </div>
               <form
-                className=" ProfileInfo d-flex flex-column"
+                className=" ProfileInfo d-flex flex-column MainContent"
                 onSubmit={async (e) => {
                   const data = {
                     ProfileID: profile.ID,
@@ -595,32 +638,39 @@ const EditProfile = () => {
                   }
                 }}
               >
-                <CertainSelect
-                  clases="form-select"
-                  name="Services"
-                  onSelect={SetService}
-                  placeholder="Serwisy"
-                  options={services}
-                />
-                <input
-                  type="text"
-                  name="Link"
-                  className="form-control"
-                  placeholder="URL"
-                  value={link}
-                  onChange={(e) => {
-                    SetLink(e.target.value);
-                  }}
-                />
-                <button type="submit" className="btn btn-primary">
-                  Zatwierdz
-                </button>
+                <div
+                  className="d-flex flex-column justify-content-center"
+                  style={{ gap: "30px" }}
+                >
+                  <CertainSelect
+                    clases="form-select"
+                    name="Services"
+                    onSelect={SetService}
+                    placeholder="Serwisy"
+                    options={services}
+                  />
+                  <input
+                    type="text"
+                    name="Link"
+                    className="form-control"
+                    placeholder="URL"
+                    value={link}
+                    onChange={(e) => {
+                      SetLink(e.target.value);
+                    }}
+                  />
+                </div>
+                <div className="Footer">
+                  <button type="submit" className="btn btn-primary w-100">
+                    Zatwierdz
+                  </button>
+                </div>
               </form>
             </div>
           </div>
           <div className="col-8">
             <div className="ProfileStyle d-flex flex-column h-100">
-              <div>
+              <div className="Header">
                 <h4 className="text-center">Twoje jezyki</h4>
                 <hr />
               </div>

@@ -34,7 +34,7 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
 
   const _ReloadUser = async () => {
     const fetchUser = async () => {
-      await api.get<User>("user/" + userData?.ID).then((res) => {
+      await api.get("user/" + userData?.ID).then((res) => {
         setUserData(res.data);
         console.log(userData);
       });
@@ -43,12 +43,12 @@ const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const _extendSession = async () => {
-    await api.post<any>("user/extendsession", userData);
+    await api.post("user/extendsession", userData);
   };
 
   useEffect(() => {
     const checkSession = async () => {
-      await api.get<any>("user/check").then((res) => {
+      await api.get("user/check").then((res) => {
         if (res.data.user) {
           _login(res.data.user);
         } else if (isAuthenticated && userData) {

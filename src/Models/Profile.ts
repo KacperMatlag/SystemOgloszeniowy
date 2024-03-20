@@ -1,4 +1,5 @@
 import { JobPosition, UserLanguage, UserLinks, Address } from ".";
+import Usercompanies from "./UserCompanies";
 
 interface Profile {
   ID: number | undefined;
@@ -18,5 +19,6 @@ interface Profile {
   Services: UserLinks[] | [];
   ProfilePictureURL: string | undefined;
   Address: Address | undefined;
+  Companies: Usercompanies[] | [];
 }
 export default Profile;

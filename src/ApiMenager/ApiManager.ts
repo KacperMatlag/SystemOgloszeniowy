@@ -15,12 +15,10 @@ export default class ApiManager implements ApiRequests {
     }
   }
 
-  async get(endpoint: string): Promise<AxiosResponse<any>> {
+  async get(endpoint: string, headers?: any): Promise<AxiosResponse<any>> {
     try {
       const response = await axios.get(`${this.baseUrl}/${endpoint}`, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: headers,
         withCredentials: true,
       });
       return response;
@@ -30,12 +28,14 @@ export default class ApiManager implements ApiRequests {
     }
   }
 
-  async post(endpoint: string, data: any): Promise<AxiosResponse<any>> {
+  async post(
+    endpoint: string,
+    data: any,
+    headers?: any
+  ): Promise<AxiosResponse<any>> {
     try {
       const response = await axios.post(`${this.baseUrl}/${endpoint}`, data, {
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: headers,
         withCredentials: true,
       });
       return response;
@@ -45,9 +45,16 @@ export default class ApiManager implements ApiRequests {
     }
   }
 
-  async patch(endpoint: string, data: any): Promise<AxiosResponse<any>> {
+  async patch(
+    endpoint: string,
+    data: any,
+    headers?: any
+  ): Promise<AxiosResponse<any>> {
     try {
-      const response = await axios.patch(`${this.baseUrl}/${endpoint}`, data);
+      const response = await axios.patch(`${this.baseUrl}/${endpoint}`, data, {
+        headers: headers,
+        withCredentials: true,
+      });
       return response;
     } catch (error) {
       console.log(error);
