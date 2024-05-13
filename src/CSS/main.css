@@ -3,6 +3,7 @@
   margin: 0;
   box-sizing: border-box !important;
 }
+
 :root {
   --blue_1: rgb(0, 169, 224);
   --gradientStart: #00a9e0;
@@ -10,10 +11,12 @@
   --background: rgb(243, 243, 243);
   --support: rgba(173, 216, 230, 0.3);
 }
+
 a,
 a:visited {
   text-decoration: none !important;
 }
+
 .App {
   background-color: var(--background);
 }

@@ -62,7 +62,7 @@ export default class ApiManager implements ApiRequests {
     }
   }
 
-  async dekete(endpoint: string, index: number): Promise<AxiosResponse<any>> {
+  async delete(endpoint: string, index?: any): Promise<AxiosResponse<any>> {
     try {
       const response = await axios.delete(
         `${this.baseUrl}/${endpoint}/${index}`,
@@ -85,6 +85,6 @@ interface ApiRequests {
   get(endpoint: string, query?: string): Promise<AxiosResponse<any>>;
   post(endpoint: string, data: any): Promise<AxiosResponse<any>>;
   patch(endpoint: string, data: any): Promise<AxiosResponse<any>>;
-  dekete(endpoint: string, index: number): Promise<AxiosResponse<any>>;
+  delete(endpoint: string, index: number): Promise<AxiosResponse<any>>;
   customCall(path: string): Promise<AxiosResponse<any>>;
 }

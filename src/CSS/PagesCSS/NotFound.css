@@ -1,0 +1,32 @@
+@import url('https://fonts.googleapis.com/css2?family=Luckiest+Guy&display=swap');
+
+.luckiest-guy-regular {
+    font-family: "Luckiest Guy", cursive;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.notFoundContainer {
+    width: 100%;
+    height: 80vh;
+}
+
+.notFoundContainer>h4 {
+    font-size: 20vh;
+    font-family: "Luckiest Guy", cursive;
+    background-image: url("https://i.pinimg.com/736x/a0/33/a6/a033a6d215cfdc41dbfd92c5ac5dc8cf.jpg");
+    background-clip: text;
+    -webkit-background-clip: text;
+    color: transparent;
+    background-size: 100%;
+    background-repeat: no-repeat;
+}
+
+.backBtn {
+    height: 50px;
+    border-radius: 30px;
+}
+
+.notFoundContainer p {
+    font-size: 20px;
+}

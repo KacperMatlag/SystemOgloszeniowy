@@ -1,7 +1,6 @@
 import * as Yup from "yup";
 import ApiManager from "../ApiMenager/ApiManager";
-
-import { AxiosResponse } from "axios";
+import { NavigateFunction } from "react-router-dom";
 export const selectsDataValues = async (api: ApiManager) => {
   const [Categories, TypesOfContracts, WorkingTime, WorkType, JobLevels] = [
     await api.get("workcategory"),
@@ -51,57 +50,42 @@ export const listElementValidator = Yup.string()
   .min(4, "Tekst musi mieć co najmniej 4 znaki")
   .max(150, "Tekst nie może przekraczać 150 znaków");
 
-export const SideEffectPost = async (
-  res: AxiosResponse,
+export const handlePatch = async (
   api: ApiManager,
-  duties: string[],
-  requirements: string[],
-  emploeyOffers: string[]
-) => {
-  if (res.status === 201) {
-    setTimeout(async () => {
-      await api.post(
-        "duties",
-        duties.map((e) => {
-          return { ID: null, Name: e, AnnouncementID: res.data.ID };
-        })
-      );
-      await api.post(
-        "requirements",
-        requirements.map((e) => {
-          return { ID: null, Name: e, AnnouncementID: res.data.ID };
-        })
-      );
-      await api.post(
-        "WhatTheEmployerOffers",
-        emploeyOffers.map((e) => {
-          return { ID: null, Name: e, AnnouncementID: res.data.ID };
-        })
-      );
-    });
-    alert("Pomyślnie dodano");
-  }
-};
-
-export const handleSubmit = async (
-  e: React.FormEvent,
-  api: ApiManager,
-  duties: any,
-  requirements: any,
-  emploeyOffers: any,
+  navigate: NavigateFunction,
   announcement: any
 ) => {
-  e.preventDefault();
-  try {
-    await AnnoucementValidationShema.validate(announcement, {
-      abortEarly: false,
-    });
-    await api.post("announcement/", announcement).then(async (res: any) => {
-      await SideEffectPost(res, api, duties, requirements, emploeyOffers);
-    });
-  } catch (error: any) {
-    console.log(error);
-  }
+  await AnnoucementValidationShema.validate(announcement, {
+    abortEarly: false,
+  }).catch((err) => console.log(err));
+
+  await api.patch("announcement/", announcement).then((res) => {
+    if (res.status == 200) {
+      alert("Pomyslnie zaaktualizowano");
+      navigate("/");
+    } else {
+      alert("Wystapil blad");
+    }
+  });
+};
+
+export const handlePost = async (
+  api: ApiManager,
+  navigate: NavigateFunction,
+  announcement: any
+) => {
+  await AnnoucementValidationShema.validate(announcement, {
+    abortEarly: false,
+  }).catch((err) => console.log(err));
+
+  await api.post("announcement/", announcement).then((res) => {
+    if (res.status == 201) {
+      alert("Pomyślnie dodano");
+      navigate("/");
+    } else {
+      alert("Wystapil blad");
+    }
+  });
 };
 
 export const getJobPositionsWithCertainCategory = async (
@@ -109,7 +93,7 @@ export const getJobPositionsWithCertainCategory = async (
   announcement: any,
   SetJobPositions: React.Dispatch<React.SetStateAction<any[]>>
 ) => {
-  api.get("cwp/" + announcement.WorkCategoryID).then((res) => {
+  api.get("cwp/" + announcement?.WorkCategoryID).then((res) => {
     SetJobPositions(res.data);
   });
 };
@@ -120,18 +104,19 @@ export const addToListIfValid = async (
   SetElement: React.Dispatch<React.SetStateAction<string>>,
   SetList: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
-  try {
-    await listElementValidator.validate(getElement, {
+  await listElementValidator
+    .validate(getElement, {
       abortEarly: false,
+    })
+    .catch((error) => {
+      console.log(error);
+      alert(error.errors[0]);
     });
-    if (!getList.find((z) => z.toLowerCase() === getElement.toLowerCase())) {
-      SetList([...getList, getElement]);
-      SetElement("");
-    } else {
-      alert("Taki element juz istnieje");
-    }
-  } catch (error: any) {
-    console.log(error);
-    alert(error.errors[0]);
+
+  if (!getList.find((z) => z.toLowerCase() === getElement.toLowerCase())) {
+    SetList([...getList, getElement]);
+    SetElement("");
+  } else {
+    alert("Taki element juz istnieje");
   }
 };

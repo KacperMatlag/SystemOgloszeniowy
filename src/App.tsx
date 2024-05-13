@@ -10,14 +10,15 @@ import {
   Profile,
   AnnouncementCreate,
   AddCompany,
+  NotFound,
 } from "./Pages";
 import { AuthProvider } from "./AuthContext/authContect";
 import EditProfile from "./Pages/EditProfile";
 
 function App() {
   return (
-    <AuthProvider>
-      <div className="App">
+    <div className="App">
+      <AuthProvider>
         <BrowserRouter>
           <Navbar />
           <Routes>
@@ -29,12 +30,17 @@ function App() {
             <Route path="/Profil/:id" element={<Profile />} />
             <Route path="/Profil/:id/Edytuj" element={<EditProfile />} />
             <Route path="/Profil/:id/Edytuj/firma" element={<AddCompany />} />
+            <Route
+              path="/Ogloszenia/:id/Edytuj"
+              element={<AnnouncementCreate />}
+            />
             <Route path="/*" element={<Home />} />
+            <Route path="/404" element={<NotFound />} />
           </Routes>
           <Footer />
         </BrowserRouter>
-      </div>
-    </AuthProvider>
+      </AuthProvider>
+    </div>
   );
 }
 

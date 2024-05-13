@@ -2,15 +2,19 @@ import { useEffect, useRef, useState } from "react";
 import { useAuth } from "../AuthContext/authContect";
 import "../CSS/PagesCSS/EditProfile.css";
 import {
+  Annoucement,
   CategoryWithPositions,
   Language,
   Profile,
+  School,
   Service,
   WorkCategory,
+  Course,
 } from "../Models";
 import { LoadingScreen } from ".";
 import {
   CertainSelect,
+  EditProfileListElement,
   LanguageListElement,
   ServiceListElement,
 } from "../Components";
@@ -25,15 +29,21 @@ import {
   UpdateProfileInfo,
   ChangeJob,
   FormatUserAddress,
+  EducationElement,
+  educationPost,
 } from "../Utils/EditProfileUtils";
 import { useApi } from "../ApiMenager/ApiContext";
 import BingMapResponse from "../Models/BingMapsResponse";
 import { Link, useNavigate, useParams } from "react-router-dom";
+import { EducationTableRow } from "../Components/EditProfile";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const EditProfile = () => {
   const api = useApi();
+  const navigate = useNavigate();
   //Page Var's
-  const { _User, _ReloadUser, isAuthenticated } = useAuth();
+  const { _User, _ReloadUser } = useAuth();
   const [profile, SetProfile] = useState<Profile | undefined>(undefined);
   //Password Change
   const [password, SetPassword] = useState<ChangePassword>({
@@ -64,20 +74,30 @@ const EditProfile = () => {
   const inputFile = useRef<HTMLInputElement>(null);
   const profileImage = useRef<HTMLImageElement>(null);
 
+  const [announcements, SetAnnouncements] = useState<Annoucement[]>([]);
+
   const [address, SetAddress] = useState<Address>({
     BlockNumber: "",
     Town: "",
     PostCode: "",
   });
   const [searchedAddress, SetSearchedAddress] = useState<BingMapResponse>();
+  const [Education, SetEducation] = useState<EducationElement>();
+  const [SchoolTypes, SetSchoolTypes] = useState<School[]>([]);
+  const [Course, SetCourse] = useState<Course>();
   const { id } = useParams();
-  const navigate = useNavigate();
+
   useEffect(() => {
     const updateProfile = async () => {
       if (Number(id) == _User?.Profile?.ID) {
-        await api.get("user/" + _User.ProfileID).then((res) => {
+        await api.get("user/" + _User.ProfileID).then(async (res) => {
           SetProfile(res.data.Profile);
         });
+        await api
+          .get("announcement/userCompanies/" + profile?.ID)
+          .then((res) => {
+            SetAnnouncements(res.data);
+          });
 
         const CategoryID = (
           await api.get("cwp/category/" + profile?.CurrentJobPositionID)
@@ -87,19 +107,18 @@ const EditProfile = () => {
           SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
         }
         SelectedJobDescription(profile?.CurrentJobPositionDescription ?? "");
-      } else if (Number(id) !== _User?.Profile?.ID) {
-        console.log("syf");
       }
     };
     updateProfile();
   }, [_User, selectedCategory, selectedPosition]);
   useEffect(() => {
     const loadProfile = async () => {
-      const selectData = await LoadSelects(api);
+      const selectData = await LoadSelects(api, profile?.ID);
       setTimeout(async () => {
         SetCategories(selectData.categories);
         SetLanguages(selectData.languages);
         SetServices(selectData.services);
+        SetSchoolTypes(selectData.schooltype);
         if (profile?.Address?.Address) {
           const add = FormatUserAddress(profile.Address?.Address);
           SetAddress({
@@ -376,30 +395,68 @@ const EditProfile = () => {
                 <hr />
               </div>
               <div className="companies d-flex flex-column MainContent">
-                <div className="companieslist">
+                <div className="companieslist" style={{ gap: "10px" }}>
                   {profile.Companies.map((z) => {
                     return (
-                      <div className="d-flex align-items-center justify-content-between UserCompanies">
-                        <img src={z.Company.Image} alt="zdjecie" />
-                        <p>
-                          {z.Company.Name.length > 30
-                            ? z.Company.Name.substring(0, 27) + "..."
-                            : z.Company.Name}
-                        </p>
-                        <div className="d-flex" style={{ gap: "10px" }}>
-                          <button className="btn btn-info">Edytuj</button>
-                          <button className="btn btn-danger">Usun</button>
-                        </div>
-                      </div>
+                      <EditProfileListElement
+                        text={z.Company.Name}
+                        imageLink={z.Company.Image}
+                        api={api}
+                        ID={z.Company.ID}
+                        deleteEndpoint="company"
+                        onDelete={async () => {
+                          SetProfile({
+                            ...profile,
+                            Companies: profile.Companies.filter(
+                              (y) => y.Company.ID != z.Company.ID
+                            ),
+                          });
+                          await api
+                            .get("announcement/userCompanies/" + profile?.ID)
+                            .then((res) => {
+                              SetAnnouncements(res.data);
+                            });
+                        }}
+                      />
                     );
                   })}
                 </div>
-                <div className="companymenu Footer justify-content-left">
+                <div className="Footer">
                   <Link to={`/Profil/${id}/edytuj/firma`}>
                     <button className="btn btn-primary w-100">
                       Dodaj Firme
                     </button>
                   </Link>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="col-6">
+            <div className="ProfileStyle h-100">
+              <div className="Header">
+                <h4 className="text-center">Zarzadzaj Ogloszeniami</h4>
+                <hr />
+              </div>
+              <div className="companies d-flex flex-column MainContent">
+                <div className="companieslist" style={{ gap: "10px" }}>
+                  {announcements.map((z) => {
+                    return (
+                      <Link to={"/ogloszenia/" + z.ID}>
+                        <EditProfileListElement
+                          imageLink={z.Company?.Image}
+                          text={z.Title}
+                          api={api}
+                          ID={Number(z.ID)}
+                          deleteEndpoint="announcement"
+                          onDelete={() => {
+                            SetAnnouncements(
+                              announcements.filter((y) => y.ID != z.ID)
+                            );
+                          }}
+                        />
+                      </Link>
+                    );
+                  })}
                 </div>
               </div>
             </div>
@@ -518,6 +575,8 @@ const EditProfile = () => {
                         </div>
                       );
                     })
+                  ) : profile.Address?.Address ? (
+                    <h5>{profile.Address.Address}</h5>
                   ) : (
                     <h4 className="text-center">Nie znaleziono</h4>
                   )}
@@ -616,12 +675,12 @@ const EditProfile = () => {
               <form
                 className=" ProfileInfo d-flex flex-column MainContent"
                 onSubmit={async (e) => {
+                  e.preventDefault();
                   const data = {
                     ProfileID: profile.ID,
                     ServiceID: service,
                     Link: link,
                   };
-                  e.preventDefault();
                   const searchUserService = profile.Services?.find(
                     (z) => z.ServiceID == service
                   );
@@ -690,6 +749,279 @@ const EditProfile = () => {
             </div>
           </div>
         </div>
+        <div className="row p-0">
+          <div className="col-4">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Edukacja</h4>
+                <hr />
+              </div>
+              <form
+                className=" ProfileInfo d-flex flex-column MainContent"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  educationPost(api, Education, profile, SetProfile);
+                }}
+              >
+                <div
+                  className="d-flex flex-column justify-content-center"
+                  style={{ gap: "30px" }}
+                >
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Nazwa szkoły/uczelni"
+                    value={Education?.SchoolName}
+                    onChange={(e) =>
+                      SetEducation({ ...Education, SchoolName: e.target.value })
+                    }
+                  />
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Kierunek"
+                    onChange={(e) => {
+                      SetEducation({
+                        ...Education,
+                        FieldOfStudy: e.target.value,
+                      });
+                    }}
+                  />
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Miasto"
+                    onChange={(e) =>
+                      SetEducation({ ...Education, City: e.target.value })
+                    }
+                  />
+                  <select
+                    className="form-control"
+                    onChange={(e) => {
+                      SetEducation({
+                        ...Education,
+                        SchoolType: Number(e.target.value),
+                      });
+                    }}
+                  >
+                    <option value="0" disabled selected>
+                      Rodzaj szkoły
+                    </option>
+                    {SchoolTypes.map((z) => {
+                      return (
+                        <option key={z.Name} value={z.ID}>
+                          {z.Name}
+                        </option>
+                      );
+                    })}
+                  </select>
+                  <div className="d-flex flex-column" style={{ gap: "5px" }}>
+                    <b>Zakres czasowy [rok]</b>
+                    <div className="d-flex" style={{ gap: "5px" }}>
+                      <input
+                        type="number"
+                        placeholder="Poczatek"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetEducation({
+                            ...Education,
+                            StartDate: Number(e.target.value),
+                          })
+                        }
+                      />
+                      <input
+                        type="number"
+                        placeholder="Koniec"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetEducation({
+                            ...Education,
+                            EndDate: Number(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="Footer">
+                  <button type="submit" className="btn btn-primary w-100">
+                    Zatwierdz
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div className="col-8">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Twoja edukacja</h4>
+                <hr />
+              </div>
+              <div className="ProfileInfo EducationList">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nazwa</th>
+                      <th>Profil</th>
+                      <th>Miasto</th>
+                      <th>Data rozpoczęcia</th>
+                      <th>Data zakończenia</th>
+                      <th>usun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profile.Education.map((z) => {
+                      return (
+                        <EducationTableRow
+                          Api={api}
+                          Education={z}
+                          Profile={profile}
+                          SetProfile={SetProfile}
+                        />
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row p-0">
+          <div className="col-4">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Edukacja</h4>
+                <hr />
+              </div>
+              <form
+                className=" ProfileInfo d-flex flex-column MainContent"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const post = await api.post("course", {
+                    ...Course,
+                    ProfileID: profile.ID,
+                  });
+                  if (post.status == 201) {
+                    alert("OK");
+                    SetProfile({
+                      ...profile,
+                      Course: [...profile.Course, post.data],
+                    });
+                  }
+                }}
+              >
+                <div
+                  className="d-flex flex-column justify-content-center"
+                  style={{ gap: "30px" }}
+                >
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Nazwa kursu"
+                    value={Course?.Name}
+                    onChange={(e) => {
+                      SetCourse({ ...Course, Name: e.target.value });
+                    }}
+                  />
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Organizator"
+                    value={Course?.Organizer}
+                    onChange={(e) => {
+                      SetCourse({ ...Course, Organizer: e.target.value });
+                    }}
+                  />
+                  <div className="d-flex flex-column" style={{ gap: "5px" }}>
+                    <b>Zakres czasowy [rok]</b>
+                    <div className="d-flex" style={{ gap: "5px" }}>
+                      <input
+                        type="date"
+                        placeholder="Poczatek"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetCourse({
+                            ...Course,
+                            StartDate: new Date(e.target.value),
+                          })
+                        }
+                      />
+                      <input
+                        type="date"
+                        placeholder="Koniec"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetCourse({
+                            ...Course,
+                            EndDate: new Date(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="Footer">
+                  <button type="submit" className="btn btn-primary w-100">
+                    Zatwierdz
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div className="col-8">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Twoja edukacja</h4>
+                <hr />
+              </div>
+              <div className="ProfileInfo EducationList">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nazwa</th>
+                      <th>Organizator</th>
+                      <th>Data rozpoczęcia</th>
+                      <th>Data zakończenia</th>
+                      <th>usun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profile.Course?.map((z) => {
+                      return (
+                        <tr>
+                          <td>{z.Name}</td>
+                          <td>{z.Organizer}</td>
+                          <td>{new Date(z.StartDate ?? "").toDateString()}</td>
+                          <td>{new Date(z.EndDate ?? "").toDateString()}</td>
+                          <td>
+                            <button
+                              className="btn btn-danger"
+                              onClick={async () => {
+                                await api.delete("course", z.ID).then((res) => {
+                                  if (res.status == 200) {
+                                    SetProfile({
+                                      ...profile,
+                                      Course: profile.Course.filter(
+                                        (y) => y.ID != res.data.ID
+                                      ),
+                                    });
+                                  }
+                                });
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        {JSON.stringify(Course)}
       </div>
     </div>
   );

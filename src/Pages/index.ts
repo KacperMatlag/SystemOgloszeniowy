@@ -6,3 +6,4 @@ export { default as LoadingScreen } from "./LoadingScreen";
 export { default as LoginRegister } from "./LoginRegister";
 export { default as Profile } from "./Profile";
 export { default as AddCompany } from "./AddCompany";
+export { default as NotFound } from "./NotFound";

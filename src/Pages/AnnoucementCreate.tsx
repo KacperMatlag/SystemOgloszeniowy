@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import LoadingScreen from "./LoadingScreen";
 import "../CSS/PagesCSS/AnnoucementCreate.css";
 import type {
+  Annoucement,
   JobLevel,
   TypeOfContract,
   WorkCategory,
@@ -12,28 +13,22 @@ import { ButtonProps } from "react-bootstrap";
 import {
   addToListIfValid,
   getJobPositionsWithCertainCategory,
-  handleSubmit,
+  handlePatch,
+  handlePost,
   selectsDataValues,
 } from "../Utils/AnnoucementCreateUtils";
 import { useApi } from "../ApiMenager/ApiContext";
+import { useAuth } from "../AuthContext/authContect";
+import { useNavigate, useParams } from "react-router-dom";
 
 const AnnoucementCreate: React.FC = () => {
+  const navigate = useNavigate();
+  const { id } = useParams();
+  const [edit, SetEdit] = useState<boolean>(false);
+  const { _User, isAuthenticated } = useAuth();
   const api = useApi();
   const [loading, SetLoading] = useState(true);
-  const [announcement, SetAnnouncementOptions] = useState({
-    Title: "",
-    Description: "",
-    WorkCategoryID: 0,
-    JobPositionID: 0,
-    JobLevelID: 0,
-    TypeOfContractID: 0,
-    WorkingTimeID: 0,
-    WorkTypeID: 0,
-    ExpirationDate: "",
-    MinWage: 0,
-    MaxWage: 0,
-    CompanyID: 1,
-  });
+  const [announcement, SetAnnouncement] = useState<Annoucement | undefined>();
 
   const [requirement, SetRequirement] = useState<string>("");
   const [requirements, SetRequirements] = useState<string[]>([]);
@@ -51,41 +46,65 @@ const AnnoucementCreate: React.FC = () => {
   const [workingTimes, SetWorkingTimes] = useState<WorkingTime[]>([]);
   const [workTypes, SetWorkTypes] = useState<WorkType[]>([]);
   useEffect(() => {
-    try {
-      const fetchData = async () => {
-        const selectValues = await selectsDataValues(api);
-        SetCategories(selectValues.Categories);
-        SetTypeOfContract(selectValues.TypesOfContracts);
-        SetWorkingTimes(selectValues.WorkingTime);
-        SetWorkTypes(selectValues.WorkType);
-        SetJobLevels(selectValues.JobLevels);
-        SetLoading(false);
-      };
-      fetchData();
-    } catch (error) {
-      console.log(error);
-    }
-    SetLoading(false);
-  }, []);
+    const fetchData = async () => {
+      if (!isAuthenticated) return;
+      if (id && isAuthenticated) {
+        SetEdit(true);
+        await api.get("announcement/" + id).then((res) => {
+          SetAnnouncement(res.data);
+          Setduties(res.data.Duties.map((z: any) => z.Name));
+          SetRequirements(res.data.Requirements.map((z: any) => z.Name));
+          SetEmploeyOffers(
+            res.data.WhatTheEmployerOffers.map((z: any) => z.Name)
+          );
+        });
+      }
+      const selectValues = await selectsDataValues(api);
+      SetCategories(selectValues.Categories);
+      SetTypeOfContract(selectValues.TypesOfContracts);
+      SetWorkingTimes(selectValues.WorkingTime);
+      SetWorkTypes(selectValues.WorkType);
+      SetJobLevels(selectValues.JobLevels);
+      SetLoading(false);
+    };
+    fetchData();
+  }, [isAuthenticated]);
+
+  useEffect(() => {
+    const validateAnnouncement = async () => {
+      if (!announcement) return;
+      await api
+        .get("announcement/usercompanies/" + _User?.ProfileID)
+        .then((res) => {
+          const data = res.data as Annoucement[];
+          if (!data.find((z) => z.ID == id)) {
+            navigate("/");
+          }
+        });
+    };
+    validateAnnouncement();
+  }, [announcement?.ID]);
 
   useEffect(() => {
     getJobPositionsWithCertainCategory(api, announcement, SetJobPositions);
-  }, [announcement.WorkCategoryID]);
+  }, [announcement?.WorkCategoryID]);
 
   if (loading) return <LoadingScreen />;
+
   return (
     <div className="container-lg">
       <form
         className="d-flex flex-column create-form"
-        onSubmit={(e) => {
-          handleSubmit(
-            e,
-            api,
-            duties,
-            requirements,
-            emploeyOffers,
-            announcement
-          );
+        onSubmit={async (e) => {
+          e.preventDefault();
+          const data = {
+            ...announcement,
+            Duties: duties,
+            Requirements: requirements,
+            EmploeyOffers: emploeyOffers,
+          };
+          if (!edit) await handlePost(api, navigate, data);
+          else handlePatch(api, navigate, data);
         }}
       >
         <span>Tytuł</span>
@@ -94,19 +113,21 @@ const AnnoucementCreate: React.FC = () => {
           name="Title"
           className="form-control"
           placeholder="Tytuł ogłoszenia"
+          defaultValue={announcement?.Title}
           onChange={(e) => {
-            SetAnnouncementOptions({ ...announcement, Title: e.target.value });
+            SetAnnouncement({ ...announcement, Title: e.target.value });
           }}
         />
         <span>Opis</span>
         <textarea
+          defaultValue={announcement?.Description}
           name="Description"
           placeholder="Opis ogloszenia"
           cols={30}
           rows={10}
           className="form-control"
           onChange={(e) => {
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               Description: e.target.value,
             });
@@ -114,19 +135,20 @@ const AnnoucementCreate: React.FC = () => {
         ></textarea>
         <span>Kategoria</span>
         <select
+          defaultValue={categories
+            .map((z) => z.ID)
+            .find((y) => y == announcement?.WorkCategoryID)}
           name="CategoryID"
           className="form-select"
           onChange={(e) => {
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               WorkCategoryID: parseInt(e.target.value),
               JobPositionID: 0,
             });
           }}
         >
-          <option value="0" selected>
-            Wybierz Kategorie
-          </option>
+          <option value="0">Wybierz Kategorie</option>
           {categories.map((key: WorkCategory, value) => {
             return (
               <option key={value} value={key.ID}>
@@ -139,17 +161,15 @@ const AnnoucementCreate: React.FC = () => {
         <select
           className="form-control"
           name="PositionID"
-          value={announcement.JobPositionID}
+          defaultValue={announcement?.JobPositionID}
           onChange={(e) => {
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               JobPositionID: parseInt(e.target.value),
             });
           }}
         >
-          <option value="0" selected>
-            Wybierz Pozycje
-          </option>
+          <option value="0">Wybierz Pozycje</option>
           {positions.map((key, value) => {
             return (
               <option key={value} value={key.JobPosition.ID}>
@@ -160,16 +180,19 @@ const AnnoucementCreate: React.FC = () => {
         </select>
         <span>Poziom pracy</span>
         <select
+          defaultValue={jobLevels
+            .map((z) => z.ID)
+            .find((y) => y == announcement?.JobLevelID)}
           name="JobLevelID"
           className="form-control"
           onChange={(e) =>
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               JobLevelID: parseInt(e.target.value),
             })
           }
         >
-          <option value="0" selected disabled>
+          <option value="0" defaultValue={0} disabled>
             Wybierz poziom pracy
           </option>
           {jobLevels.map((key: JobLevel, value) => {
@@ -182,16 +205,19 @@ const AnnoucementCreate: React.FC = () => {
         </select>
         <span>Rodzaj Umowy</span>
         <select
+          defaultValue={typesOfContract
+            .map((z) => z.ID)
+            .find((y) => y == announcement?.TypeOfContractID)}
           name="TypeOfContractID"
           className="form-control"
           onChange={(e) =>
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               TypeOfContractID: parseInt(e.target.value),
             })
           }
         >
-          <option value="0" disabled selected>
+          <option value="0" disabled>
             Wybierz rodzaj umowy
           </option>
           {typesOfContract.map((key: TypeOfContract, value) => {
@@ -204,16 +230,19 @@ const AnnoucementCreate: React.FC = () => {
         </select>
         <span>Czas Pracy</span>
         <select
+          defaultValue={workingTimes
+            .map((z) => z.ID)
+            .find((y) => y == announcement?.WorkingTimeID)}
           name="WorkingTimeID"
           className="form-control"
           onChange={(e) =>
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               WorkingTimeID: parseInt(e.target.value),
             })
           }
         >
-          <option value="0" disabled selected>
+          <option value="0" disabled>
             Wybierz czas pracy
           </option>
           {workingTimes.map((key: WorkingTime, value) => {
@@ -226,16 +255,19 @@ const AnnoucementCreate: React.FC = () => {
         </select>
         <span>Typ pracy</span>
         <select
+          defaultValue={workTypes
+            .map((z) => z.ID)
+            .find((y) => y == announcement?.WorkTypeID)}
           name="WorkTypeID"
           className="form-control"
           onChange={(e) =>
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               WorkTypeID: parseInt(e.target.value),
             })
           }
         >
-          <option value="0" selected disabled>
+          <option value="0" disabled>
             Wybierz typ pracy
           </option>
           {workTypes.map((key: WorkType, value) => {
@@ -251,8 +283,15 @@ const AnnoucementCreate: React.FC = () => {
           className="form-control"
           type="date"
           name="ExpirationDate"
+          value={
+            (announcement?.ExpirationDate &&
+              new Date(announcement.ExpirationDate)
+                .toISOString()
+                .split("T")[0]) ||
+            ""
+          }
           onChange={(e) =>
-            SetAnnouncementOptions({
+            SetAnnouncement({
               ...announcement,
               ExpirationDate: e.target.value,
             })
@@ -261,12 +300,13 @@ const AnnoucementCreate: React.FC = () => {
         <span>Wynagrodzenie</span>
         <div className="d-flex">
           <input
+            defaultValue={announcement?.MinWage}
             className="form-control"
             type="number"
             name="MinWage"
             placeholder="Minimalne wynagrodzenie"
             onChange={(e) =>
-              SetAnnouncementOptions({
+              SetAnnouncement({
                 ...announcement,
                 MinWage: parseFloat(e.target.value),
               })
@@ -274,18 +314,48 @@ const AnnoucementCreate: React.FC = () => {
           />
           <span>-</span>
           <input
+            defaultValue={announcement?.MaxWage}
             className="form-control"
             type="number"
             name="MaxWage"
             placeholder="Maksymlane wynagrodzenie"
             onChange={(e) =>
-              SetAnnouncementOptions({
+              SetAnnouncement({
                 ...announcement,
                 MaxWage: parseFloat(e.target.value),
               })
             }
           />
         </div>
+        <span>Firma</span>
+        <select
+          defaultValue={_User?.Profile.Companies.map((z) => z.ID).find(
+            (y) => y == announcement?.Company?.ID
+          )}
+          name="Company"
+          id="CompanySelect"
+          className="form-select"
+          onChange={(e) => {
+            SetAnnouncement({
+              ...announcement,
+              CompanyID: Number(e.target.value),
+            });
+          }}
+        >
+          <option value={0} disabled>
+            Wybierz firme
+          </option>
+          {_User?.Profile.Companies?.map((element) => {
+            return (
+              <option
+                value={element.Company.ID}
+                key={element.Company.Address.Address}
+              >
+                {element.Company.Name}
+              </option>
+            );
+          })}
+        </select>
         <span>Obowiazki</span>
         <div className="d-flex AnnouncementOptions">
           <div className="d-flex w-100 AnnouncementInput">
@@ -293,7 +363,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="Responsibilities"
-              value={duty}
+              defaultValue={duty}
               onChange={(e) => {
                 SetDuty(e.target.value);
               }}
@@ -337,7 +407,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="Requirements"
-              value={requirement}
+              defaultValue={requirement}
               onChange={(e) => {
                 SetRequirement(e.target.value);
               }}
@@ -388,7 +458,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="employeroffer"
-              value={emploeyOffer}
+              defaultValue={emploeyOffer}
               onChange={(e) => {
                 SetEmploeyOffer(e.target.value);
               }}
@@ -432,14 +502,13 @@ const AnnoucementCreate: React.FC = () => {
             })}
           </ul>
         </div>
-        <pre>{JSON.stringify(duties)}</pre>
-        <pre>{JSON.stringify(requirements)}</pre>
-        <pre>{JSON.stringify(emploeyOffers)}</pre>
-        <pre>{JSON.stringify(announcement)}</pre>
-        <input type="submit" value="Dodaj" className="btn btn-primary" />
+        <input
+          type="submit"
+          value={edit ? "Edytuj" : "Dodaj"}
+          className="btn btn-primary"
+        />
       </form>
     </div>
   );
 };
-
 export default AnnoucementCreate;

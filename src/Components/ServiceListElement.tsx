@@ -26,7 +26,7 @@ export const ServiceListElement: React.FC<ServiceProps> = (props) => {
         id={props.data.ID.toString()}
         onClick={async () => {
           await props.api
-            .dekete("services/deleteuserLink", props.data.ID)
+            .delete("services/deleteuserLink", props.data.ID)
             .then((res) => {
               DefaultResponseAction(_ReloadUser, res);
             });

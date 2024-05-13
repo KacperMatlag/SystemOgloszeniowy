@@ -22,9 +22,7 @@ const CertainSelect: React.FC<SelectProps> = ({
       }}
       className={clases}
     >
-      <option value="" selected>
-        {placeholder}
-      </option>
+      <option value="0">{placeholder}</option>
       {options?.map((option: any, index: number) => (
         <option
           key={index}

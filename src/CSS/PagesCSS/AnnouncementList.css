@@ -7,17 +7,40 @@
   width: 300px;
   align-items: center;
 }
+
 .menu form input,
 .menu form select,
 .menu form button {
   min-width: 300px !important;
 }
+
+.paginationMenu {
+  height: 50px;
+  gap: 10px;
+}
+
+.paginationMenu button {
+  background-color: transparent;
+  border: none;
+  width: 30px;
+  height: 30px;
+}
+
+.currentPage {
+  border-bottom: 2px solid red !important;
+}
+
+.paginationMenu button:hover {
+  border-bottom: 2px solid green;
+}
+
 @media only screen and (max-width: 1200px) {
   .menu form {
     position: static;
     width: 80%;
     margin-top: 10px;
   }
+
   .menu button {
     width: 100%;
   }

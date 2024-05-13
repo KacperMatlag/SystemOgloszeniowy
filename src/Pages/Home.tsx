@@ -53,22 +53,20 @@ const Home: React.FC = () => {
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const SearchData = selectsDataValues(api);
-
-        SetJobPosition((await SearchData).jobPositions);
-        SetCompanies((await SearchData).companies);
-        SetCategories((await SearchData).categories);
-        SetAnnouncements((await SearchData).announcements);
-        SetJobLevel((await SearchData).jobLevel);
-        SetTypeOfContract((await SearchData).typeOfContract);
-        SetWorkingTime((await SearchData).workingTime);
-        SetWorktype((await SearchData).workType);
-        SetSpotlight((await SearchData).jobbSpotlight);
-        SetCount((await SearchData).count);
+        const SearchData = await selectsDataValues(api);
+        SetJobPosition(SearchData.jobPositions);
+        SetCompanies(SearchData.companies);
+        SetCategories(SearchData.categories);
+        SetAnnouncements(SearchData.announcements);
+        SetJobLevel(SearchData.jobLevel);
+        SetTypeOfContract(SearchData.typeOfContract);
+        SetWorkingTime(SearchData.workingTime);
+        SetWorktype(SearchData.workType);
+        SetSpotlight(SearchData.jobbSpotlight);
+        SetCount(SearchData.count);
         Setloading(false);
       } catch (error) {
         console.error("Błąd podczas pobierania danych", error);
-        Setloading(false);
       }
     };
     fetchData();

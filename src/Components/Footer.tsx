@@ -1,5 +1,5 @@
 import logo from "../assets/react.svg";
-const Footer: React.FC<any> = () => {
+const Footer: React.FC = () => {
   return (
     <footer className="bg-black">
       <div className="row m-0">
@@ -30,7 +30,7 @@ const Footer: React.FC<any> = () => {
             <div></div>
             <div></div>
           </section>
-          <p>Copyright: {new Date().getFullYear() + " - now"}</p>
+          <p>Copyright: {"2023 - " + new Date().getFullYear()}</p>
         </div>
       </div>
     </footer>

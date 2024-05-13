@@ -17,19 +17,19 @@ const JobSpotlight: React.FC<any> = ({ data }: { data: Annoucement }) => {
   return (
     <div className="w-100 SpotlightAd d-flex flex-column align-items-center">
       <div className="SpotlightBanner d-flex flex-column align-items-center justify-content-evenly">
-        <img src={data.Company.Image} alt="" />
-        <h4>{data.Company.Name}</h4>
+        <img src={data?.Company?.Image} alt="CompanyImage" />
+        <h4>{data?.Company?.Name}</h4>
       </div>
       <hr />
       <div className="d-flex flex-column align-items-center justify-content-evenly h-100 SpotlightInfo">
-        <h2>{data.JobPosition.Name}</h2>
+        <h2>{data?.JobPosition?.Name}</h2>
         <p>{data.Description}</p>
         <b>{data.MinWage + "-" + data.MaxWage + " zł/mies"}</b>
         <button
           style={{ width: "200px" }}
-          className={`btn btn-${getColor(data.WorkType.Name)}`}
+          className={`btn btn-${getColor(data.WorkType?.Name ?? "")}`}
         >
-          {data.WorkType.Name}
+          {data?.WorkType?.Name}
         </button>
       </div>
     </div>

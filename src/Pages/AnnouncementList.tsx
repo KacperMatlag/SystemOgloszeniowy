@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { JobRowControl, CertainSelect } from "../Components/index";
-import axios from "axios";
-import { Link, useLocation } from "react-router-dom";
-import {} from "../CSS/PagesCSS/AnnouncementList.css";
+import { Link } from "react-router-dom";
+import "../CSS/PagesCSS/AnnouncementList.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 import LoadingScreen from "./LoadingScreen";
 import type {
-  Annoucement,
   Company,
   JobLevel,
   TypeOfContract,
@@ -14,24 +12,32 @@ import type {
   WorkType,
   WorkingTime,
   CategoryWithPositions,
+  AnnouncementFilterResponse,
 } from "../Models/index";
-import { selectsDataValues } from "../Utils/AnnouncementListUtils";
+import {
+  createPaginationButtons,
+  selectsDataValues,
+} from "../Utils/AnnouncementListUtils";
 import { useApi } from "../ApiMenager/ApiContext";
 
 const AnnouncementList: React.FC = () => {
   const api = useApi();
-  const location = useLocation();
-  const queryParams = new URLSearchParams(location.search);
+  const link = window.location.href;
+  const queryParams =
+    link.indexOf("?") > 0 ? link.substring(link.indexOf("?") + 1) : null;
 
   const [loading, Setloading] = useState<boolean>(true);
   const [jobPosition, SetJobPosition] = useState<CategoryWithPositions[]>([]);
   const [companies, SetCompanies] = useState<Company[]>([]);
   const [categories, SetCategories] = useState<WorkCategory[]>([]);
-  const [announcements, SetAnnouncements] = useState<Annoucement[]>([]);
+  const [announcements, SetAnnouncements] =
+    useState<AnnouncementFilterResponse>();
   const [jobLevel, SetJobLevel] = useState<JobLevel[]>([]);
   const [typeOfContract, SetTypeOfContract] = useState<TypeOfContract[]>([]);
   const [workingTime, SetWorkingTime] = useState<WorkingTime[]>([]);
   const [workType, SetWorktype] = useState<WorkType[]>([]);
+  const [currentPage, SetCurrentPage] = useState<number>(1);
+  const [paginationButton, SetPaginationButtons] = useState<string[]>([]);
   //
   const [selectCategory, SetSelectCategory] = useState("");
   const [jobPositionSelect, SetJobPositionSelect] = useState("");
@@ -43,74 +49,84 @@ const AnnouncementList: React.FC = () => {
   const [titleInput, SetTitleInput] = useState("");
   const [minWage, SetMinWage] = useState("");
   const [maxWage, SetMaxWage] = useState("");
-
+  const [firstLoad, SetFirstLoad] = useState<boolean>(true);
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const data = await selectsDataValues(api, queryParams);
-        setTimeout(() => {
-          SetJobPosition(data.jobPositions);
-          SetCompanies(data.companies);
-          SetCategories(data.categories);
-          SetAnnouncements(
-            data.announcements.filter(
-              (announcement: Annoucement) =>
-                announcement.daysUntilExpiration >= 0
-            )
-          );
-          SetJobLevel(data.jobLevel);
-          SetTypeOfContract(data.typeOfContract);
-          SetWorkingTime(data.workingTime);
-          SetWorktype(data.workType);
-          Setloading(false);
-        }, 100);
-      } catch (error) {
-        console.error("Error while fetching data", error);
-        Setloading(false);
-      }
+      const data = await selectsDataValues(api, queryParams);
+      SetPaginationButtons(
+        createPaginationButtons(
+          data.announcements.maxPage,
+          data.announcements.page
+        )
+      );
+      SetJobPosition(data.jobPositions);
+      SetCompanies(data.companies);
+      SetAnnouncements(data.announcements);
+      SetCategories(data.categories);
+      SetJobLevel(data.jobLevel);
+      SetTypeOfContract(data.typeOfContract);
+      SetWorkingTime(data.workingTime);
+      SetWorktype(data.workType);
+      Setloading(false);
     };
-
     fetchData();
   }, []);
 
-  const handleFilterClick = async () => {
-    try {
-      const response = await axios.get(
-        `http://localhost:2137/announcement/filter?` +
-          `WorkCategoryID=${selectCategory}` +
-          `&WorkTypeID=${workTypeSelect}` +
-          `&CompanyID=${companySelect}` +
-          `&JobPositionID=${jobPositionSelect}` +
-          `&JobLevelID=${jobLevelSelect}` +
-          `&TypeOfContractID=${typeOfContractSelect}` +
-          `&WorkingTimeID=${workingTimeSelect}` +
-          `&Title=${titleInput}` +
-          `&MinWage=${minWage}` +
-          `&MaxWage=${maxWage}`
-      );
-      SetAnnouncements(response.data);
-    } catch (error) {
-      console.error("Error while fetching filtered data", error);
+  useEffect(() => {
+    if (firstLoad && queryParams != "") {
+      SetFirstLoad(false);
+      return Setloading(false);
     }
+    const pageChange = async () => {
+      await filterApiCall().then((res) => {
+        SetPaginationButtons(
+          createPaginationButtons(res.data.maxPage, res.data.page)
+        );
+        SetAnnouncements(res.data);
+        Setloading(false);
+      });
+    };
+    pageChange();
+  }, [currentPage]);
+
+  const filterApiCall = async () => {
+    return await api.get(
+      `announcement/filter?` +
+        `WorkCategoryID=${selectCategory}` +
+        `&WorkTypeID=${workTypeSelect}` +
+        `&CompanyID=${companySelect}` +
+        `&JobPositionID=${jobPositionSelect}` +
+        `&JobLevelID=${jobLevelSelect}` +
+        `&TypeOfContractID=${typeOfContractSelect}` +
+        `&WorkingTimeID=${workingTimeSelect}` +
+        `&Title=${titleInput}` +
+        `&MinWage=${minWage}` +
+        `&MaxWage=${maxWage}` +
+        `&page=${currentPage}`
+    );
+  };
+
+  const handleFilterClick = async () => {
+    SetCurrentPage(1);
+    const annoucements = await filterApiCall();
+    SetAnnouncements(annoucements.data);
+    SetPaginationButtons(
+      createPaginationButtons(annoucements.data.maxPage, annoucements.data.page)
+    );
+    Setloading(false);
   };
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        const [jobPositionResponse] = await Promise.all([
-          axios.get("http://localhost:2137/cwp/" + selectCategory),
-        ]);
-        SetJobPosition(jobPositionResponse.data);
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      const jobPositionResponse = await api.get("cwp/" + selectCategory);
+      SetJobPosition(jobPositionResponse.data);
     };
-
     fetchData();
   }, [selectCategory]);
+
   if (loading) return <LoadingScreen />;
   return (
-    <div className="overflow-hidden w-100 row">
+    <div className="overflow-hidden w-100 row gy-3">
       <div className="col-lg-12 col-xl-4 menu">
         <div className="m-auto p-3 FormWrap">
           <form
@@ -197,17 +213,40 @@ const AnnouncementList: React.FC = () => {
       </div>
       <div className="col-lg-12 col-xl-8 menu2">
         <div
-          className="w-100 d-flex flex-column my-5"
-          style={{ gap: "50px", minHeight: "80vh" }}
+          className="w-100 d-flex flex-column my-3"
+          style={{ gap: "10px", minHeight: "80vh" }}
         >
-          {announcements.map((announcement, index) => (
-            <Link key={index} to={`/ogloszenia/${announcement.ID}`}>
-              <JobRowControl data={announcement} />
-            </Link>
-          )) || <h1 className="text-center">No announcements available</h1>}
+          {announcements?.data && announcements.data.length > 0 ? (
+            announcements?.data?.map((announcement, index) => (
+              <Link key={index} to={`/ogloszenia/${announcement.ID}`}>
+                <JobRowControl data={announcement} />
+              </Link>
+            ))
+          ) : (
+            <h1 className="text-center">No announcements available</h1>
+          )}
+        </div>
+        <div className="paginationMenu d-flex align-items-center justify-content-left">
+          {paginationButton.length > 1 &&
+            paginationButton?.map((z) => {
+              return (
+                <button
+                  key={Math.random()}
+                  onClick={async () => {
+                    window.scrollTo({ top: 0, behavior: "smooth" });
+                    SetCurrentPage(Number(z));
+                  }}
+                  className={z == currentPage?.toString() ? "currentPage" : ""}
+                  style={{ pointerEvents: z == "..." ? "none" : "all" }}
+                >
+                  {z}
+                </button>
+              );
+            })}
         </div>
       </div>
     </div>
   );
 };
+
 export default AnnouncementList;

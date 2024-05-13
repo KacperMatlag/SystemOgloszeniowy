@@ -48,19 +48,23 @@
 }
 
 
-.ProfileStyle .Footer {
-  height: 60px;
-  display: flex;
-  align-items: end;
-  justify-content: center;
-}
 
-.ProfileStyle .Header,
-.ProfileStyle .Footer {
+
+.ProfileStyle .Header {
   height: 60px;
   display: flex;
   align-items: center;
   justify-content: space-evenly;
+}
+
+
+.ProfileStyle .Footer {
+  margin: 10px 0;
+}
+
+.ProfileStyle .Footer button {
+  width: 200px !important;
+  margin: 0 auto;
 }
 
 .row {
@@ -72,6 +76,7 @@
   margin: 0;
   width: 100%;
   height: max-content;
+  overflow-y: auto;
 }
 
 .ProfilePicture {
@@ -206,29 +211,36 @@
 }
 
 .companiesrow {
-  height: 300px;
+  height: 400px;
+  max-height: 400px !important;
 }
 
 .companies {
-  max-height: 242px;
-  height: 242px;
   justify-content: space-between;
   overflow: hidden;
   overflow-y: auto;
 }
 
 .companieslist {
-  height: 170px;
+  overflow: auto;
+  max-height: 250px !important;
+  flex-direction: column;
 }
-
-.companymenu {
-  height: 50px;
-  overflow: hidden;
-  margin: 0 10px;
-}
-
 
 .UserCompanies img {
   object-fit: contain;
   height: 70px;
+}
+
+.EducationList {
+  height: 380px;
+  overflow-y: auto;
+}
+
+.EducationList table tbody td {
+  height: 50px;
+}
+
+.EducationList table tbody td {
+  word-break: keep-all !important;
 }

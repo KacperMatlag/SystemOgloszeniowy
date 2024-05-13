@@ -10,7 +10,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faLock, faUser } from "@fortawesome/free-solid-svg-icons";
 const LoginRegister: React.FC = () => {
   const navigate = useNavigate();
-  const [user, SetUser] = useState<any>({
+  const [user, SetUser] = useState({
     Login: "",
     Password: "",
     PasswordVerification: "",
@@ -19,7 +19,7 @@ const LoginRegister: React.FC = () => {
     Surname: "",
     Email: "",
   });
-  const [login, SetLogin] = useState<any>({
+  const [login, SetLogin] = useState({
     Login: "",
     Password: "",
   });

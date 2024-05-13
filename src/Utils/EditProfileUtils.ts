@@ -1,13 +1,23 @@
 import * as yup from "yup";
 import ApiManager from "../ApiMenager/ApiManager";
-import { Language, Profile, Service, User, WorkCategory } from "../Models";
-import axios, { AxiosResponse } from "axios";
+import { Education, Profile, User } from "../Models";
+import { AxiosResponse } from "axios";
 import React from "react";
 import BingMapResponse from "../Models/BingMapsResponse";
 export interface ChangePassword {
   Password: string;
   NewPassword: string;
   NewPassword2: string;
+}
+
+export interface EducationElement {
+  SchoolName?: string;
+  FieldOfStudy?: string;
+  City?: string;
+  SchoolType?: number;
+  StartDate?: number;
+  EndDate?: number;
+  ProfileID?: number;
 }
 export const changePasswordSchema = yup.object().shape({
   Password: yup.string().required("Aktualne hasło jest wymagane"),
@@ -36,16 +46,18 @@ export const LanguageColor = (text: string) => {
   }
 };
 
-export const LoadSelects = async (api: ApiManager) => {
-  const [categories, languages, services] = await Promise.all([
+export const LoadSelects = async (api: ApiManager, profileID?: number) => {
+  const [categories, languages, services, schooltype] = await Promise.all([
     api.get("workcategory"),
     api.get("languages"),
     api.get("services/services"),
+    api.get("schooltype"),
   ]);
   return {
     categories: categories.data,
     languages: languages.data,
     services: services.data,
+    schooltype: schooltype.data,
   };
 };
 
@@ -148,8 +160,6 @@ export const UpdateProfileInfo = async (
   profile: Profile,
   file?: File
 ) => {
-  console.log(file);
-
   await api
     .patch("profile/update", SetupFormDataForPatch(profile, file))
     .then((res) => {
@@ -190,4 +200,29 @@ export const FormatUserAddress = (address: string) => {
       .trim(),
     PostCode: addressArr[1].trim(),
   };
+};
+
+export const educationPost = async (
+  api: ApiManager,
+  Education: EducationElement | undefined,
+  profile: Profile,
+  SetProfile: React.Dispatch<React.SetStateAction<Profile | undefined>>
+) => {
+  await api
+    .post("education", {
+      ...Education,
+      ProfileID: profile.ID,
+    })
+    .then((res) => {
+      if (res.status == 201) {
+        SetProfile({
+          ...profile,
+          Education: [...profile.Education, res.data].sort(
+            (a: Education, b: Education) => {
+              return Number(a.StartDate) - Number(b.StartDate);
+            }
+          ),
+        });
+      }
+    });
 };

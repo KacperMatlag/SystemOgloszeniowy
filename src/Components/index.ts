@@ -7,3 +7,4 @@ export { default as Navbar } from "./Navbar";
 export { default as LanguageListElement } from "./LanguageListElement";
 export { default as ServiceListElement } from "./ServiceListElement";
 export { default as MultipleSelectFilter } from "./MultipleSelectFilter";
+export { default as EditProfileListElement } from "./EditProfileListElement";

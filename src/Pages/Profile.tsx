@@ -3,40 +3,22 @@ import "../CSS/PagesCSS/Profile.css";
 import { User } from "../Models";
 import { useAuth } from "../AuthContext/authContect";
 import { LoadingScreen } from ".";
-import { Link, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams } from "react-router-dom";
 import { useApi } from "../ApiMenager/ApiContext";
-
-const LanguageColor = (text: string) => {
-  switch (text[0]) {
-    case "A":
-      return "Red";
-    case "B":
-      return "lightgreen";
-    case "C":
-      return "Green";
-    default:
-      break;
-  }
-};
+import { LoadProfile, formatYear, languageColor } from "../Utils/Profile";
 
 const ProfilePage: React.FC = () => {
   const api = useApi();
-  const { _User } = useAuth();
-  const [userProfile, SetUserProfile] = useState<User>({} as User);
+  const { _User, isAuthenticated } = useAuth();
+  const [userProfile, SetUserProfile] = useState<User | undefined>();
   const [loading, SetLoading] = useState<boolean>(true);
   const { id } = useParams();
+  const naviagte = useNavigate();
   useEffect(() => {
-    const LoadProfile = async () => {
-      try {
-        const res = await api.get("user/profile/" + id);
-        SetUserProfile(res.data);
-        SetLoading(false);
-      } catch (error) {
-        console.error("Error loading profile:", error);
-        SetLoading(false);
-      }
+    const LoadData = async () => {
+      LoadProfile(api, id, SetUserProfile, SetLoading, naviagte);
     };
-    LoadProfile();
+    LoadData();
   }, []);
   if (loading) return <LoadingScreen />;
   return (
@@ -55,9 +37,9 @@ const ProfilePage: React.FC = () => {
                   }
                   alt="zdjecie"
                 />
-                <h4 className="text-center">{userProfile.Login}</h4>
+                <h4 className="text-center">{`${userProfile?.Profile.Name} ${userProfile?.Profile.Surname}`}</h4>
               </div>
-              {_User?.ID == id && (
+              {_User?.Profile.ID == id && isAuthenticated && (
                 <Link to={`/Profil/${id}/Edytuj`}>
                   <button className="btn btn-primary">Edytuj</button>
                 </Link>
@@ -74,13 +56,13 @@ const ProfilePage: React.FC = () => {
                     <td>
                       <b>Imie</b>
                     </td>
-                    <td>{userProfile.Profile?.Name}</td>
+                    <td>{userProfile?.Profile?.Name}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Nazwisko</b>
                     </td>
-                    <td>{userProfile.Profile?.Surname}</td>
+                    <td>{userProfile?.Profile?.Surname}</td>
                   </tr>
                   <tr>
                     <td>
@@ -88,7 +70,7 @@ const ProfilePage: React.FC = () => {
                     </td>
                     <td>
                       {new Date(
-                        userProfile.Profile?.DateOfBirth as Date
+                        userProfile?.Profile?.DateOfBirth as Date
                       ).toLocaleDateString() ?? "Nie podano"}
                     </td>
                   </tr>
@@ -96,19 +78,19 @@ const ProfilePage: React.FC = () => {
                     <td>
                       <b>Email</b>
                     </td>
-                    <td>{userProfile.Profile?.Email}</td>
+                    <td>{userProfile?.Profile?.Email}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Numer telefonu</b>
                     </td>
-                    <td>{userProfile.Profile?.PhoneNumber ?? "-"}</td>
+                    <td>{userProfile?.Profile?.PhoneNumber ?? "-"}</td>
                   </tr>
                   <tr>
                     <td>
                       <b>Adres</b>
                     </td>
-                    <td>{userProfile.Profile?.Address?.Address ?? "-"}</td>
+                    <td>{userProfile?.Profile?.Address?.Address ?? "-"}</td>
                   </tr>
                 </tbody>
               </table>
@@ -123,23 +105,19 @@ const ProfilePage: React.FC = () => {
                 <hr />
               </div>
               <div className="Platforms Scroll d-flex flex-wrap">
-                {userProfile.Profile.Services.length === 0 ? (
-                  <h5>Brak usług dostępnych</h5>
-                ) : (
-                  userProfile.Profile.Services.map((element, index) => (
-                    <div className="PlatformElement" key={index}>
-                      <div className="ImageBox">
-                        <img
-                          src={element.Service.ImageUrl}
-                          alt={element.Service.Name}
-                        />
-                      </div>
-                      <a href={`${element.Link}`} target="_blank">
-                        {element.Link}
-                      </a>
+                {userProfile?.Profile.Services.map((element, index) => (
+                  <div className="PlatformElement" key={index}>
+                    <div className="ImageBox">
+                      <img
+                        src={element.Service.ImageUrl}
+                        alt={element.Service.Name}
+                      />
                     </div>
-                  ))
-                )}
+                    <a href={`${element.Link}`} target="_blank">
+                      {element.Link}
+                    </a>
+                  </div>
+                )) || <h5>Brak usług dostępnych</h5>}
               </div>
             </div>
           </div>
@@ -151,27 +129,23 @@ const ProfilePage: React.FC = () => {
               </div>
               <div className="Scroll">
                 <ul>
-                  {userProfile.Profile.Languages.length == 0 ? (
-                    <h5 className="text-center">Nie podano</h5>
-                  ) : (
-                    userProfile.Profile?.Languages.map((element, indext) => {
-                      return (
-                        <li key={indext}>
-                          <div>{element.Language.Name}</div>
-                          <div>
-                            <div
-                              style={{
-                                backgroundColor: LanguageColor(element.Level),
-                              }}
-                              className="Radius"
-                            >
-                              {element.Level}
-                            </div>
+                  {userProfile?.Profile?.Languages.map((element, indext) => {
+                    return (
+                      <li key={indext}>
+                        <div>{element.Language.Name}</div>
+                        <div>
+                          <div
+                            style={{
+                              backgroundColor: languageColor(element.Level),
+                            }}
+                            className="Radius"
+                          >
+                            {element.Level}
                           </div>
-                        </li>
-                      );
-                    })
-                  )}
+                        </div>
+                      </li>
+                    );
+                  }) || <h5 className="text-center">Nie podano</h5>}
                 </ul>
               </div>
             </div>
@@ -186,10 +160,10 @@ const ProfilePage: React.FC = () => {
                   style={{ gap: "30px" }}
                 >
                   <b>
-                    {userProfile.Profile?.JobPosition?.Name ?? "Nie podano"}
+                    {userProfile?.Profile?.JobPosition?.Name ?? "Nie podano"}
                   </b>
                   <p>
-                    {userProfile.Profile?.CurrentJobPositionDescription ||
+                    {userProfile?.Profile?.CurrentJobPositionDescription ||
                       "Nie podano"}
                   </p>
                 </div>
@@ -211,28 +185,28 @@ const ProfilePage: React.FC = () => {
                     <th scope="col">#</th>
                     <th scope="col">Nazwa</th>
                     <th scope="col">Organizator</th>
-                    <th scope="col">Data odbycia</th>
+                    <th scope="col">Data Rozpoczęcia</th>
+                    <th scope="col">Data Zakończenia</th>
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Kurs Programowania</td>
-                    <td>Firma XYZ Edukacja</td>
-                    <td>2022-03-10 - 2022-03-12</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Szkolenie Zarządzania Projektem</td>
-                    <td>Institute of Project Management</td>
-                    <td>2022-03-10 - 2022-03-12</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Certyfikat Java Developer</td>
-                    <td>Java Certification Institute</td>
-                    <td>2022-03-10 - 2022-03-12</td>
-                  </tr>
+                  {userProfile?.Profile.Course.map((element, index) => {
+                    return (
+                      <tr>
+                        <td>{index + 1}</td>
+                        <td>{element.Name}</td>
+                        <td>{element.Organizer}</td>
+                        <td>
+                          {new Date(
+                            element.StartDate ?? ""
+                          ).toLocaleDateString()}
+                        </td>
+                        <td>
+                          {new Date(element.EndDate ?? "").toLocaleDateString()}
+                        </td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
@@ -255,54 +229,18 @@ const ProfilePage: React.FC = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Uniwersytet XYZ</td>
-                    <td>Miasto A</td>
-                    <td>Licencjat</td>
-                    <td>Informatyka</td>
-                    <td>2001-2005</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Politechnika ABC</td>
-                    <td>Miasto B</td>
-                    <td>Magister</td>
-                    <td>Inżynieria Elektryczna</td>
-                    <td>2003-2005</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Akademia KLM</td>
-                    <td>Miasto C</td>
-                    <td>Licencjat</td>
-                    <td>Psychologia</td>
-                    <td>2002-2005</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">1</th>
-                    <td>Uniwersytet XYZ</td>
-                    <td>Miasto A</td>
-                    <td>Licencjat</td>
-                    <td>Informatyka</td>
-                    <td>2001-2005</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">2</th>
-                    <td>Politechnika ABC</td>
-                    <td>Miasto B</td>
-                    <td>Magister</td>
-                    <td>Inżynieria Elektryczna</td>
-                    <td>2003-2005</td>
-                  </tr>
-                  <tr>
-                    <th scope="row">3</th>
-                    <td>Akademia KLM</td>
-                    <td>Miasto C</td>
-                    <td>Licencjat</td>
-                    <td>Psychologia</td>
-                    <td>2002-2005</td>
-                  </tr>
+                  {userProfile?.Profile.Education.map((element, index) => {
+                    return (
+                      <tr>
+                        <th scope="row">{index + 1}</th>
+                        <td>{element.SchoolName}</td>
+                        <td>{element.City}</td>
+                        <td>{element.SchoolType?.Name ?? "-"}</td>
+                        <td>{element.FieldOfStudy ?? "-"}</td>
+                        <td>{formatYear(element)}</td>
+                      </tr>
+                    );
+                  })}
                 </tbody>
               </table>
             </div>
