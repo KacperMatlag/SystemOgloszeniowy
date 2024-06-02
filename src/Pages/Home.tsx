@@ -49,7 +49,7 @@ const Home: React.FC = () => {
   const [count, SetCount] = useState<number>(0);
   //
   const [menu, SetMenu] = useState<boolean>(false);
-
+  const [lastVisited, SetLAstVisited] = useState<Annoucement[] | undefined>();
   useEffect(() => {
     const fetchData = async () => {
       try {
@@ -64,6 +64,13 @@ const Home: React.FC = () => {
         SetWorktype(SearchData.workType);
         SetSpotlight(SearchData.jobbSpotlight);
         SetCount(SearchData.count);
+        if (localStorage.getItem("Last4")) {
+          SetLAstVisited(JSON.parse(localStorage.getItem("Last4") ?? "[]"));
+        } else {
+          SetLAstVisited(undefined);
+        }
+        console.log(lastVisited);
+
         Setloading(false);
       } catch (error) {
         console.error("Błąd podczas pobierania danych", error);
@@ -74,13 +81,9 @@ const Home: React.FC = () => {
 
   useEffect(() => {
     const fetchData = async () => {
-      try {
-        api.get("cwp/" + selectCategory).then((res) => {
-          SetJobPosition(res.data);
-        });
-      } catch (error) {
-        console.error("Error fetching data:", error);
-      }
+      api.get("cwp/" + selectCategory).then((res) => {
+        SetJobPosition(res.data);
+      });
     };
 
     fetchData();
@@ -222,7 +225,21 @@ const Home: React.FC = () => {
           </div>
           <h2 className="text-center">Ostatnio oglądane</h2>
           <div className="w-75 m-auto JobsList">
-            <h4 className="text-center">Nie masz ostatio ogladanych</h4>
+            {/* <h4 className="text-center">Nie masz ostatio ogladanych</h4> */}
+            <div className="LastVisitedAnnouncements">
+              {lastVisited?.map((z) => {
+                return (
+                  <Link to={"/ogloszenia/" + z.ID}>
+                    <div className="LastVisited">
+                      <img src={z.Company?.Image} />
+                      <p>{z.Title}</p>
+                    </div>
+                  </Link>
+                );
+              }) || (
+                <h5 className="text-center w-100">Brak ostatnio ogladanych</h5>
+              )}
+            </div>
           </div>
         </div>
         <div className="col-xxl-4 p-3 JobSpotlight">

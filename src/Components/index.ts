@@ -8,3 +8,5 @@ export { default as LanguageListElement } from "./LanguageListElement";
 export { default as ServiceListElement } from "./ServiceListElement";
 export { default as MultipleSelectFilter } from "./MultipleSelectFilter";
 export { default as EditProfileListElement } from "./EditProfileListElement";
+export { default as LoginForm } from "./LoginForm";
+export { default as RegisterForm } from "./RegisterForm";

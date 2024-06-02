@@ -29,7 +29,7 @@ const LanguageListElement: React.FC<LanguageListElementProps> = (prop) => {
         id={prop.element.ID.toString()}
         onClick={async () => {
           await prop.api
-            .delete("languages/userlanguage/", prop.element.ID)
+            .delete("languages/userlanguage", prop.element.ID)
             .then((res) => {
               DefaultResponseAction(prop._ReloadUser, res);
             });

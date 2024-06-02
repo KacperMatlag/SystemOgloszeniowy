@@ -7,18 +7,22 @@ import BingMapResponse from "../Models/BingMapsResponse";
 import { useApi } from "../ApiMenager/ApiContext";
 import { Address } from "../Utils/EditProfileUtils";
 import { AxiosResponse } from "axios";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../AuthContext/authContect";
+import { Company } from "../Models";
 const AddCompany: React.FC = () => {
   const { _User } = useAuth();
+  const { ID } = useParams();
   interface CompanyInfo {
+    ID: number | undefined;
+    ImageUrl: string | undefined;
     Name: string;
     Description: string;
   }
   interface AddressProps {
     Address: string;
-    Longitude: number | undefined | null;
-    Latitude: number | undefined | null;
+    Longitude: number | undefined;
+    Latitude: number | undefined;
   }
   const [address, SetAddress] = useState<Address>({
     BlockNumber: "",
@@ -37,9 +41,12 @@ const AddCompany: React.FC = () => {
   const companyImage = useRef<HTMLImageElement>(null);
   const [file, SetFile] = useState<File>();
   const [companyInfo, SetCompanyInfo] = useState<CompanyInfo>({
+    ID: undefined,
+    ImageUrl: "",
     Name: "",
     Description: "",
   });
+  const [mode, SetMode] = useState<boolean>(false);
   const SearchForAddress = async () => {
     const request = `https://dev.virtualearth.net/REST/v1/Locations?addressline=${
       address.Town
@@ -50,6 +57,31 @@ const AddCompany: React.FC = () => {
       if (res.status == 200) SetSearchedAddress(res.data);
     });
   };
+
+  useEffect(() => {
+    const loadCompanyIfEdit = async () => {
+      window.scrollTo({ top: 0, behavior: "instant" });
+      if (ID) {
+        SetMode(true);
+        await api.get("company/" + ID).then((res) => {
+          const response = res.data as Company;
+          SetCompanyInfo({
+            Name: response.Name,
+            Description: response.Description,
+            ID: response.ID,
+            ImageUrl: response.Image,
+          });
+          SetSelectedAddress({
+            Address: response.Address.Address,
+            Latitude: Number(response.Address.Latitude),
+            Longitude: Number(response.Address.Longitude),
+          });
+        });
+      }
+    };
+    loadCompanyIfEdit();
+  }, [ID]);
+
   useEffect(() => {
     const load = () => {
       if (file) {
@@ -80,6 +112,7 @@ const AddCompany: React.FC = () => {
               onSubmit={async (e) => {
                 e.preventDefault();
                 const form = new FormData();
+
                 if (file) form.append("files", file);
                 form.append("Name", companyInfo.Name);
                 form.append("Description", companyInfo.Description);
@@ -87,13 +120,28 @@ const AddCompany: React.FC = () => {
                 form.append("Longitude", String(selectedAddress.Longitude));
                 form.append("Latitude", String(selectedAddress.Latitude));
                 form.append("ProfileID", String(_User?.Profile.ID));
+                if (companyInfo.ID) form.append("ID", String(companyInfo.ID));
 
-                await api.post("company/", form).then((res) => {
-                  if (res.status == 200) {
-                    alert("Pomyslnie utworzono firme");
+                try {
+                  const response = mode
+                    ? await api.patch("company/", form)
+                    : await api.post("company/", form);
+
+                  if (response.status === 200) {
+                    alert(
+                      mode
+                        ? "Pomyslnie uaktualniono firme"
+                        : "Pomyslnie utworzono firme"
+                    );
                     navigate(-1);
+                  } else {
+                    console.error("Error:", response.statusText);
+                    alert("Wystąpił błąd");
                   }
-                });
+                } catch (error) {
+                  console.error("Error:", error);
+                  alert("Wystąpił błąd");
+                }
               }}
               className="d-flex flex-column align-center p-3"
               style={{ gap: "15px" }}
@@ -102,6 +150,7 @@ const AddCompany: React.FC = () => {
                 <img
                   ref={companyImage}
                   src={
+                    companyInfo.ImageUrl ||
                     "https://fotoblysk.com/wp-content/uploads/2016/07/xRing-light-portret-1.jpg.pagespeed.ic.PuM47N375f.jpg"
                   }
                   alt="profile image"
@@ -147,7 +196,7 @@ const AddCompany: React.FC = () => {
                 }}
               ></textarea>
               <button className="btn btn-primary" type="submit">
-                Dodaj
+                {mode ? "Edytuj" : "Dodaj"}
               </button>
             </form>
           </div>

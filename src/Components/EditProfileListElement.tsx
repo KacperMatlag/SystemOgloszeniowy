@@ -25,7 +25,7 @@ const EditProfileListElement: React.FC<EditProfileListElementProps> = ({
       <img src={imageLink} alt="zdjecie" />
       <p>{text && text?.length > 30 ? text?.substring(0, 27) + "..." : text}</p>
       <div className="d-flex" style={{ gap: "10px" }}>
-        <Link to={editLink || "/"}>
+        <Link to={editLink || "/Profil/59/edytuj/firma/" + ID}>
           <button className="btn btn-info">Edytuj</button>
         </Link>
         <button

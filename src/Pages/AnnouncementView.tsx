@@ -24,9 +24,7 @@ const AnnouncementView: React.FC = () => {
   const navigate = useNavigate();
   const { _User, isAuthenticated } = useAuth();
   const { id } = useParams();
-  const [announcement, SetAnnouncement] = useState<Annoucement>(
-    {} as Annoucement
-  );
+  const [announcement, SetAnnouncement] = useState<Annoucement | undefined>();
   interface Application {
     ID?: number;
     ProfileID?: number;
@@ -53,14 +51,30 @@ const AnnouncementView: React.FC = () => {
     };
     fetchData();
   }, [id]);
+
   useEffect(() => {
-    if (!announcement.ID || !_User?.Profile.ID) return;
+    const lastVisited = () => {
+      if (!announcement || !announcement.ID) return;
+      if (!localStorage.getItem("Last4")) localStorage.setItem("Last4", "[]");
+      let list = Array.from(
+        JSON.parse(localStorage.getItem("Last4") ?? "[]")
+      ) as Annoucement[];
+      if (list.findIndex((z) => z.ID == announcement.ID) != -1) return;
+      if (list.length > 7) {
+        list = list.slice(0, 7);
+      }
+      localStorage.setItem("Last4", JSON.stringify([announcement, ...list]));
+      console.log(localStorage.getItem("Last4"));
+    };
+    lastVisited();
+  }, [announcement]);
+
+  useEffect(() => {
+    if (!announcement?.ID || !_User?.Profile.ID) return;
     const loadApplication = async () => {
       const applicationCheck = await api.get(
-        "application/" + announcement.ID + "/" + _User?.Profile.ID
+        "application/" + announcement?.ID + "/" + _User?.Profile.ID
       );
-      console.log(applicationCheck.data);
-
       if (applicationCheck) SetApplication(applicationCheck.data);
     };
     loadApplication();
@@ -88,6 +102,10 @@ const AnnouncementView: React.FC = () => {
         ) &&
         isAuthenticated && (
           <div className="floatingApplicationPannel">
+            <h5>
+              Ilosć aplikacji na to stanowisko:{" "}
+              {announcement?.Applications.length}
+            </h5>
             <button
               className="btn btn-primary"
               onClick={async () => {
@@ -95,7 +113,7 @@ const AnnouncementView: React.FC = () => {
                   await api
                     .post("application", {
                       ProfileID: _User?.Profile.ID,
-                      AnnouncementID: announcement.ID,
+                      AnnouncementID: announcement?.ID,
                     })
                     .then((res) => {
                       if (res.status == 201) {
@@ -120,7 +138,7 @@ const AnnouncementView: React.FC = () => {
         )}
       <div className="container-lg AnnouncementVievContainer" ref={container}>
         <p>
-          Dodano: {new Date(announcement.CreatedAt ?? "").toLocaleDateString()}
+          Dodano: {new Date(announcement?.CreatedAt ?? "").toLocaleDateString()}
         </p>
         <header className="d-flex flex-column">
           <div
@@ -130,7 +148,7 @@ const AnnouncementView: React.FC = () => {
             <div className="d-flex align-items-center justify-content-around HeaderInfo">
               <img src={announcement?.Company?.Image} alt="Zdjecie firmy" />
               <div>
-                <h3>{announcement.Title}</h3>
+                <h3>{announcement?.Title}</h3>
                 <h5>{announcement?.JobPosition?.Name}</h5>
               </div>
             </div>
@@ -141,7 +159,10 @@ const AnnouncementView: React.FC = () => {
               <FontAwesomeIcon icon={faWallet} />
               <div className="d-flex flex-column text-center">
                 <b>
-                  {announcement.MinWage + " - " + announcement.MaxWage + " zł"}
+                  {announcement?.MinWage +
+                    " - " +
+                    announcement?.MaxWage +
+                    " zł"}
                 </b>
                 <b>brutto/miesiac</b>
               </div>
@@ -166,7 +187,7 @@ const AnnouncementView: React.FC = () => {
                 </div>
               </div>
               <div className="w-50 d-flex justify-content-left">
-                <span>{`Wazne jeszcze ${announcement.daysUntilExpiration} dni`}</span>
+                <span>{`Wazne jeszcze ${announcement?.daysUntilExpiration} dni`}</span>
               </div>
             </div>
             <div className="d-flex align-items-center justify-content-around InfoElementWrapper text-center">
@@ -211,12 +232,12 @@ const AnnouncementView: React.FC = () => {
             </div>
           </div>
           <hr />
-          <p>{announcement.Description}</p>
+          <p>{announcement?.Description}</p>
         </header>
         <section className="ElementsList">
           <h2>Obowiazki</h2>
           <div className="d-flex flex-column ListElements">
-            {announcement.Duties && announcement?.Duties?.length > 0 ? (
+            {announcement?.Duties && announcement?.Duties?.length > 0 ? (
               announcement?.Duties?.map((e, i) => {
                 return (
                   <div key={i} className="d-flex IconListContainer">
@@ -235,9 +256,9 @@ const AnnouncementView: React.FC = () => {
         <section className="ElementsList">
           <h2>Wymagania</h2>
           <div className="d-flex flex-column ListElements">
-            {announcement.Requirements &&
-            announcement.Requirements.length > 0 ? (
-              announcement.Requirements.map((e, i) => {
+            {announcement?.Requirements &&
+            announcement?.Requirements.length > 0 ? (
+              announcement?.Requirements.map((e, i) => {
                 return (
                   <div key={i} className="d-flex IconListContainer">
                     <div className="IconList">
@@ -255,9 +276,9 @@ const AnnouncementView: React.FC = () => {
         <section className="ElementsList">
           <h2>Oferowane przez pracodawce</h2>
           <div className="d-flex flex-column ListElements">
-            {announcement.WhatTheEmployerOffers &&
-            announcement.WhatTheEmployerOffers.length > 0 ? (
-              announcement.WhatTheEmployerOffers.map((e, i) => {
+            {announcement?.WhatTheEmployerOffers &&
+            announcement?.WhatTheEmployerOffers.length > 0 ? (
+              announcement?.WhatTheEmployerOffers.map((e, i) => {
                 return (
                   <div key={i} className="d-flex IconListContainer">
                     <div className="IconList">

@@ -143,11 +143,11 @@ iframe {
   box-shadow: 8px 8px 24px 0px rgba(66, 68, 90, 1);
   display: flex;
   align-items: center;
-  justify-content: right;
+  justify-content: space-between;
+  padding: 0 20px;
 }
 
 .floatingApplicationPannel button {
-  margin-right: 30px;
   height: 50px;
   width: 250px;
   border-radius: 20px !important;
@@ -156,6 +156,11 @@ iframe {
   justify-content: center;
   gap: 10px;
   font-size: 20px;
+}
+
+.floatingApplicationPannel h5 {
+  padding: 0;
+  margin: 0;
 }
 
 @media only screen and (max-width: 990px) {

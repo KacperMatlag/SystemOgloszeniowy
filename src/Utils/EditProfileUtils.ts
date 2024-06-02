@@ -64,15 +64,15 @@ export const LoadSelects = async (api: ApiManager, profileID?: number) => {
 export const DefaultResponseAction = async (
   action: () => void,
   res: AxiosResponse<any, any>,
-  s200 = "OK",
-  error = "cos poszlo nie tak"
+  successAlert = "OK",
+  errorMsg = "cos poszlo nie tak"
 ) => {
   if (res.status == 200) {
-    alert(s200);
+    alert(successAlert);
     setTimeout(() => {
       action();
     }, 0);
-  } else alert(error);
+  } else alert(errorMsg);
 };
 
 export const LanguageLevels = [

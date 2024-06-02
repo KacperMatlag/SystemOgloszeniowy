@@ -19,6 +19,7 @@ const ProfilePage: React.FC = () => {
       LoadProfile(api, id, SetUserProfile, SetLoading, naviagte);
     };
     LoadData();
+    console.log(userProfile?.Profile.Education);
   }, []);
   if (loading) return <LoadingScreen />;
   return (
@@ -69,9 +70,11 @@ const ProfilePage: React.FC = () => {
                       <b>Data urodzenia</b>
                     </td>
                     <td>
-                      {new Date(
-                        userProfile?.Profile?.DateOfBirth as Date
-                      ).toLocaleDateString() ?? "Nie podano"}
+                      {userProfile?.Profile.DateOfBirth
+                        ? new Date(
+                            userProfile?.Profile?.DateOfBirth as Date
+                          ).toLocaleDateString() ?? "Nie podano"
+                        : "-"}
                     </td>
                   </tr>
                   <tr>
@@ -114,7 +117,7 @@ const ProfilePage: React.FC = () => {
                       />
                     </div>
                     <a href={`${element.Link}`} target="_blank">
-                      {element.Link}
+                      {element.Link.split("/").reverse()[0]}
                     </a>
                   </div>
                 )) || <h5>Brak usług dostępnych</h5>}
@@ -235,7 +238,7 @@ const ProfilePage: React.FC = () => {
                         <th scope="row">{index + 1}</th>
                         <td>{element.SchoolName}</td>
                         <td>{element.City}</td>
-                        <td>{element.SchoolType?.Name ?? "-"}</td>
+                        <td>{element.schoolType?.Name ?? "-"}</td>
                         <td>{element.FieldOfStudy ?? "-"}</td>
                         <td>{formatYear(element)}</td>
                       </tr>

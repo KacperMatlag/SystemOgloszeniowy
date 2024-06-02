@@ -31,6 +31,7 @@ import {
   FormatUserAddress,
   EducationElement,
   educationPost,
+  LanguageColor,
 } from "../Utils/EditProfileUtils";
 import { useApi } from "../ApiMenager/ApiContext";
 import BingMapResponse from "../Models/BingMapsResponse";
@@ -75,7 +76,6 @@ const EditProfile = () => {
   const profileImage = useRef<HTMLImageElement>(null);
 
   const [announcements, SetAnnouncements] = useState<Annoucement[]>([]);
-
   const [address, SetAddress] = useState<Address>({
     BlockNumber: "",
     Town: "",
@@ -90,27 +90,14 @@ const EditProfile = () => {
   useEffect(() => {
     const updateProfile = async () => {
       if (Number(id) == _User?.Profile?.ID) {
-        await api.get("user/" + _User.ProfileID).then(async (res) => {
+        await api.get("user/profile/" + _User.ProfileID).then(async (res) => {
           SetProfile(res.data.Profile);
         });
-        await api
-          .get("announcement/userCompanies/" + profile?.ID)
-          .then((res) => {
-            SetAnnouncements(res.data);
-          });
-
-        const CategoryID = (
-          await api.get("cwp/category/" + profile?.CurrentJobPositionID)
-        ).data;
-        if (!selectedPosition) {
-          SetSelectedCategory(CategoryID?.WorkCategoryID ?? 0);
-          SetSelectedPosition(profile?.CurrentJobPositionID ?? 0);
-        }
         SelectedJobDescription(profile?.CurrentJobPositionDescription ?? "");
       }
     };
     updateProfile();
-  }, [_User, selectedCategory, selectedPosition]);
+  }, [_User]);
   useEffect(() => {
     const loadProfile = async () => {
       const selectData = await LoadSelects(api, profile?.ID);
@@ -119,6 +106,19 @@ const EditProfile = () => {
         SetLanguages(selectData.languages);
         SetServices(selectData.services);
         SetSchoolTypes(selectData.schooltype);
+        await api
+          .get("announcement/userCompanies/" + profile?.ID)
+          .then((res) => {
+            SetAnnouncements(res.data);
+          });
+
+        if (profile?.CurrentJobPositionDescription) {
+          const CategoryID = (
+            await api.get("cwp/category/" + profile?.CurrentJobPositionID)
+          ).data;
+          SetSelectedCategory(CategoryID.WorkCategory.ID);
+        }
+
         if (profile?.Address?.Address) {
           const add = FormatUserAddress(profile.Address?.Address);
           SetAddress({
@@ -343,7 +343,7 @@ const EditProfile = () => {
               className="ProfileInfo d-flex flex-column MainContent"
               onSubmit={async (e) => {
                 const data = {
-                  ID: _User?.ID,
+                  ID: _User?.Profile.ID,
                   JobPosition: selectedPosition,
                   JobDescription: jobDescription,
                 };
@@ -396,7 +396,7 @@ const EditProfile = () => {
               </div>
               <div className="companies d-flex flex-column MainContent">
                 <div className="companieslist" style={{ gap: "10px" }}>
-                  {profile.Companies.map((z) => {
+                  {profile.Companies?.map((z) => {
                     return (
                       <EditProfileListElement
                         text={z.Company.Name}
@@ -576,7 +576,7 @@ const EditProfile = () => {
                       );
                     })
                   ) : profile.Address?.Address ? (
-                    <h5>{profile.Address.Address}</h5>
+                    <h5 className="text-center">{profile.Address.Address}</h5>
                   ) : (
                     <h4 className="text-center">Nie znaleziono</h4>
                   )}
@@ -613,6 +613,13 @@ const EditProfile = () => {
                     );
                   } else res = await api.post("languages", data);
                   DefaultResponseAction(_ReloadUser, res);
+                  // if (res.status == 200 || res.status == 201) {
+                  //   defa
+                  //   SetProfile({
+                  //     ...profile,
+                  //     Languages: [...profile.Languages, res.data],
+                  //   });
+                  // }
                 }}
               >
                 <div
@@ -652,12 +659,32 @@ const EditProfile = () => {
                 <ul>
                   {profile?.Languages?.map((element) => {
                     return (
-                      <LanguageListElement
-                        api={api}
-                        element={element}
-                        _ReloadUser={_ReloadUser}
-                        key={element.ID}
-                      />
+                      <li key={element.ID}>
+                        <p className="m-0 text-middle">
+                          {element.Language.Name}
+                        </p>
+                        <div
+                          className="LanguageLevel text-middle"
+                          style={{
+                            backgroundColor: LanguageColor(element.Level),
+                          }}
+                        >
+                          {element.Level}
+                        </div>
+                        <button
+                          className="btn btn-danger"
+                          id={element.ID.toString()}
+                          onClick={async () => {
+                            await api
+                              .delete("languages/userlanguage", element.ID)
+                              .then((res) => {
+                                DefaultResponseAction(_ReloadUser, res);
+                              });
+                          }}
+                        >
+                          Delete
+                        </button>
+                      </li>
                     );
                   })}
                 </ul>

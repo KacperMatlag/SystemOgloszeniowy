@@ -29,5 +29,12 @@ interface Annoucement {
   WorkType?: { ID: number; Name: string };
   Duties?: AnnouncementOptions[];
   CompanyID?: number;
+  Applications: {
+    ID: number;
+    AnnouncementID: number;
+    ProfileID: number;
+    createdAt: Date;
+    updatedAt: Date;
+  }[];
 }
 export default Annoucement;

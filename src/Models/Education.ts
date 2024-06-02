@@ -4,7 +4,7 @@ export default interface Education {
   ID?: number;
   SchoolName?: string;
   City?: string;
-  SchoolType?: School;
+  schoolType?: School;
   FieldOfStudy?: string;
   StartDate?: number;
   EndDate?: number;

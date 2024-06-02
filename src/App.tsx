@@ -31,6 +31,10 @@ function App() {
             <Route path="/Profil/:id/Edytuj" element={<EditProfile />} />
             <Route path="/Profil/:id/Edytuj/firma" element={<AddCompany />} />
             <Route
+              path="/Profil/:id/Edytuj/firma/:ID"
+              element={<AddCompany />}
+            />
+            <Route
               path="/Ogloszenia/:id/Edytuj"
               element={<AnnouncementCreate />}
             />
