@@ -3,8 +3,11 @@ import LoadingScreen from "./LoadingScreen";
 import "../CSS/PagesCSS/AnnoucementCreate.css";
 import type {
   Annoucement,
+  Company,
   JobLevel,
+  Profile,
   TypeOfContract,
+  User,
   WorkCategory,
   WorkingTime,
   WorkType,
@@ -25,10 +28,12 @@ const AnnoucementCreate: React.FC = () => {
   const navigate = useNavigate();
   const { id } = useParams();
   const [edit, SetEdit] = useState<boolean>(false);
-  const { _User, isAuthenticated } = useAuth();
+  const { _User, isAuthenticated, _ReloadUser } = useAuth();
   const api = useApi();
   const [loading, SetLoading] = useState(true);
-  const [announcement, SetAnnouncement] = useState<Annoucement | undefined>();
+  const [announcement, SetAnnouncement] = useState<Annoucement>(
+    {} as Annoucement
+  );
 
   const [requirement, SetRequirement] = useState<string>("");
   const [requirements, SetRequirements] = useState<string[]>([]);
@@ -45,8 +50,10 @@ const AnnoucementCreate: React.FC = () => {
   const [typesOfContract, SetTypeOfContract] = useState<TypeOfContract[]>([]);
   const [workingTimes, SetWorkingTimes] = useState<WorkingTime[]>([]);
   const [workTypes, SetWorkTypes] = useState<WorkType[]>([]);
+  const [profile, SetProfile] = useState<User>();
   useEffect(() => {
     const fetchData = async () => {
+      //_ReloadUser();
       if (!isAuthenticated) return;
       if (id && isAuthenticated) {
         SetEdit(true);
@@ -59,12 +66,21 @@ const AnnoucementCreate: React.FC = () => {
           );
         });
       }
+      // if (_User?.Profile.Companies.length == 0) {
+      //   alert("Musisz miec przynajmniej 1 firme");
+      //   navigate(-1);
+      // }
       const selectValues = await selectsDataValues(api);
       SetCategories(selectValues.Categories);
       SetTypeOfContract(selectValues.TypesOfContracts);
       SetWorkingTimes(selectValues.WorkingTime);
       SetWorkTypes(selectValues.WorkType);
       SetJobLevels(selectValues.JobLevels);
+
+      await api.get("user/" + _User?.ID).then((res) => {
+        SetProfile(res.data);
+      });
+
       SetLoading(false);
     };
     fetchData();
@@ -73,14 +89,15 @@ const AnnoucementCreate: React.FC = () => {
   useEffect(() => {
     const validateAnnouncement = async () => {
       if (!announcement) return;
-      await api
-        .get("announcement/usercompanies/" + _User?.ProfileID)
-        .then((res) => {
-          const data = res.data as Annoucement[];
-          if (!data.find((z) => z.ID == id)) {
-            navigate("/");
-          }
-        });
+      if (edit)
+        await api
+          .get("announcement/usercompanies/" + _User?.ProfileID)
+          .then((res) => {
+            const data = res.data as Annoucement[];
+            if (!data.find((z) => z.ID == id)) {
+              navigate("/");
+            }
+          });
     };
     validateAnnouncement();
   }, [announcement?.ID]);
@@ -105,6 +122,7 @@ const AnnoucementCreate: React.FC = () => {
           };
           if (!edit) await handlePost(api, navigate, data);
           else handlePatch(api, navigate, data);
+          console.log(_User?.Profile.Companies);
         }}
       >
         <span>Tytuł</span>
@@ -192,7 +210,7 @@ const AnnoucementCreate: React.FC = () => {
             })
           }
         >
-          <option value="0" defaultValue={0} disabled>
+          <option value="0" selected disabled>
             Wybierz poziom pracy
           </option>
           {jobLevels.map((key: JobLevel, value) => {
@@ -217,7 +235,7 @@ const AnnoucementCreate: React.FC = () => {
             })
           }
         >
-          <option value="0" disabled>
+          <option value="0" selected disabled>
             Wybierz rodzaj umowy
           </option>
           {typesOfContract.map((key: TypeOfContract, value) => {
@@ -242,7 +260,7 @@ const AnnoucementCreate: React.FC = () => {
             })
           }
         >
-          <option value="0" disabled>
+          <option value="0" selected disabled>
             Wybierz czas pracy
           </option>
           {workingTimes.map((key: WorkingTime, value) => {
@@ -267,7 +285,7 @@ const AnnoucementCreate: React.FC = () => {
             })
           }
         >
-          <option value="0" disabled>
+          <option value="0" selected disabled>
             Wybierz typ pracy
           </option>
           {workTypes.map((key: WorkType, value) => {
@@ -342,16 +360,13 @@ const AnnoucementCreate: React.FC = () => {
             });
           }}
         >
-          <option value={0} disabled>
+          <option value={0} selected disabled>
             Wybierz firme
           </option>
-          {_User?.Profile.Companies?.map((element) => {
+          {profile?.Profile.Companies?.map((element) => {
             return (
-              <option
-                value={element.Company.ID}
-                key={element.Company.Address.Address}
-              >
-                {element.Company.Name}
+              <option value={element?.Company.ID}>
+                {element?.Company.Name}
               </option>
             );
           })}
@@ -363,7 +378,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="Responsibilities"
-              defaultValue={duty}
+              value={duty}
               onChange={(e) => {
                 SetDuty(e.target.value);
               }}
@@ -407,7 +422,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="Requirements"
-              defaultValue={requirement}
+              value={requirement}
               onChange={(e) => {
                 SetRequirement(e.target.value);
               }}
@@ -458,7 +473,7 @@ const AnnoucementCreate: React.FC = () => {
               type="text"
               className="form-control"
               name="employeroffer"
-              defaultValue={emploeyOffer}
+              value={emploeyOffer}
               onChange={(e) => {
                 SetEmploeyOffer(e.target.value);
               }}

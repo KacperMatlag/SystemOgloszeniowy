@@ -19,3 +19,4 @@ export type { default as AnnouncementFilterResponse } from "./AnnouncementFilter
 export type { default as School } from "./School";
 export type { default as Education } from "./Education";
 export type { default as Course } from "./Course";
+export type { default as Employment } from "./Employment";

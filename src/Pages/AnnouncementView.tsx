@@ -22,7 +22,7 @@ import { useAuth } from "../AuthContext/authContect";
 
 const AnnouncementView: React.FC = () => {
   const navigate = useNavigate();
-  const { _User, isAuthenticated } = useAuth();
+  const { _User, isAuthenticated, _ReloadUser } = useAuth();
   const { id } = useParams();
   const [announcement, SetAnnouncement] = useState<Annoucement | undefined>();
   interface Application {
@@ -54,6 +54,7 @@ const AnnouncementView: React.FC = () => {
 
   useEffect(() => {
     const lastVisited = () => {
+      _ReloadUser();
       if (!announcement || !announcement.ID) return;
       if (!localStorage.getItem("Last4")) localStorage.setItem("Last4", "[]");
       let list = Array.from(

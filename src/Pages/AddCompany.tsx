@@ -11,7 +11,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { useAuth } from "../AuthContext/authContect";
 import { Company } from "../Models";
 const AddCompany: React.FC = () => {
-  const { _User } = useAuth();
+  const { _User, _ReloadUser } = useAuth();
   const { ID } = useParams();
   interface CompanyInfo {
     ID: number | undefined;
@@ -133,7 +133,10 @@ const AddCompany: React.FC = () => {
                         ? "Pomyslnie uaktualniono firme"
                         : "Pomyslnie utworzono firme"
                     );
-                    navigate(-1);
+                    _ReloadUser();
+                    setTimeout(() => {
+                      navigate(-1);
+                    }, 500);
                   } else {
                     console.error("Error:", response.statusText);
                     alert("Wystąpił błąd");

@@ -55,37 +55,52 @@ export const handlePatch = async (
   navigate: NavigateFunction,
   announcement: any
 ) => {
-  await AnnoucementValidationShema.validate(announcement, {
-    abortEarly: false,
-  }).catch((err) => console.log(err));
-
-  await api.patch("announcement/", announcement).then((res) => {
-    if (res.status == 200) {
-      alert("Pomyslnie zaaktualizowano");
+  try {
+    await AnnoucementValidationShema.validate(announcement, {
+      abortEarly: false,
+    });
+    const res = await api.patch("announcement/", announcement);
+    if (res.status === 200) {
+      alert("Pomyślnie zaktualizowano");
       navigate("/");
     } else {
-      alert("Wystapil blad");
+      alert("Wystąpił błąd");
     }
-  });
+  } catch (err: any) {
+    if (err.name === "ValidationError") {
+      console.log("Validation errors:", err.errors);
+      alert(`Validation errors: ${err.errors.join(", ")}`);
+    } else {
+      console.error("An error occurred:", err);
+      alert("Wystąpił błąd");
+    }
+  }
 };
-
 export const handlePost = async (
   api: ApiManager,
   navigate: NavigateFunction,
   announcement: any
 ) => {
-  await AnnoucementValidationShema.validate(announcement, {
-    abortEarly: false,
-  }).catch((err) => console.log(err));
-
-  await api.post("announcement/", announcement).then((res) => {
-    if (res.status == 201) {
+  try {
+    await AnnoucementValidationShema.validate(announcement, {
+      abortEarly: false,
+    });
+    const res = await api.post("announcement/", announcement);
+    if (res.status === 201) {
       alert("Pomyślnie dodano");
       navigate("/");
     } else {
-      alert("Wystapil blad");
+      alert("Wystąpił błąd podczas dodawania ogłoszenia");
     }
-  });
+  } catch (error: any) {
+    if (error instanceof Yup.ValidationError) {
+      const errorMessages = error.inner.map((err) => err.message).join("\n");
+      alert("Wystąpiły błędy walidacji:\n" + errorMessages);
+    } else {
+      console.log(error);
+      alert("Wystąpił błąd: " + error.message);
+    }
+  }
 };
 
 export const getJobPositionsWithCertainCategory = async (
@@ -101,22 +116,23 @@ export const getJobPositionsWithCertainCategory = async (
 export const addToListIfValid = async (
   getList: string[],
   getElement: string,
-  SetElement: React.Dispatch<React.SetStateAction<string>>,
-  SetList: React.Dispatch<React.SetStateAction<string[]>>
+  setElement: React.Dispatch<React.SetStateAction<string>>,
+  setList: React.Dispatch<React.SetStateAction<string[]>>
 ) => {
-  await listElementValidator
-    .validate(getElement, {
-      abortEarly: false,
-    })
-    .catch((error) => {
+  try {
+    await listElementValidator.validate(getElement, { abortEarly: false });
+    if (!getList.find((z) => z.toLowerCase() === getElement.toLowerCase())) {
+      setList([...getList, getElement]);
+      setElement("");
+    } else {
+      alert("Taki element już istnieje");
+    }
+  } catch (error) {
+    if (error instanceof Yup.ValidationError) {
       console.log(error);
       alert(error.errors[0]);
-    });
-
-  if (!getList.find((z) => z.toLowerCase() === getElement.toLowerCase())) {
-    SetList([...getList, getElement]);
-    SetElement("");
-  } else {
-    alert("Taki element juz istnieje");
+    } else {
+      console.error("Unexpected error:", error);
+    }
   }
 };

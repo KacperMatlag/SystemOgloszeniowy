@@ -249,6 +249,44 @@ const ProfilePage: React.FC = () => {
             </div>
           </div>
         </div>
+        <div className="row gy-2" style={{ height: "400px", margin: "20px 0" }}>
+          <div className="col-12">
+            <div className="Style">
+              <h4 className="text-center">Historia zatrudnienia</h4>
+              <hr />
+              <table className="table">
+                <thead>
+                  <tr>
+                    <th scope="col">#</th>
+                    <th scope="col">Firma</th>
+                    <th scope="col">Pozycja</th>
+                    <th scope="col">Poczatek</th>
+                    <th scope="col">Koniec</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userProfile?.Profile.Employment.map((element, index) => {
+                    return (
+                      <tr>
+                        <th scope="row">{index + 1}</th>
+                        <td>{element.Company}</td>
+                        <td>{element.Position}</td>
+                        <td>
+                          {new Date(element.StartDate ?? "").toDateString() ??
+                            "-"}
+                        </td>
+                        <td>
+                          {new Date(element.EndDate ?? "").toDateString() ??
+                            "-"}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );

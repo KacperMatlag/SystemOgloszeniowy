@@ -5,6 +5,8 @@ import {
   Address,
   Education,
   Course,
+  Employment,
+  Annoucement,
 } from ".";
 import Usercompanies from "./UserCompanies";
 
@@ -29,5 +31,7 @@ interface Profile {
   Companies: Usercompanies[] | [];
   Education: Education[] | [];
   Course: Course[] | [];
+  Employment: Employment[];
+  Applications: { ID: number; createdAt: Date; Announcement: Annoucement }[];
 }
 export default Profile;

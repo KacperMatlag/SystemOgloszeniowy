@@ -10,6 +10,7 @@ import {
   Service,
   WorkCategory,
   Course,
+  Employment,
 } from "../Models";
 import { LoadingScreen } from ".";
 import {
@@ -42,7 +43,6 @@ import { faTrash } from "@fortawesome/free-solid-svg-icons";
 
 const EditProfile = () => {
   const api = useApi();
-  const navigate = useNavigate();
   //Page Var's
   const { _User, _ReloadUser } = useAuth();
   const [profile, SetProfile] = useState<Profile | undefined>(undefined);
@@ -85,6 +85,7 @@ const EditProfile = () => {
   const [Education, SetEducation] = useState<EducationElement>();
   const [SchoolTypes, SetSchoolTypes] = useState<School[]>([]);
   const [Course, SetCourse] = useState<Course>();
+  const [Employment, SetEmployment] = useState<Employment>({} as Employment);
   const { id } = useParams();
 
   useEffect(() => {
@@ -112,11 +113,15 @@ const EditProfile = () => {
             SetAnnouncements(res.data);
           });
 
-        if (profile?.CurrentJobPositionDescription) {
+        if (
+          profile?.CurrentJobPositionDescription ||
+          profile?.CurrentJobPositionID
+        ) {
           const CategoryID = (
             await api.get("cwp/category/" + profile?.CurrentJobPositionID)
           ).data;
           SetSelectedCategory(CategoryID.WorkCategory.ID);
+          SelectedJobDescription(profile.CurrentJobPositionDescription ?? "");
         }
 
         if (profile?.Address?.Address) {
@@ -448,6 +453,7 @@ const EditProfile = () => {
                           api={api}
                           ID={Number(z.ID)}
                           deleteEndpoint="announcement"
+                          editLink={`/Ogloszenia/${z.ID}/Edytuj`}
                           onDelete={() => {
                             SetAnnouncements(
                               announcements.filter((y) => y.ID != z.ID)
@@ -757,7 +763,7 @@ const EditProfile = () => {
           <div className="col-8">
             <div className="ProfileStyle d-flex flex-column h-100">
               <div className="Header">
-                <h4 className="text-center">Twoje jezyki</h4>
+                <h4 className="text-center">Twoje serwisy</h4>
                 <hr />
               </div>
               <div className="ProfileInfo ServiceList">
@@ -917,7 +923,7 @@ const EditProfile = () => {
           <div className="col-4">
             <div className="ProfileStyle d-flex flex-column h-100">
               <div className="Header">
-                <h4 className="text-center">Edukacja</h4>
+                <h4 className="text-center">Kursy</h4>
                 <hr />
               </div>
               <form
@@ -998,7 +1004,7 @@ const EditProfile = () => {
           <div className="col-8">
             <div className="ProfileStyle d-flex flex-column h-100">
               <div className="Header">
-                <h4 className="text-center">Twoja edukacja</h4>
+                <h4 className="text-center">Twoja kursy</h4>
                 <hr />
               </div>
               <div className="ProfileInfo EducationList">
@@ -1048,7 +1054,200 @@ const EditProfile = () => {
             </div>
           </div>
         </div>
-        {JSON.stringify(Course)}
+        <div className="row p-0">
+          <div className="col-4">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Historia zatrudnienia</h4>
+                <hr />
+              </div>
+              <form
+                className=" ProfileInfo d-flex flex-column MainContent"
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  await api
+                    .post("employment", {
+                      ...Employment,
+                      ProfileID: profile.ID,
+                    })
+                    .then((res) => {
+                      if (res.status == 201) {
+                        _ReloadUser();
+                        alert("Pomyslnie dodano");
+                      } else {
+                        alert("Wystapil blad");
+                      }
+                    });
+                }}
+              >
+                <div
+                  className="d-flex flex-column justify-content-center"
+                  style={{ gap: "30px" }}
+                >
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Nazwa Firmy"
+                    value={Employment?.Company}
+                    onChange={(e) => {
+                      SetEmployment({ ...Employment, Company: e.target.value });
+                    }}
+                  />
+                  <input
+                    type="text"
+                    className="form-control"
+                    placeholder="Organizator"
+                    value={Employment?.Position}
+                    onChange={(e) => {
+                      SetEmployment({
+                        ...Employment,
+                        Position: e.target.value,
+                      });
+                    }}
+                  />
+                  <div className="d-flex flex-column" style={{ gap: "5px" }}>
+                    <b>Zakres czasowy [rok]</b>
+                    <div className="d-flex" style={{ gap: "5px" }}>
+                      <input
+                        type="date"
+                        placeholder="Poczatek"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetEmployment({
+                            ...Employment,
+                            StartDate: new Date(e.target.value),
+                          })
+                        }
+                      />
+                      <input
+                        type="date"
+                        placeholder="Koniec"
+                        className="form-control"
+                        onChange={(e) =>
+                          SetEmployment({
+                            ...Employment,
+                            EndDate: new Date(e.target.value),
+                          })
+                        }
+                      />
+                    </div>
+                  </div>
+                </div>
+                <div className="Footer">
+                  <button type="submit" className="btn btn-primary w-100">
+                    Zatwierdz
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+          <div className="col-8">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Twoja historia zatrudnienia</h4>
+                <hr />
+              </div>
+              <div className="ProfileInfo EducationList">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Nazwa</th>
+                      <th>Organizator</th>
+                      <th>Data rozpoczęcia</th>
+                      <th>Data zakończenia</th>
+                      <th>usun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profile.Employment?.map((y) => {
+                      return (
+                        <tr>
+                          <td>{y.Company}</td>
+                          <td>{y.Position}</td>
+                          <td>{new Date(y.StartDate ?? "").toDateString()}</td>
+                          <td>{new Date(y.EndDate ?? "").toDateString()}</td>
+                          <td>
+                            <button
+                              className="btn btn-danger"
+                              onClick={async () => {
+                                await api
+                                  .delete("employment", y.ID)
+                                  .then(() => {
+                                    SetProfile({
+                                      ...profile,
+                                      Employment: profile.Employment.filter(
+                                        (o) => o.ID != y.ID
+                                      ),
+                                    });
+                                  });
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div className="row p-0">
+          <div className="col-12">
+            <div className="ProfileStyle d-flex flex-column h-100">
+              <div className="Header">
+                <h4 className="text-center">Twoja aplikacje</h4>
+                <hr />
+              </div>
+              <div className="ProfileInfo EducationList">
+                <table className="table">
+                  <thead>
+                    <tr>
+                      <th>Firma</th>
+                      <th>Ogloszenie</th>
+                      <th>Data aplikowania</th>
+                      <th>usun</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {profile.Applications?.map((y) => {
+                      return (
+                        <tr>
+                          <td>{y.Announcement.Company?.Name}</td>
+                          <td>
+                            <a href={"/ogloszenia/" + y.Announcement.ID}>
+                              {y.Announcement.Title}
+                            </a>
+                          </td>
+                          <td>{new Date(y.createdAt ?? "").toDateString()}</td>
+                          <td>
+                            <button
+                              className="btn btn-danger"
+                              onClick={async () => {
+                                await api
+                                  .delete("application", y.ID)
+                                  .then((res) => {
+                                    if (res.status == 200) {
+                                      alert("Pomyslnie usunieto");
+                                      _ReloadUser();
+                                    }
+                                  });
+                              }}
+                            >
+                              <FontAwesomeIcon icon={faTrash} />
+                            </button>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+        </div>
       </div>
     </div>
   );
